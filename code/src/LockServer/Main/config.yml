@@ -1,7 +1,7 @@
 TcpAddr: 0.0.0.0:12348
 HttpAddr: 0.0.0.0:10000
 
-LogFile: ./log/LockServer
+LogFile: ./log/LockServer.log
 LogLevel: DEBUG
 # SysLogAddr: 192.168.2.110:514
 

@@ -2,13 +2,16 @@ package main
 
 import (
 	"LockServer/Config"
+	"LockServer/TcpServer"
+	"gotcp"
 	"vislog"
 
 	log "github.com/Sirupsen/logrus"
 )
 
 type lockServer struct {
-	config *Config.Option //配置文件
+	config    *Config.Option //配置文件
+	deviceSrv *gotcp.Server
 }
 
 func newLockServer() *lockServer {
@@ -44,6 +47,7 @@ func (opt *lockServer) InitService() error {
 	opt.config = Config.GetConfig()
 
 	opt.initLog(opt.config.LogFile, opt.config.LogLevel, opt.config.SysLogAddr)
+	log.Info("InitService success:", opt.config)
 	return nil
 }
 
@@ -51,11 +55,16 @@ func (opt *lockServer) InitService() error {
 StartService ...: 开始服务
 */
 func (opt *lockServer) StartService() {
+	config := opt.config
+
+	opt.deviceSrv = gotcp.NewServer(&TcpServer.DeviceServer{})
+	go opt.deviceSrv.StartServer(config.TCPAddr, "DeviceServer")
+	log.Info("StartService:", config.TCPAddr)
 }
 
 /*
 StopService ...
 */
-func (t *lockServer) StopService() {
-
+func (opt *lockServer) StopService() {
+	opt.deviceSrv.StopServer()
 }

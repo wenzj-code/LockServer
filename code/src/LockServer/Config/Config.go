@@ -13,13 +13,14 @@ var configOpt Option
 
 //Option all the config
 type Option struct {
-	Addr string `yaml:"Addr"`
+	TCPAddr  string `yaml:"TcpAddr"`
+	HTTPAddr string `yaml:"HttpAddr"`
 
 	LogFile    string `yaml:"LogFile"`
 	LogLevel   string `yaml:"LogLevel"`
 	SysLogAddr string `yaml:"SysLogAddr"`
 
-	
+	DatabaseAddr string `yaml:"DatabaseAddr"`
 }
 
 func InitConfig() {
