@@ -16,11 +16,11 @@ type Option struct {
 	LogLevel   string `yaml:"LogLevel"`
 	SysLogAddr string `yaml:"SysLogAddr"`
 
-	MQUrl        string `yaml:"MQUrl"`
-	ExchangeName string `yaml:"ExchangeName"`
-	ChanReadName string `yaml:"ChanReadName"`
-	ChanReadName string `yaml:"ChanReadName"`
-	RoutKeyName  string `yaml:"RoutKeyName"`
+	MQUrl         string `yaml:"MQUrl"`
+	ExchangeName  string `yaml:"ExchangeName"`
+	ChanReadName  string `yaml:"ChanReadName"`
+	ChanWriteName string `yaml:"ChanWriteName"`
+	RoutKeyName   string `yaml:"RoutKeyName"`
 }
 
 func loadConfig() (p Option) {

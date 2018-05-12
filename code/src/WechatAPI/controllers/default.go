@@ -4,6 +4,7 @@ import (
 	"WechatAPI/DBOpt"
 	"WechatAPI/common"
 	"WechatAPI/config"
+	"encoding/json"
 
 	"crypto/sha256"
 	"fmt"
@@ -136,13 +137,20 @@ func (c *MainController) DoorCtrlOpen() {
 		return
 	}
 
-	onlineStatus, err := DBOpt.GetDataOpt().CheckGatewayOnline(DeviceID)
+	gatewayID, onlineStatus, err := DBOpt.GetDataOpt().CheckGatewayOnline(DeviceID)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
 		c.ServeJSON()
 		return
 	}
+
+	dataCtrlMap := make(map[string]interface{})
+	dataCtrlMap["GatewayID"] = gatewayID
+	dataCtrlMap["DeviceID"] = DeviceID
+	dataCtrlBuffer, _ := json.Marshal(&dataCtrlMap)
+
+	common.RMQOpt.PublishTopic(dataCtrlBuffer)
 
 	data := make(map[string]interface{})
 	if onlineStatus {

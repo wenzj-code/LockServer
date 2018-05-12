@@ -7,7 +7,7 @@ import (
 type CallBack struct {
 }
 
-func (cb *CallBack) HandleMsg(conn *gotcp.Conn, msg []byte) error {
+func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 
 	return nil
 }

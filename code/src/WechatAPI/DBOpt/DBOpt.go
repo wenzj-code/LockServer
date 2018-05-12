@@ -71,34 +71,34 @@ func (opt *DBOpt) GetRoomInfo(deviceID string) (roomnu, userAccount string, err 
 }
 
 //CheckGatewayOnline 检查设备的网关是否在线
-func (opt *DBOpt) CheckGatewayOnline(deviceID string) (status bool, err error) {
+func (opt *DBOpt) CheckGatewayOnline(deviceID string) (gatewayID string, status bool, err error) {
 	conn, err := opt.connectDB()
 	if err != nil {
 		log.Error("err:", err)
-		return status, err
+		return gatewayID, status, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := "select A.status from t_gateway_info A " +
+	sqlString := "select A.device_id,A.status from t_gateway_info A " +
 		"inner join t_device_info B on A.id=B.gw_id " +
 		"where B.device_id=?"
 	rows, err := conn.Query(sqlString, deviceID)
 	if err != nil {
 		log.Error("err:", err)
-		return status, err
+		return gatewayID, status, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var doorStatus int
-		err = rows.Scan(&doorStatus)
+		err = rows.Scan(&gatewayID, &doorStatus)
 		if err != nil {
 			log.Error("err:", err)
-			return status, err
+			return gatewayID, status, err
 		}
 		if doorStatus == 1 {
 			status = true
 		}
 	}
-	return status, err
+	return gatewayID, status, err
 }
 
 //GetDevicePushInfo 获取推送的配置
@@ -128,4 +128,3 @@ func (opt *DBOpt) GetDevicePushInfo(deviceID string) (config common.PushConfig) 
 	}
 	return config
 }
-
