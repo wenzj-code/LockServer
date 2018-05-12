@@ -1,0 +1,12 @@
+# 开放给客户端的ip地址
+Addr: 0.0.0.0:12345
+
+LogFile: ./log/DevStatusServer.log
+LogLevel: DEBUG
+
+# 消息队列url
+MQUrl: amqp://rabbit:rabbitsuanier@localhost:5672/viiiFit
+
+ExchangeName: shenzhen
+ChanReadName: 
+RoutKeyName:

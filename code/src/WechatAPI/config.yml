@@ -1,0 +1,19 @@
+LogFile: ./log/modelServer.log
+LogLevel: DEBUG
+
+Database: root:suanier@/vis_db_sa
+
+RedisAddr: 127.0.0.1:9000
+RedisPwd: admin123
+RedisTimeOut: 60
+
+AmqpURI: amqp://rabbit:rabbitsuanier@192.168.1.6:5672/VFLite-Status 
+#目前不用
+ExchangeName: 
+#读队列
+ChanReadQName: 
+#写队列
+ChanWriteQName: task-VFLite-status 
+#路由
+RoutKey:
+####################

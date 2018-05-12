@@ -1,8 +1,0 @@
-TcpAddr: 0.0.0.0:12348
-HttpAddr: 0.0.0.0:10000
-
-LogFile: ./log/LockServer.log
-LogLevel: DEBUG
-# SysLogAddr: 192.168.2.110:514
-
-DatabaseAddr: visfit:Vis20170707@tcp(jddb-online-29f7e2f448044c12.jcloud.com:3306)/visfit
