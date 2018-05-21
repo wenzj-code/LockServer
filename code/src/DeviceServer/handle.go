@@ -56,7 +56,7 @@ func (cb *CallBack) reportInfoDeal(conn *gotcp.Conn, cmd string, data map[string
 
 func (cb *CallBack) push2RMQ(data map[string]interface{}) {
 	dataBuf, _ := json.Marshal(data)
-	err := MsgRMQ.PublishTopic(dataBuf)
+	err := ReportMsgRMQ.PublishTopic(dataBuf)
 	if err != nil {
 		log.Error("err:", err)
 	}

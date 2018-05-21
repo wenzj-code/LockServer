@@ -56,7 +56,7 @@ func main() {
 
 	config.InitConfig()
 	initLog()
-	err := handle.Init()
+	err := handle.InitServer()
 	if err != nil {
 		log.Error("err:", err)
 		return

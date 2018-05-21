@@ -1,12 +1,18 @@
-# 开放给客户端的ip地址
-Addr: 0.0.0.0:12345
-
-LogFile: ./log/DevStatusServer.log
+LogFile: ./log/modelServer.log
 LogLevel: DEBUG
 
-# 消息队列url
-MQUrl: amqp://rabbit:rabbitsuanier@localhost:5672/viiiFit
+Database: root:suanier@/vis_db_sa
 
-ExchangeName: shenzhen
-ChanReadName: 
-RoutKeyName:
+RedisAddr: 127.0.0.1:9000
+RedisPwd: admin123
+RedisTimeOut: 60
+
+RecvAmqpURI: amqp://rabbit:rabbitsuanier@192.168.1.6:5672/server-ctrl 
+RecvExchangeName: 
+RecvChanReadQName: door-ctrl-recv
+RecvRoutKey:  door-ctrl-routkey
+####################
+
+ReportAmqpURI: amqp://rabbit:rabbitsuanier@192.168.1.6:5672/server-ctrl  
+ReportRoutKey:  result-report 
+####################

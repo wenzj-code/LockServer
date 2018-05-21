@@ -7,13 +7,13 @@ RedisAddr: 127.0.0.1:9000
 RedisPwd: admin123
 RedisTimeOut: 60
 
+#接收DeviceServer上报的状态
 RecvAmqpURI: amqp://rabbit:rabbitsuanier@192.168.1.6:5672/server-ctrl 
-RecvExchangeName: 
+RecvExchangeName: door-ctrl-exechange
 RecvChanReadQName: door-ctrl-recv
-RecvChanWriteQName: 
 RecvRoutKey:  door-ctrl-routkey
 ####################
 
-AmqpURI: amqp://rabbit:rabbitsuanier@192.168.1.6:5672/server-ctrl  
-ChanWriteQName: result-report 
+PushblishAmqpURI: amqp://rabbit:rabbitsuanier@192.168.1.6:5672/server-ctrl  
+PushblisRoutKey:  door-ctrl-routkey 
 ####################

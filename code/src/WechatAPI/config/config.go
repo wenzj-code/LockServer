@@ -30,11 +30,13 @@ type Option struct {
 	RedisPwd     string `yaml:"RedisPwd"`
 	RedisTimeOut int    `yaml:"RedisTimeOut"`
 
-	AmqpURI        string `yaml:"AmqpURI"`
-	ExchangeName   string `yaml:"ExchangeName"`
-	ChanReadQName  string `yaml:"ChanReadQName"`
-	ChanWriteQName string `yaml:"ChanWriteQName"`
-	RoutKey        string `yaml:"RoutKey"`
+	RecvAmqpURI       string `yaml:"AmqpURI"`
+	RecvExchangeName  string `yaml:"RecvExchangeName"`
+	RecvChanReadQName string `yaml:"RecvChanReadQName"`
+	RecvRoutKey       string `yaml:"RecvRoutKey"`
+
+	PushblishAmqpURI string `yaml:"PushblishAmqpURI"`
+	PushblisRoutKey  string `yaml:"PushblisRoutKey"`
 }
 
 func loadConfig() (p Option) {

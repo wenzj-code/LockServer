@@ -16,7 +16,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func Init() error {
+//InitServer 初始化服务
+func InitServer() error {
 	config := config.GetConfig()
 	err := common.RedisOpt.InitSingle(config.RedisAddr, config.RedisPwd, 0)
 	if err != nil {
@@ -24,7 +25,14 @@ func Init() error {
 		return err
 	}
 
-	err = common.RMQOpt.InitMQTopic(config.AmqpURI, config.ExchangeName, config.ChanReadQName, config.ChanWriteQName, config.RoutKey, HandlerMsg)
+	err = common.DoorCtrlRMQ.InitMQTopic(config.PushblishAmqpURI, "", "", "", config.PushblisRoutKey, nil)
+	if err != nil {
+		log.Error("err:", err)
+		return err
+	}
+
+	err = common.DoorRecvRMQ.InitMQTopic(config.RecvAmqpURI, config.RecvExchangeName, config.RecvChanReadQName, "",
+		config.RecvRoutKey, HandlerMsg)
 	if err != nil {
 		log.Error("err:", err)
 		return err
@@ -32,6 +40,7 @@ func Init() error {
 	return err
 }
 
+//HandlerMsg 状态服务接收回调函数
 func HandlerMsg(MsgBody []byte, messageID string, ack func(string, string, error) error) (err error) {
 	defer func() {
 		if err := recover(); err != nil {

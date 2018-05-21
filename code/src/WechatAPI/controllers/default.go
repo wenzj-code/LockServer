@@ -150,7 +150,7 @@ func (c *MainController) DoorCtrlOpen() {
 	dataCtrlMap["DeviceID"] = DeviceID
 	dataCtrlBuffer, _ := json.Marshal(&dataCtrlMap)
 
-	common.RMQOpt.PublishTopic(dataCtrlBuffer)
+	common.DoorCtrlRMQ.PublishTopic(dataCtrlBuffer)
 
 	data := make(map[string]interface{})
 	if onlineStatus {

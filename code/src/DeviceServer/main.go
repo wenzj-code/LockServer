@@ -15,7 +15,8 @@ import (
 	"github.com/Sirupsen/logrus/hooks/syslog"
 )
 
-var MsgRMQ RMQ.RMQOpt
+var RecvMsgRMQ RMQ.RMQOpt
+var ReportMsgRMQ RMQ.RMQOpt
 
 var gConfigOpt Option
 var Srv *gotcp.Server
@@ -75,8 +76,10 @@ func start() {
 	initLog(gConfigOpt.LogFile, gConfigOpt.LogLevel, gConfigOpt.SysLogAddr)
 
 	log.Info("Qrcode server is starting.....version:", version)
-	MsgRMQ.InitMQTopic(gConfigOpt.MQUrl, gConfigOpt.ExchangeName, gConfigOpt.ChanReadName,
-		gConfigOpt.ChanWriteName, gConfigOpt.RoutKeyName, HandlerMsg)
+	RecvMsgRMQ.InitMQTopic(gConfigOpt.RecvAmqpURI, gConfigOpt.RecvExchangeName, gConfigOpt.RecvChanReadQName,
+		"", gConfigOpt.RecvRoutKey, HandlerMsg)
+
+	ReportMsgRMQ.InitMQTopic(gConfigOpt.ReportAmqpURI, "", "", "", gConfigOpt.ReportRoutKey, nil)
 
 	Srv = gotcp.NewServer(&CallBack{})
 	go Srv.StartServer(gConfigOpt.Addr, "ControlServer")

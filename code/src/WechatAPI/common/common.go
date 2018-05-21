@@ -10,12 +10,16 @@ var errCodeMap map[int]string
 //RedisOpt 操作
 var RedisOpt *Redis.RedisOpt
 
-//RMQOpt 消息列表操作
-var RMQOpt *RMQ.RMQOpt
+//DoorCtrlRMQ 消息列表操作
+var DoorCtrlRMQ *RMQ.RMQOpt
+
+//DoorRecvRMQ 接收DeviceServer的状态
+var DoorRecvRMQ *RMQ.RMQOpt
 
 func init() {
 	RedisOpt = &Redis.RedisOpt{}
-	RMQOpt = &RMQ.RMQOpt{}
+	DoorCtrlRMQ = &RMQ.RMQOpt{}
+	DoorRecvRMQ = &RMQ.RMQOpt{}
 
 	errCodeMap = make(map[int]string)
 	errCodeMap[0] = "成功"
