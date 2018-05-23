@@ -25,7 +25,7 @@ func InitServer() error {
 		return err
 	}
 
-	err = common.DoorCtrlRMQ.InitMQTopic(config.PushblishAmqpURI, "", "", "", config.PushblisRoutKey, nil)
+	err = common.DoorCtrlRMQ.InitMQTopic(config.PushblishAmqpURI, config.PushExchangeName, "", "", config.PushblisRoutKey, nil)
 	if err != nil {
 		log.Error("err:", err)
 		return err

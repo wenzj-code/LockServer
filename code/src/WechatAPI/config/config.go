@@ -30,12 +30,13 @@ type Option struct {
 	RedisPwd     string `yaml:"RedisPwd"`
 	RedisTimeOut int    `yaml:"RedisTimeOut"`
 
-	RecvAmqpURI       string `yaml:"AmqpURI"`
+	RecvAmqpURI       string `yaml:"RecvAmqpURI"`
 	RecvExchangeName  string `yaml:"RecvExchangeName"`
 	RecvChanReadQName string `yaml:"RecvChanReadQName"`
 	RecvRoutKey       string `yaml:"RecvRoutKey"`
 
 	PushblishAmqpURI string `yaml:"PushblishAmqpURI"`
+	PushExchangeName string `yaml:"PushExchangeName"`
 	PushblisRoutKey  string `yaml:"PushblisRoutKey"`
 }
 

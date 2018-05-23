@@ -108,6 +108,23 @@ func (c *MainController) GetRoomInfo() {
 
 //DoorCtrlOpen 开门
 func (c *MainController) DoorCtrlOpen() {
+	DeviceID1 := c.GetString("deviceid")
+	log.Debug("DoorCtrlOpen:", DeviceID1)
+
+	dataCtrlMap1 := make(map[string]interface{})
+	dataCtrlMap1["GatewayID"] = "gatewayID"
+	dataCtrlMap1["DeviceID"] = DeviceID1
+	dataCtrlBuffer1, _ := json.Marshal(&dataCtrlMap1)
+
+	common.DoorCtrlRMQ.PublishTopic(dataCtrlBuffer1)
+	data1 := make(map[string]interface{})
+	data1["code"] = common.GetErrCodeJSON(0)
+
+	c.Data["json"] = data1
+	c.ServeJSON()
+	return
+	////////////////////////
+
 	DeviceID := c.GetString("deviceid")
 	Token := c.GetString("token")
 	log.Info("DeviceID=", DeviceID, ",Token=", Token)

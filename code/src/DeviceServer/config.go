@@ -18,7 +18,7 @@ type Option struct {
 
 	RecvAmqpURI       string `yaml:"RecvAmqpURI"`
 	RecvExchangeName  string `yaml:"RecvExchangeName"`
-	RecvChanReadQName string `yaml:"ChanReadName"`
+	RecvChanReadQName string `yaml:"RecvChanReadQName"`
 	RecvRoutKey       string `yaml:"RecvRoutKey"`
 
 	ReportAmqpURI string `yaml:"ReportAmqpURI"`

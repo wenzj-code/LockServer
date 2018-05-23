@@ -368,7 +368,7 @@ func (opt *RMQOpt) InitMQTopic(AmqpURT, ExchnageName, ReadQName, WriteQName, Rou
 	opt.mAmqpURI = AmqpURT
 	opt.mReadCallBack = call
 	opt.mRoutingKey = RoutKey
-	opt.rmqType = 0
+	opt.rmqType = 1
 	if opt.mReadCallBack != nil {
 		opt.deliveryMap = make(map[string]*amqp.Delivery)
 		go opt.consumer()

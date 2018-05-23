@@ -1,18 +1,13 @@
 LogFile: ./log/modelServer.log
 LogLevel: DEBUG
 
-Database: root:suanier@/vis_db_sa
 
-RedisAddr: 127.0.0.1:9000
-RedisPwd: admin123
-RedisTimeOut: 60
-
-RecvAmqpURI: amqp://rabbit:rabbitsuanier@192.168.1.6:5672/server-ctrl 
-RecvExchangeName: 
+RecvAmqpURI: amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl 
+RecvExchangeName:  door-ctrl-exchange
 RecvChanReadQName: door-ctrl-recv
 RecvRoutKey:  door-ctrl-routkey
 ####################
 
-ReportAmqpURI: amqp://rabbit:rabbitsuanier@192.168.1.6:5672/server-ctrl  
+ReportAmqpURI: amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl  
 ReportRoutKey:  result-report 
 ####################
