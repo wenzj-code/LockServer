@@ -46,5 +46,6 @@ func handlerMsgDeal(MsgBody []byte) error {
 	DeviceID := val.(string)
 
 	log.Debug("DeviceID:", DeviceID, ",GatewayID:", GatewayID)
+	ReportMsgRMQ.PublishTopic([]byte(DeviceID))
 	return nil
 }

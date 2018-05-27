@@ -21,8 +21,9 @@ type Option struct {
 	RecvChanReadQName string `yaml:"RecvChanReadQName"`
 	RecvRoutKey       string `yaml:"RecvRoutKey"`
 
-	ReportAmqpURI string `yaml:"ReportAmqpURI"`
-	ReportRoutKey string `yaml:"ReportRoutKey"`
+	ReportAmqpURI      string `yaml:"ReportAmqpURI"`
+	ReportExchnageName string `yaml:"ReportExchnageName"`
+	ReportRoutKey      string `yaml:"ReportRoutKey"`
 }
 
 func loadConfig() (p Option) {

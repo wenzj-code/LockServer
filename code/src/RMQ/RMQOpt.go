@@ -31,7 +31,6 @@ type RMQOpt struct {
 
 	mDeliveryLock sync.Mutex
 	deliveryMap   map[string]*amqp.Delivery
-	rmqType       int
 
 	//消息ID处理次数，超过多少次失败后直接失败, msgID,count
 	rmqMsgIDList map[string]int
@@ -50,38 +49,18 @@ func (opt *RMQOpt) failOnError(err error, msg string) error {
 函数说明：初始化
 call: 业务层的回调函数
 */
-func (opt *RMQOpt) InitMQ(AmqpURT, ExchnageName, ReadQName, WriteQName string, call Callback) (err error) {
+func (opt *RMQOpt) InitMQTopic(AmqpURT, ExchnageName, ReadQName, WriteQName, RoutKey string, call Callback) (err error) {
 	opt.mExchangeName = ExchnageName
 	opt.mChanReadQName = ReadQName
 	opt.mChanWriteQName = WriteQName
 	opt.mAmqpURI = AmqpURT
 	opt.mReadCallBack = call
-	opt.rmqType = 0
+	opt.mRoutingKey = RoutKey
 	if opt.mReadCallBack != nil {
 		opt.deliveryMap = make(map[string]*amqp.Delivery)
-		opt.rmqMsgIDList = make(map[string]int)
 		go opt.consumer()
 	}
-	return nil
-}
-
-/*
-函数说明：初始化，使用获取微信发起的合成消息
-call: 业务层的回调函数
-*/
-func (opt *RMQOpt) InitMQUserInfo(AmqpURT, ExchnageName, ReadQName, WriteQName, RoutingKey string, call Callback) (err error) {
-	opt.mExchangeName = ExchnageName
-	opt.mChanReadQName = ReadQName
-	opt.mChanWriteQName = WriteQName
-	opt.mRoutingKey = RoutingKey
-	opt.mAmqpURI = AmqpURT
-	opt.mReadCallBack = call
-	opt.rmqType = 1
-	if opt.mReadCallBack != nil {
-		opt.deliveryMap = make(map[string]*amqp.Delivery)
-		opt.rmqMsgIDList = make(map[string]int)
-		go opt.consumer()
-	}
+	log.Debug("InitURL:", opt.mAmqpURI)
 	return nil
 }
 
@@ -176,15 +155,8 @@ func (opt *RMQOpt) reconnectConsumer() error {
 	return nil
 }
 
-func (opt *RMQOpt) getRMQMsgChan() <-chan amqp.Delivery {
-	if opt.rmqType == 1 {
-		return opt.getDirectExchangeRMQMsgChan()
-	}
-	return opt.getNormalRMQMsgChan()
-}
-
 //该方法用于与WechatServer通信，需要用到路由
-func (opt *RMQOpt) getDirectExchangeRMQMsgChan() <-chan amqp.Delivery {
+func (opt *RMQOpt) getNormalRMQMsgChan() <-chan amqp.Delivery {
 	//创建一个Channel
 	var err error
 	opt.mChannel, err = opt.mReadConn.Channel()
@@ -195,7 +167,7 @@ func (opt *RMQOpt) getDirectExchangeRMQMsgChan() <-chan amqp.Delivery {
 	//创建一个exchange
 	err = opt.mChannel.ExchangeDeclare(
 		opt.mExchangeName, // name
-		"direct",          // type
+		"topic",           // type
 		true,              // durable
 		false,             // auto-deleted
 		false,             // internal
@@ -248,49 +220,6 @@ func (opt *RMQOpt) getDirectExchangeRMQMsgChan() <-chan amqp.Delivery {
 	return msgs
 }
 
-//该方法用于与CenterServer通信，只用到队列，不需要用到exchange
-func (opt *RMQOpt) getNormalRMQMsgChan() <-chan amqp.Delivery {
-	//创建一个Channel
-	var err error
-	opt.mChannel, err = opt.mReadConn.Channel()
-	opt.failOnError(err, "Failed to open a channel")
-
-	log.Info("got queue, declaring ", opt.mChanReadQName)
-
-	//创建一个queue
-	q, err := opt.mChannel.QueueDeclare(
-		opt.mChanReadQName, // name
-		true,               // durable 持久化设置
-		false,              // delete when unused
-		false,              // exclusive
-		false,              // no-wait
-		nil,                // arguments
-	)
-	opt.failOnError(err, "Failed to declare a queue")
-
-	//每次只取一条消息
-	//这里为为了公平分发消息
-	err = opt.mChannel.Qos(
-		10,    // prefetch count
-		0,     // prefetch size
-		false, // global
-	)
-	opt.failOnError(err, "Failed to set QoS")
-
-	log.Info("Queue bound to Exchange, starting Consume")
-	//订阅消息
-	msgs, err := opt.mChannel.Consume(
-		q.Name, // queue
-		"",     // consumer
-		false,  // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil)
-	opt.failOnError(err, "Failed to register a consumer")
-	return msgs
-}
-
 /*
 函数说明：消费者读取消息队列的消息，最终调用初始化函数注册的回调函数
 */
@@ -306,7 +235,7 @@ func (opt *RMQOpt) consumer() {
 		opt.mReadConn.Close()
 	}()
 
-	msgs := opt.getRMQMsgChan()
+	msgs := opt.getNormalRMQMsgChan()
 	for { //receive loop
 		select { //check connection
 		case err := <-opt.mNotify:
@@ -320,7 +249,7 @@ func (opt *RMQOpt) consumer() {
 				break
 			}
 			log.Info("Reconnect amqp consumer success")
-			msgs = opt.getRMQMsgChan()
+			msgs = opt.getNormalRMQMsgChan()
 		case d := <-msgs:
 			opt.mDeliveryLock.Lock()
 			//log.Debug("info:", d.DeliveryTag, ",len:", len(opt.deliveryMap))
@@ -355,26 +284,6 @@ func (opt *RMQOpt) ack(messageID, mesageMD5 string, err error) error {
 	}
 	delete(opt.deliveryMap, messageID)
 	return err
-}
-
-/*
-函数说明：初始化,VFLite版本的支持Topic
-call: 业务层的回调函数
-*/
-func (opt *RMQOpt) InitMQTopic(AmqpURT, ExchnageName, ReadQName, WriteQName, RoutKey string, call Callback) (err error) {
-	opt.mExchangeName = ExchnageName
-	opt.mChanReadQName = ReadQName
-	opt.mChanWriteQName = WriteQName
-	opt.mAmqpURI = AmqpURT
-	opt.mReadCallBack = call
-	opt.mRoutingKey = RoutKey
-	opt.rmqType = 1
-	if opt.mReadCallBack != nil {
-		opt.deliveryMap = make(map[string]*amqp.Delivery)
-		go opt.consumer()
-	}
-	log.Debug("InitURL:", opt.mAmqpURI)
-	return nil
 }
 
 //PublishTopic topic模式的

@@ -3,11 +3,12 @@ LogLevel: DEBUG
 
 
 RecvAmqpURI: amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl 
+RecvRoutKey:  door-ctrl-routkey
 RecvExchangeName:  door-ctrl-exchange
 RecvChanReadQName: door-ctrl-recv
-RecvRoutKey:  door-ctrl-routkey
 ####################
 
 ReportAmqpURI: amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl  
 ReportRoutKey:  result-report 
+ReportExchnageName:  result-report-exechange
 ####################

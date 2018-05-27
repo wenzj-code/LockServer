@@ -53,6 +53,7 @@ func HandlerMsg(MsgBody []byte, messageID string, ack func(string, string, error
 }
 
 func handlerMsgDeal(MsgBody []byte) (err error) {
+	fmt.Println("msg:", string(MsgBody))
 	/*
 	   {
 	   	"DeviceID": "",

@@ -9,12 +9,12 @@ RedisTimeOut: 60
 
 #接收DeviceServer上报的状态
 RecvAmqpURI: amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl 
-RecvExchangeName: result-report-exechange
-RecvChanReadQName: result-report-recv-queue
 RecvRoutKey:  result-report
+RecvExchangeName: result-report-exechange
+RecvChanReadQName: result-report-recv-queue1
 ####################
 
 PushblishAmqpURI: amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl  
-PushExchangeName: door-ctrl-exchange
 PushblisRoutKey:  door-ctrl-routkey 
+PushExchangeName: door-ctrl-exchange
 ####################

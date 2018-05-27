@@ -79,7 +79,7 @@ func start() {
 	RecvMsgRMQ.InitMQTopic(gConfigOpt.RecvAmqpURI, gConfigOpt.RecvExchangeName, gConfigOpt.RecvChanReadQName,
 		"", gConfigOpt.RecvRoutKey, HandlerMsg)
 
-	ReportMsgRMQ.InitMQTopic(gConfigOpt.ReportAmqpURI, "", "", "", gConfigOpt.ReportRoutKey, nil)
+	ReportMsgRMQ.InitMQTopic(gConfigOpt.ReportAmqpURI, gConfigOpt.ReportExchnageName, "", "", gConfigOpt.ReportRoutKey, nil)
 
 	Srv = gotcp.NewServer(&CallBack{})
 	go Srv.StartServer(gConfigOpt.Addr, "ControlServer")

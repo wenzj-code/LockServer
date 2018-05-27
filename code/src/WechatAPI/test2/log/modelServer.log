@@ -1,0 +1,7 @@
+{"time":"2018-05-26 21:13:08","level":"debug","scanID":"none","msg":"InitURL:amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl","filename":"RMQOpt.go:63"}
+{"time":"2018-05-26 21:13:08","level":"debug","scanID":"none","msg":"InitURL:amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl","filename":"RMQOpt.go:63"}
+{"time":"2018-05-26 21:13:08","level":"info","scanID":"none","msg":"model server starts success....","filename":"exported.go:167"}
+{"time":"2018-05-26 21:13:08","level":"info","scanID":"none","msg":"dialing amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl","filename":"RMQOpt.go:228"}
+{"time":"2018-05-26 21:13:08","level":"info","scanID":"none","msg":"connect amqp consumer success","filename":"RMQOpt.go:143"}
+{"time":"2018-05-26 21:13:08","level":"info","scanID":"none","msg":"got queue, declaring result-report-recv-queue1","filename":"RMQOpt.go:165"}
+{"time":"2018-05-26 21:13:08","level":"info","scanID":"none","msg":"Queue bound to Exchange, starting Consume","filename":"RMQOpt.go:209"}
