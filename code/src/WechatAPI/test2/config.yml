@@ -1,11 +1,12 @@
 LogFile: ./log/modelServer.log
 LogLevel: DEBUG
 
-Database: root:admin123@/outside
+Database: root:12345678@tcp(127.0.0.1:3306)/outside 
 
 RedisAddr: 127.0.0.1:6379
 RedisPwd: 
-RedisTimeOut: 60
+RedisTokenNum: 1
+RedisTokenTimeOut: 60
 
 #接收DeviceServer上报的状态
 RecvAmqpURI: amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl 

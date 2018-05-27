@@ -1,28 +1,24 @@
 package common
 
 import (
-	"RMQ"
 	Redis "RedisOpt"
 )
 
 var errCodeMap map[int]string
 
-//RedisOpt 操作
-var RedisOpt *Redis.RedisOpt
+//RedisTokenOpt 操作
+var RedisTokenOpt *Redis.RedisOpt
 
-//DoorCtrlRMQ 消息列表操作
-var DoorCtrlRMQ *RMQ.RMQOpt
-
-//DoorRecvRMQ 接收DeviceServer的状态
-var DoorRecvRMQ *RMQ.RMQOpt
+//RedisServerListOpt 服务列表
+var RedisServerListOpt *Redis.RedisOpt
 
 func init() {
-	RedisOpt = &Redis.RedisOpt{}
-	DoorCtrlRMQ = &RMQ.RMQOpt{}
-	DoorRecvRMQ = &RMQ.RMQOpt{}
+	RedisTokenOpt = &Redis.RedisOpt{}
+	RedisServerListOpt = &Redis.RedisOpt{}
 
 	errCodeMap = make(map[int]string)
 	errCodeMap[0] = "成功"
+	errCodeMap[10000] = "其他"
 	errCodeMap[10001] = "secret 不正确"
 	errCodeMap[10002] = "接口凭证过期"
 	errCodeMap[10003] = "参数出错"
@@ -30,7 +26,8 @@ func init() {
 	errCodeMap[10005] = "设备ID不存在"
 	errCodeMap[10006] = "数据库服务异常"
 	errCodeMap[10007] = "Redis服务异常"
-	errCodeMap[10008] = "Redis服务异常"
+	errCodeMap[10008] = "网关不在线"
+	errCodeMap[10009] = "设备不在线"
 }
 
 //GetErrCodeJSON 获取错误信息

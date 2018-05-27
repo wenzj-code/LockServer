@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"gotcp"
+	"io/ioutil"
+	"net/http"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -14,6 +17,7 @@ func (cb *CallBack) Close() {
 }
 
 func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
+	log.Debug("msg:", string(MsgBody))
 	data := make(map[string]interface{})
 	err := json.Unmarshal(MsgBody, &data)
 	if err != nil {
@@ -26,6 +30,7 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 		return nil
 	}
 
+	log.Info("data:", data)
 	cmd := val.(string)
 	switch cmd {
 	case "HB":
@@ -43,23 +48,86 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 
 func (cb *CallBack) heartbeatDeal(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	cb.ackMsg(conn, cmd, data)
+	val, isExist := data["DeviceID"]
+	if !isExist {
+		log.Error("DeviceID 字段不存在:", data)
+		return
+	}
+	DeviceID := val.(string)
+	ConnInfo[DeviceID] = conn
+
+	// IPaddr, err := GetLocalIP()
+	// if err != nil {
+	// 	log.Error("err:", err)
+	// 	return
+	// }
+	err := RedisServerOpt.Set(DeviceID, "127.0.0.1", GetConfig().RedisTimeOut)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
 }
 
 func (cb *CallBack) doorCtrlDeal(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
-	cb.push2RMQ(data)
+	cb.ackMsg(conn, cmd, data)
+
+	DeviceID, isExist := data["DeviceID"]
+	if !isExist {
+		log.Error("DeviceID 字段不存在:", data)
+		return
+	}
+	Barry, isExist := data["Barry"]
+	if !isExist {
+		log.Error("Barry 字段不存在:", data)
+		return
+	}
+	Status, isExist := data["Status"]
+	if !isExist {
+		log.Error("Status 字段不存在:", data)
+		return
+	}
+
+	cb.pushMsg(DeviceID.(string), Barry.(float64), int(Status.(float64)))
 }
 
 func (cb *CallBack) reportInfoDeal(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	cb.ackMsg(conn, cmd, data)
-	cb.push2RMQ(data)
+
+	DeviceID, isExist := data["DeviceID"]
+	if !isExist {
+		log.Error("DeviceID 字段不存在:", data)
+		return
+	}
+	Barry, isExist := data["Barry"]
+	if !isExist {
+		log.Error("Barry 字段不存在:", data)
+		return
+	}
+	Status, isExist := data["Status"]
+	if !isExist {
+		log.Error("Status 字段不存在:", data)
+		return
+	}
+
+	cb.pushMsg(DeviceID.(string), Barry.(float64), int(Status.(float64)))
 }
 
-func (cb *CallBack) push2RMQ(data map[string]interface{}) {
-	dataBuf, _ := json.Marshal(data)
-	err := ReportMsgRMQ.PublishTopic(dataBuf)
+func (cb *CallBack) pushMsg(deviceID string, barray float64, status int) {
+	config := GetConfig()
+	httpServerIP := fmt.Sprintf("http://%s/report/dev-status?deviceid=%s&barry=%f&status=%d", config.ReportHTTPAddr, deviceID, barray, status)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
 	if err != nil {
 		log.Error("err:", err)
+		return
 	}
+	defer resp.Body.Close()
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	log.Info("上报成功:", deviceID)
 }
 
 func (cb *CallBack) ackMsg(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
@@ -68,10 +136,9 @@ func (cb *CallBack) ackMsg(conn *gotcp.Conn, cmd string, data map[string]interfa
 	data["code"] = 0
 
 	dataBuf, _ := json.Marshal(data)
-	cb.baseSendMsg(conn, dataBuf)
+	BaseSendMsg(conn, dataBuf)
 }
 
-func (cb *CallBack) baseSendMsg(conn *gotcp.Conn, msg []byte) {
-
+func BaseSendMsg(conn *gotcp.Conn, msg []byte) {
 	conn.SendChan <- msg
 }

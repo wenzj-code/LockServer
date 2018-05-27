@@ -2,7 +2,9 @@ package DBOpt
 
 import (
 	"WechatAPI/common"
+	"fmt"
 	"sync"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -51,12 +53,13 @@ func (opt *DBOpt) GetRoomInfo(deviceID string) (roomnu, userAccount string, err 
 		return roomnu, userAccount, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := "select roomnu,user_account from t_device_bind_info A " +
-		"inner join t_device_info B on A.device_id=B.device_id " +
-		"inner join t_user_info C on B.user_id=C.id " +
-		"where A.device_id='';"
-	rows, err := conn.Query(sqlString, deviceID)
+	sqlString := fmt.Sprintf("select roomnu,user_account from t_device_bind_info A "+
+		"inner join t_device_info B on A.device_id=B.device_id "+
+		"inner join t_user_info C on B.user_id=C.id "+
+		"where A.device_id='%s';", deviceID)
+	rows, err := conn.Query(sqlString)
 	if err != nil {
+		log.Error("err:", err)
 		return roomnu, userAccount, err
 	}
 	defer rows.Close()
@@ -71,34 +74,37 @@ func (opt *DBOpt) GetRoomInfo(deviceID string) (roomnu, userAccount string, err 
 }
 
 //CheckGatewayOnline 检查设备的网关是否在线
-func (opt *DBOpt) CheckGatewayOnline(deviceID string) (gatewayID string, status bool, err error) {
+func (opt *DBOpt) CheckGatewayOnline(deviceID string) (gatewayID string, gwStatus, devStatus bool, err error) {
 	conn, err := opt.connectDB()
 	if err != nil {
 		log.Error("err:", err)
-		return gatewayID, status, err
+		return gatewayID, gwStatus, devStatus, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := "select A.device_id,A.status from t_gateway_info A " +
+	sqlString := "select A.device_id,A.status,B.status from t_gateway_info A " +
 		"inner join t_device_info B on A.id=B.gw_id " +
 		"where B.device_id=?"
 	rows, err := conn.Query(sqlString, deviceID)
 	if err != nil {
 		log.Error("err:", err)
-		return gatewayID, status, err
+		return gatewayID, gwStatus, devStatus, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var doorStatus int
-		err = rows.Scan(&gatewayID, &doorStatus)
+		var gwOnline, devOnline int
+		err = rows.Scan(&gatewayID, &gwOnline, &devOnline)
 		if err != nil {
 			log.Error("err:", err)
-			return gatewayID, status, err
+			return gatewayID, gwStatus, devStatus, err
 		}
-		if doorStatus == 1 {
-			status = true
+		if gwOnline == 1 {
+			gwStatus = true
+		}
+		if devOnline == 1 {
+			devStatus = true
 		}
 	}
-	return gatewayID, status, err
+	return gatewayID, gwStatus, devStatus, err
 }
 
 //GetDevicePushInfo 获取推送的配置
@@ -127,4 +133,28 @@ func (opt *DBOpt) GetDevicePushInfo(deviceID string) (config common.PushConfig) 
 		}
 	}
 	return config
+}
+
+//WechatOpenMethod 微信开门方式
+func (opt *DBOpt) WechatOpenMethod(deviceID string) error {
+	return opt.addDoorOpenHistory(1, deviceID)
+}
+
+//CardMethod 滴卡开门方式
+func (opt *DBOpt) CardMethod(deviceID string) error {
+	return opt.addDoorOpenHistory(2, deviceID)
+}
+
+//KeyMethod 钥匙开门方式
+func (opt *DBOpt) KeyMethod(deviceID string) error {
+	return opt.addDoorOpenHistory(3, deviceID)
+}
+
+func (opt *DBOpt) addDoorOpenHistory(openMethod int, deviceID string) error {
+	sqlString := "insert into t_device_open_info(device_id,method_id,status,open_time) values(?,?,1,?)"
+	err := opt.exec(nil, sqlString, deviceID, openMethod, time.Now().Unix())
+	if err != nil {
+		log.Error("err:", err)
+	}
+	return err
 }

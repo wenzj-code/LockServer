@@ -1,14 +1,18 @@
 LogFile: ./log/modelServer.log
 LogLevel: DEBUG
 
+#监听IP地址
+Addr: 127.0.0.1:9090
 
-RecvAmqpURI: amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl 
-RecvRoutKey:  door-ctrl-routkey
-RecvExchangeName:  door-ctrl-exchange
-RecvChanReadQName: door-ctrl-recv
-####################
+#上报状态的HTTP地址
+ReportHTTPAddr: 127.0.0.1:8080
+#服务端HTTP地址
+HTTPServerAddr: 127.0.0.1:8999
 
-ReportAmqpURI: amqp://rabbit:rabbitsuanier@127.0.0.1:5672/server-ctrl  
-ReportRoutKey:  result-report 
-ReportExchnageName:  result-report-exechange
-####################
+##########################
+RedisAddr: 127.0.0.1:6379
+RedisPwd: 
+RedisTimeOut: 6000 
+#设备的所在连接的服务地址列表 
+RedisServerNum: 8 
+#####################

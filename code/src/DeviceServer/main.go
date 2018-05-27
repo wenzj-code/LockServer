@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 
-	RMQ "RMQ"
 	"gotcp"
 	"syscall"
 	"vislog"
@@ -15,19 +14,10 @@ import (
 	"github.com/Sirupsen/logrus/hooks/syslog"
 )
 
-var RecvMsgRMQ RMQ.RMQOpt
-var ReportMsgRMQ RMQ.RMQOpt
-
-var gConfigOpt Option
 var Srv *gotcp.Server
+
+//gatewayID,conn
 var ConnInfo map[string]*gotcp.Conn = make(map[string]*gotcp.Conn)
-
-//key:deviceID, val:bool(是否收到回应)
-var QrcodeACKRecv map[string]bool
-
-func init() {
-	QrcodeACKRecv = make(map[string]bool)
-}
 
 var (
 	version         = "1.1.3.1"
@@ -63,26 +53,31 @@ func main() {
 			log.Error("main:", err)
 		}
 	}()
+
 	start()
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 	<-signalChan
 	stop()
-	log.Info("Qrcode server quit")
+	log.Info("DeviceServer server quit")
 }
 
 func start() {
-	gConfigOpt = loadConfig()
-	initLog(gConfigOpt.LogFile, gConfigOpt.LogLevel, gConfigOpt.SysLogAddr)
+	InitConfig()
+	config := GetConfig()
+	initLog(config.LogFile, config.LogLevel, config.SysLogAddr)
+	err := InitCommon()
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
 
-	log.Info("Qrcode server is starting.....version:", version)
-	RecvMsgRMQ.InitMQTopic(gConfigOpt.RecvAmqpURI, gConfigOpt.RecvExchangeName, gConfigOpt.RecvChanReadQName,
-		"", gConfigOpt.RecvRoutKey, HandlerMsg)
-
-	ReportMsgRMQ.InitMQTopic(gConfigOpt.ReportAmqpURI, gConfigOpt.ReportExchnageName, "", "", gConfigOpt.ReportRoutKey, nil)
-
+	log.Info("DeviceServer server is starting.....version:", version, ",port:", config.Addr)
 	Srv = gotcp.NewServer(&CallBack{})
-	go Srv.StartServer(gConfigOpt.Addr, "ControlServer")
+	go Srv.StartServer(config.Addr, "ControlServer")
+
+	go httpInit(config.HTTPServerAddr)
+
 }
 
 func stop() {

@@ -4,10 +4,20 @@ import (
 	"flag"
 	"io/ioutil"
 	"os"
+	"sync"
 
 	log "github.com/Sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
 )
+
+var configOpt Option
+var onceDataOpt sync.Once
+
+func InitConfig() {
+	onceDataOpt.Do(func() {
+		configOpt = loadConfig()
+	})
+}
 
 type Option struct {
 	Addr string `yaml:"Addr"`
@@ -16,19 +26,18 @@ type Option struct {
 	LogLevel   string `yaml:"LogLevel"`
 	SysLogAddr string `yaml:"SysLogAddr"`
 
-	RecvAmqpURI       string `yaml:"RecvAmqpURI"`
-	RecvExchangeName  string `yaml:"RecvExchangeName"`
-	RecvChanReadQName string `yaml:"RecvChanReadQName"`
-	RecvRoutKey       string `yaml:"RecvRoutKey"`
+	ReportHTTPAddr string `yaml:"ReportHTTPAddr"`
+	HTTPServerAddr string `yaml:"HTTPServerAddr"`
 
-	ReportAmqpURI      string `yaml:"ReportAmqpURI"`
-	ReportExchnageName string `yaml:"ReportExchnageName"`
-	ReportRoutKey      string `yaml:"ReportRoutKey"`
+	RedisAddr      string `yaml:"RedisAddr"`
+	RedisPwd       string `yaml:"RedisPwd"`
+	RedisTimeOut   int    `yaml:"RedisTimeOut"`
+	RedisServerNum int    `yaml:"RedisServerNum"`
 }
 
 func loadConfig() (p Option) {
 	var confName string
-	flag.StringVar(&confName, "f", "config.yml", "config file of monitor")
+	flag.StringVar(&confName, "f", "config.yml", "config file")
 	flag.Parse()
 	f, err := os.Open(confName)
 	data, err := ioutil.ReadAll(f)
@@ -40,4 +49,9 @@ func loadConfig() (p Option) {
 		log.Fatal("unmarshal yaml config err: " + err.Error())
 	}
 	return p
+}
+
+//GetConfig get global config
+func GetConfig() *Option {
+	return &configOpt
 }

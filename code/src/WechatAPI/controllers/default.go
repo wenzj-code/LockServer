@@ -4,7 +4,8 @@ import (
 	"WechatAPI/DBOpt"
 	"WechatAPI/common"
 	"WechatAPI/config"
-	"encoding/json"
+	"io/ioutil"
+	"net/http"
 
 	"crypto/sha256"
 	"fmt"
@@ -49,11 +50,11 @@ func (c *MainController) GetToken() {
 	io.WriteString(hs, secret+time.Now().String())
 	token := fmt.Sprintf("%x", string(hs.Sum(nil)))
 
-	common.RedisOpt.Set(token, 1, config.GetConfig().RedisTimeOut)
+	common.RedisTokenOpt.Set(token, 1, config.GetConfig().RedisTokenTimeOut)
 
 	data["code"] = 0
 	data["token"] = token
-	data["expired_in"] = config.GetConfig().RedisTimeOut
+	data["expired_in"] = config.GetConfig().RedisTokenTimeOut
 	c.Data["json"] = data
 	c.ServeJSON()
 }
@@ -69,7 +70,8 @@ func (c *MainController) GetRoomInfo() {
 		return
 	}
 
-	TokenVal, status, err := common.RedisOpt.Get(Token)
+	log.Debug("token:", Token)
+	_, status, err := common.RedisTokenOpt.Get(Token)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10007)
@@ -77,12 +79,6 @@ func (c *MainController) GetRoomInfo() {
 		return
 	}
 	if !status {
-		log.Info("Token数据不存在")
-		c.Data["json"] = common.GetErrCodeJSON(10001)
-		c.ServeJSON()
-		return
-	}
-	if string(TokenVal) != Token {
 		log.Info("Token数据不存在")
 		c.Data["json"] = common.GetErrCodeJSON(10001)
 		c.ServeJSON()
@@ -98,43 +94,30 @@ func (c *MainController) GetRoomInfo() {
 	}
 
 	data := make(map[string]interface{})
-	data["roomnu"] = roomnu
-	data["userid"] = userAccount
-	data["code"] = 0
-	c.Data["json"] = data
+	if len(roomnu) != 0 {
+		data["roomnu"] = roomnu
+		data["userid"] = userAccount
+		data["code"] = 0
+		c.Data["json"] = data
+	} else {
+		c.Data["json"] = common.GetErrCodeJSON(10005)
+	}
 	c.ServeJSON()
 	return
 }
 
 //DoorCtrlOpen 开门
 func (c *MainController) DoorCtrlOpen() {
-	DeviceID1 := c.GetString("deviceid")
-	log.Debug("DoorCtrlOpen:", DeviceID1)
-
-	dataCtrlMap1 := make(map[string]interface{})
-	dataCtrlMap1["GatewayID"] = "gatewayID"
-	dataCtrlMap1["DeviceID"] = DeviceID1
-	dataCtrlBuffer1, _ := json.Marshal(&dataCtrlMap1)
-
-	common.DoorCtrlRMQ.PublishTopic(dataCtrlBuffer1)
-	data1 := make(map[string]interface{})
-	data1["code"] = common.GetErrCodeJSON(0)
-
-	c.Data["json"] = data1
-	c.ServeJSON()
-	return
-	////////////////////////
-
 	DeviceID := c.GetString("deviceid")
 	Token := c.GetString("token")
-	log.Info("DeviceID=", DeviceID, ",Token=", Token)
+	log.Info("DoorCtrlOpen DeviceID=", DeviceID, ",Token=", Token)
 	if DeviceID == "" || Token == "" {
 		c.Data["json"] = common.GetErrCodeJSON(10003)
 		c.ServeJSON()
 		return
 	}
 
-	TokenVal, status, err := common.RedisOpt.Get(Token)
+	_, status, err := common.RedisTokenOpt.Get(Token)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10007)
@@ -147,14 +130,8 @@ func (c *MainController) DoorCtrlOpen() {
 		c.ServeJSON()
 		return
 	}
-	if string(TokenVal) != Token {
-		log.Info("Token数据不存在")
-		c.Data["json"] = common.GetErrCodeJSON(10001)
-		c.ServeJSON()
-		return
-	}
 
-	gatewayID, onlineStatus, err := DBOpt.GetDataOpt().CheckGatewayOnline(DeviceID)
+	gatewayID, gwOnline, devOnline, err := DBOpt.GetDataOpt().CheckGatewayOnline(DeviceID)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
@@ -162,16 +139,54 @@ func (c *MainController) DoorCtrlOpen() {
 		return
 	}
 
-	dataCtrlMap := make(map[string]interface{})
-	dataCtrlMap["GatewayID"] = gatewayID
-	dataCtrlMap["DeviceID"] = DeviceID
-	dataCtrlBuffer, _ := json.Marshal(&dataCtrlMap)
-
-	common.DoorCtrlRMQ.PublishTopic(dataCtrlBuffer)
-
 	data := make(map[string]interface{})
-	if onlineStatus {
+
+	serverIP, isExist, err := common.RedisServerListOpt.Get(gatewayID)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10007)
+		c.ServeJSON()
+		return
+	}
+	if !isExist {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10008)
+		c.ServeJSON()
+		return
+	}
+
+	httpServerIP := fmt.Sprintf("http://%s:%d/dev-ctrl?gwid=%s&deviceid=%s", serverIP, config.GetConfig().DevHTTPPort, gatewayID, DeviceID)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	defer resp.Body.Close()
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+
+	err = DBOpt.GetDataOpt().WechatOpenMethod(DeviceID)
+	if err != nil {
+		log.Error("err:", err)
+	}
+
+	if gwOnline {
+		//网关在线
 		data["code"] = common.GetErrCodeJSON(0)
+		if devOnline {
+			//设备在线
+			data["code"] = common.GetErrCodeJSON(0)
+		} else {
+			data["code"] = common.GetErrCodeJSON(10009)
+		}
 	} else {
 		data["code"] = common.GetErrCodeJSON(10008)
 	}

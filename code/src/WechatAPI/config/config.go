@@ -26,18 +26,15 @@ type Option struct {
 	LogLevel   string `yaml:"LogLevel"`
 	SysLogAddr string `yaml:"SysLogAddr"`
 
-	RedisAddr    string `yaml:"RedisAddr"`
-	RedisPwd     string `yaml:"RedisPwd"`
-	RedisTimeOut int    `yaml:"RedisTimeOut"`
+	RedisAddr         string `yaml:"RedisAddr"`
+	RedisPwd          string `yaml:"RedisPwd"`
+	RedisTokenNum     int    `yaml:"RedisTokenNum"`
+	RedisTokenTimeOut int    `yaml:"RedisTokenTimeOut"`
+	RedisServerNum    int    `yaml:"RedisServerNum"`
 
-	RecvAmqpURI       string `yaml:"RecvAmqpURI"`
-	RecvExchangeName  string `yaml:"RecvExchangeName"`
-	RecvChanReadQName string `yaml:"RecvChanReadQName"`
-	RecvRoutKey       string `yaml:"RecvRoutKey"`
+	DevHTTPPort int `yaml:"DevHTTPPort"`
 
-	PushblishAmqpURI string `yaml:"PushblishAmqpURI"`
-	PushExchangeName string `yaml:"PushExchangeName"`
-	PushblisRoutKey  string `yaml:"PushblisRoutKey"`
+	ServerStatus bool `yaml:"ServerStatus"`
 }
 
 func loadConfig() (p Option) {
