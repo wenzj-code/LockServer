@@ -1,7 +1,8 @@
 LogFile: ./log/modelServer.log
 LogLevel: DEBUG
 
-Database: root:12345678@tcp(127.0.0.1:3306)/outside 
+#Database: root:12345678@tcp(127.0.0.1:3306)/outside 
+Database: root:admin123@tcp(127.0.0.1:3306)/outside 
 
 RedisAddr: 127.0.0.1:6379
 RedisPwd: 
@@ -9,6 +10,4 @@ RedisTokenNum: 1
 RedisTokenTimeOut: 60
 #设备的所在连接的服务地址列表 
 RedisServerNum: 1
-#请求设备服务的端口号
-DevHTTPPort: 8999
 

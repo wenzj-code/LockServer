@@ -1,6 +1,8 @@
 package main
 
 import (
+	"DeviceServer/Common"
+	"DeviceServer/Config"
 	"fmt"
 	"log/syslog"
 	"os"
@@ -63,10 +65,10 @@ func main() {
 }
 
 func start() {
-	InitConfig()
-	config := GetConfig()
+	Config.InitConfig()
+	config := Config.GetConfig()
 	initLog(config.LogFile, config.LogLevel, config.SysLogAddr)
-	err := InitCommon()
+	err := Common.InitCommon()
 	if err != nil {
 		log.Error("err:", err)
 		return
@@ -76,7 +78,7 @@ func start() {
 	Srv = gotcp.NewServer(&CallBack{})
 	go Srv.StartServer(config.Addr, "ControlServer")
 
-	go httpInit(config.HTTPServerAddr)
+	go httpInit(config.HTTPServerPORT)
 
 }
 

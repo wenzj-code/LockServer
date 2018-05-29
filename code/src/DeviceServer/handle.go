@@ -1,6 +1,8 @@
 package main
 
 import (
+	"DeviceServer/Common"
+	"DeviceServer/Config"
 	"encoding/json"
 	"fmt"
 	"gotcp"
@@ -48,20 +50,17 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 
 func (cb *CallBack) heartbeatDeal(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	cb.ackMsg(conn, cmd, data)
-	val, isExist := data["DeviceID"]
+	val, isExist := data["GatewayID"]
 	if !isExist {
-		log.Error("DeviceID 字段不存在:", data)
+		log.Error("GatewayID 字段不存在:", data)
 		return
 	}
 	DeviceID := val.(string)
 	ConnInfo[DeviceID] = conn
 
-	// IPaddr, err := GetLocalIP()
-	// if err != nil {
-	// 	log.Error("err:", err)
-	// 	return
-	// }
-	err := RedisServerOpt.Set(DeviceID, "127.0.0.1", GetConfig().RedisTimeOut)
+	IPaddr := fmt.Sprintf("%s:%d", Common.GetLocalIP(), Config.GetConfig().HTTPServerPORT)
+
+	err := Common.RedisServerOpt.Set(DeviceID, IPaddr, Config.GetConfig().RedisTimeOut)
 	if err != nil {
 		log.Error("err:", err)
 		return
@@ -98,22 +97,23 @@ func (cb *CallBack) reportInfoDeal(conn *gotcp.Conn, cmd string, data map[string
 		log.Error("DeviceID 字段不存在:", data)
 		return
 	}
+
+	// GatewayID, isExist := data["GatewayID"]
+	// if !isExist {
+	// 	log.Error("GatewayID 字段不存在:", data)
+	// 	return
+	// }
 	Barry, isExist := data["Barry"]
 	if !isExist {
 		log.Error("Barry 字段不存在:", data)
 		return
 	}
-	Status, isExist := data["Status"]
-	if !isExist {
-		log.Error("Status 字段不存在:", data)
-		return
-	}
 
-	cb.pushMsg(DeviceID.(string), Barry.(float64), int(Status.(float64)))
+	cb.pushMsg(DeviceID.(string), Barry.(float64), 0)
 }
 
 func (cb *CallBack) pushMsg(deviceID string, barray float64, status int) {
-	config := GetConfig()
+	config := Config.GetConfig()
 	httpServerIP := fmt.Sprintf("http://%s/report/dev-status?deviceid=%s&barry=%f&status=%d", config.ReportHTTPAddr, deviceID, barray, status)
 	log.Debug("httpServerIP:", httpServerIP)
 	resp, err := http.Get(httpServerIP)

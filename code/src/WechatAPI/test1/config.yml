@@ -9,5 +9,4 @@ RedisTokenNum: 1
 RedisTokenTimeOut: 60000
 #设备的所在连接的服务地址列表 
 RedisServerNum: 8
-#请求设备服务的端口号
-DevHTTPPort: 8999
+

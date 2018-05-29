@@ -1,4 +1,4 @@
-package main
+package Config
 
 import (
 	"flag"
@@ -27,7 +27,7 @@ type Option struct {
 	SysLogAddr string `yaml:"SysLogAddr"`
 
 	ReportHTTPAddr string `yaml:"ReportHTTPAddr"`
-	HTTPServerAddr string `yaml:"HTTPServerAddr"`
+	HTTPServerPORT int    `yaml:"HTTPServerPORT"`
 
 	RedisAddr      string `yaml:"RedisAddr"`
 	RedisPwd       string `yaml:"RedisPwd"`

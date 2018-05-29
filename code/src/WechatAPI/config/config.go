@@ -32,8 +32,6 @@ type Option struct {
 	RedisTokenTimeOut int    `yaml:"RedisTokenTimeOut"`
 	RedisServerNum    int    `yaml:"RedisServerNum"`
 
-	DevHTTPPort int `yaml:"DevHTTPPort"`
-
 	ServerStatus bool `yaml:"ServerStatus"`
 }
 

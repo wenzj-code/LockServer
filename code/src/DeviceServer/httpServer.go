@@ -1,7 +1,10 @@
 package main
 
 import (
+	"DeviceServer/Common"
+	"DeviceServer/Config"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -9,7 +12,9 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func httpInit(HTTPAddr string) error {
+func httpInit(HTTPAddrPort int) error {
+	HTTPAddr := fmt.Sprintf("%s:%d", Common.GetLocalIP(), Config.GetConfig().HTTPServerPORT)
+
 	log.Info("httpserver start:", HTTPAddr)
 
 	http.HandleFunc("/dev-ctrl", httpServerFunc)
@@ -49,6 +54,7 @@ func httpServerFunc(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	data := make(map[string]interface{})
+	data["Cmd"] = "CTRL"
 	data["DeviceID"] = deviceid[0]
 	data["GatewayID"] = gwid[0]
 

@@ -155,7 +155,7 @@ func (c *MainController) DoorCtrlOpen() {
 		return
 	}
 
-	httpServerIP := fmt.Sprintf("http://%s:%d/dev-ctrl?gwid=%s&deviceid=%s", serverIP, config.GetConfig().DevHTTPPort, gatewayID, DeviceID)
+	httpServerIP := fmt.Sprintf("http://%s/dev-ctrl?gwid=%s&deviceid=%s", serverIP, gatewayID, DeviceID)
 	log.Debug("httpServerIP:", httpServerIP)
 	resp, err := http.Get(httpServerIP)
 	if err != nil {
