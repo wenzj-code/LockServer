@@ -33,14 +33,19 @@ func (c *MainController) DoorRecvReport() {
 		return
 	}
 
-	data := make(map[string]interface{})
 	dataMap := make(map[string]interface{})
 
-	data["Barry"] = barry
-	data["Status"] = status
-	dataMap["DeviceID"] = deviceID
-	dataMap["RoomNum"] = roomNum
-	dataMap["Data"] = data
+	token, err := getToken(pushConfig.TokenURL, pushConfig.AppID, pushConfig.Secret)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	dataMap["deviceID"] = deviceID
+	dataMap["roomNum"] = roomNum
+	dataMap["barry"] = barry
+	dataMap["status"] = status
+	dataMap["token"] = token
 
 	dataBuf, err := json.Marshal(dataMap)
 	if err != nil {
@@ -48,12 +53,7 @@ func (c *MainController) DoorRecvReport() {
 		return
 	}
 
-	token, err := getToken(pushConfig.TokenURL, pushConfig.AppID, pushConfig.Secret)
-	if err != nil {
-		log.Error("err:", err)
-		return
-	}
-	err = pushMsg(pushConfig.URL, token, dataBuf)
+	err = pushMsg(pushConfig.URL, dataBuf)
 	if err != nil {
 		log.Error("err:", err)
 	} else {
@@ -62,7 +62,7 @@ func (c *MainController) DoorRecvReport() {
 	return
 }
 
-func pushMsg(url, token string, msg []byte) error {
+func pushMsg(url string, msg []byte) error {
 	var i int
 	for i = 0; i < 4; i++ {
 		// tr := &http.Transport{
@@ -110,12 +110,6 @@ func getToken(tokenURL, appid, secret string) (string, error) {
 		reqURL := tokenURL + "?appid=" + appid + "&secret=" + secret
 		log.Debug("获取token地址:", reqURL)
 
-		// tr := &http.Transport{
-		// 	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		// }
-		// client := &http.Client{Transport: tr}
-
-		// resp, err := client.Get(reqURL)
 		resp, err := http.Get(reqURL)
 		if err != nil {
 			log.Error("err:", err)

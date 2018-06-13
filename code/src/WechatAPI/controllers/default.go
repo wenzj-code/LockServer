@@ -85,7 +85,7 @@ func (c *MainController) GetRoomInfo() {
 		return
 	}
 
-	roomnu, userAccount, err := DBOpt.GetDataOpt().GetRoomInfo(DeviceID)
+	roomnu, appid, err := DBOpt.GetDataOpt().GetRoomInfo(DeviceID)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
@@ -96,7 +96,7 @@ func (c *MainController) GetRoomInfo() {
 	data := make(map[string]interface{})
 	if len(roomnu) != 0 {
 		data["roomnu"] = roomnu
-		data["userid"] = userAccount
+		data["appid"] = appid
 		data["code"] = 0
 		c.Data["json"] = data
 	} else {
@@ -108,10 +108,12 @@ func (c *MainController) GetRoomInfo() {
 
 //DoorCtrlOpen 开门
 func (c *MainController) DoorCtrlOpen() {
-	DeviceID := c.GetString("deviceid")
+	roomnu := c.GetString("roomnu")
+	appid := c.GetString("appid")
+
 	Token := c.GetString("token")
-	log.Info("DoorCtrlOpen DeviceID=", DeviceID, ",Token=", Token)
-	if DeviceID == "" || Token == "" {
+	log.Info("DoorCtrlOpen DeviceID=", roomnu, ",Token=", Token, ",appid:", appid)
+	if roomnu == "" || appid == "" || Token == "" {
 		c.Data["json"] = common.GetErrCodeJSON(10003)
 		c.ServeJSON()
 		return
@@ -127,6 +129,20 @@ func (c *MainController) DoorCtrlOpen() {
 	if !status {
 		log.Info("Token数据不存在")
 		c.Data["json"] = common.GetErrCodeJSON(10001)
+		c.ServeJSON()
+		return
+	}
+
+	DeviceID, err := DBOpt.GetDataOpt().GetDeviceID(roomnu, appid)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+	if len(DeviceID) == 0 {
+		log.Error("房间数据不存在:", roomnu, ",userid:", appid)
+		c.Data["json"] = common.GetErrCodeJSON(10004)
 		c.ServeJSON()
 		return
 	}

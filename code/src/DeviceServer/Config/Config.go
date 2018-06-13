@@ -13,6 +13,7 @@ import (
 var configOpt Option
 var onceDataOpt sync.Once
 
+//InitConfig 初始化配置文件，只能加载一次
 func InitConfig() {
 	onceDataOpt.Do(func() {
 		configOpt = loadConfig()
@@ -20,7 +21,8 @@ func InitConfig() {
 }
 
 type Option struct {
-	Addr string `yaml:"Addr"`
+	Addr     string `yaml:"Addr"`
+	Database string `yaml:"Database"`
 
 	LogFile    string `yaml:"LogFile"`
 	LogLevel   string `yaml:"LogLevel"`

@@ -40,37 +40,61 @@ func (opt *DBOpt) CheckAppIDSecret(appid, secret string) (status bool, err error
 	}
 	defer rows.Close()
 	for rows.Next() {
-		status = true
+		return true, nil
 	}
 	return status, err
 }
 
 //GetRoomInfo 通过设备ID获取房间信息
-func (opt *DBOpt) GetRoomInfo(deviceID string) (roomnu, userAccount string, err error) {
+func (opt *DBOpt) GetRoomInfo(deviceID string) (roomnu, appid string, err error) {
 	conn, err := opt.connectDB()
 	if err != nil {
 		log.Error("err:", err)
-		return roomnu, userAccount, err
+		return roomnu, appid, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := fmt.Sprintf("select roomnu,user_account from t_device_bind_info A "+
+	sqlString := fmt.Sprintf("select roomnu,appid from t_device_bind_info A "+
 		"inner join t_device_info B on A.device_id=B.device_id "+
 		"inner join t_user_info C on B.user_id=C.id "+
 		"where A.device_id='%s';", deviceID)
 	rows, err := conn.Query(sqlString)
 	if err != nil {
 		log.Error("err:", err)
-		return roomnu, userAccount, err
+		return roomnu, appid, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&roomnu, &userAccount)
+		err = rows.Scan(&roomnu, &appid)
 		if err != nil {
 			log.Error("err:", err)
-			return roomnu, userAccount, err
+			return roomnu, appid, err
 		}
 	}
-	return roomnu, userAccount, err
+	return roomnu, appid, err
+}
+
+//GetDeviceID 通过房间号与用户ID获取设备ＩＤ
+func (opt *DBOpt) GetDeviceID(roomnu string, appid string) (deviceID string, err error) {
+	conn, err := opt.connectDB()
+	if err != nil {
+		log.Error("err:", err)
+		return deviceID, err
+	}
+	defer opt.releaseDB(conn)
+	sqlString := "select device_id from t_device_bind_info a,t_user_info b where roomnu=? and b.id=a.user_id"
+	rows, err := conn.Query(sqlString, roomnu, appid)
+	if err != nil {
+		log.Error("err:", err)
+		return deviceID, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&deviceID)
+		if err != nil {
+			log.Error("err:", err)
+		}
+	}
+	return deviceID, err
 }
 
 //CheckGatewayOnline 检查设备的网关是否在线
@@ -81,7 +105,7 @@ func (opt *DBOpt) CheckGatewayOnline(deviceID string) (gatewayID string, gwStatu
 		return gatewayID, gwStatus, devStatus, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := "select A.device_id,A.status,B.status from t_gateway_info A " +
+	sqlString := "select A.gateway_id,A.status,B.status from t_gateway_info A " +
 		"inner join t_device_info B on A.id=B.gw_id " +
 		"where B.device_id=?"
 	rows, err := conn.Query(sqlString, deviceID)

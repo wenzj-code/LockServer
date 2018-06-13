@@ -27,7 +27,10 @@ func init() {
 	errCodeMap[10006] = "数据库服务异常"
 	errCodeMap[10007] = "Redis服务异常"
 	errCodeMap[10008] = "网关不在线"
-	errCodeMap[10009] = "设备不在线"
+	errCodeMap[10009] = "网关已存在"
+	errCodeMap[10010] = "用户数据不匹配"
+	errCodeMap[10011] = "设备或者房间号已被绑定"
+	errCodeMap[10012] = "用户ID不存在"
 }
 
 //GetErrCodeJSON 获取错误信息

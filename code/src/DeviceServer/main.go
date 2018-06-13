@@ -3,6 +3,9 @@ package main
 import (
 	"DeviceServer/Common"
 	"DeviceServer/Config"
+	"DeviceServer/DBOpt"
+	"DeviceServer/HTTPServer"
+	"DeviceServer/Handle"
 	"fmt"
 	"log/syslog"
 	"os"
@@ -17,9 +20,6 @@ import (
 )
 
 var Srv *gotcp.Server
-
-//gatewayID,conn
-var ConnInfo map[string]*gotcp.Conn = make(map[string]*gotcp.Conn)
 
 var (
 	version         = "1.1.3.1"
@@ -67,18 +67,26 @@ func main() {
 func start() {
 	Config.InitConfig()
 	config := Config.GetConfig()
+	//初始化日志
 	initLog(config.LogFile, config.LogLevel, config.SysLogAddr)
+
+	//初始化公共组件
 	err := Common.InitCommon()
 	if err != nil {
 		log.Error("err:", err)
 		return
 	}
 
+	//初始化数据库
+	DBOpt.GetDataOpt().InitDatabase(config.Database)
+
 	log.Info("DeviceServer server is starting.....version:", version, ",port:", config.Addr)
-	Srv = gotcp.NewServer(&CallBack{})
+	//初始化网关监听服务
+	Srv = gotcp.NewServer(&Handle.CallBack{})
 	go Srv.StartServer(config.Addr, "ControlServer")
 
-	go httpInit(config.HTTPServerPORT)
+	//初始化HTTP服务，接收WechatAPI的消息
+	go HTTPServer.HTTPInit(config.HTTPServerPORT)
 
 }
 

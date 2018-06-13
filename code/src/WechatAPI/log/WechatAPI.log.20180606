@@ -1,0 +1,24 @@
+{"time":"2018-06-06 07:51:22","level":"info","scanID":"none","msg":"appid=aaaa,secret=bbbb","filename":"default.go:28"}
+{"time":"2018-06-06 07:52:57","level":"info","scanID":"none","msg":"用户ID不存在:111111","filename":"appmsg.go:135"}
+{"time":"2018-06-06 07:53:04","level":"info","scanID":"none","msg":"房间号或者设备ID已经被绑定过了:2342352,room2001","filename":"appmsg.go:149"}
+{"time":"2018-06-06 16:50:37","level":"info","scanID":"none","msg":"model server starts success....","filename":"exported.go:167"}
+{"time":"2018-06-06 16:50:44","level":"info","scanID":"none","msg":"Token数据不存在","filename":"appmsg.go:121"}
+{"time":"2018-06-06 16:50:48","level":"debug","scanID":"none","msg":"username:jking","filename":"appmsg.go:15"}
+{"time":"2018-06-06 16:50:48","level":"debug","scanID":"none","msg":"pwd:admin123","filename":"appmsg.go:16"}
+{"time":"2018-06-06 16:50:56","level":"info","scanID":"none","msg":"appid=aaaa,secret=bbbb","filename":"default.go:28"}
+{"time":"2018-06-06 16:51:03","level":"info","scanID":"none","msg":"用户ID不存在:111111","filename":"appmsg.go:135"}
+{"time":"2018-06-06 16:51:15","level":"debug","scanID":"none","msg":"sqlString:select ((select 1 from t_device_bind_info where device_id='2342352') or (select 1 from t_device_bind_info where user_id=1 and roomnu='room2001'))","filename":"DBAppOpt.go:89"}
+{"time":"2018-06-06 16:51:15","level":"info","scanID":"none","msg":"房间号或者设备ID已经被绑定过了:2342352,room2001","filename":"appmsg.go:149"}
+{"time":"2018-06-06 16:55:17","level":"info","scanID":"none","msg":"model server starts success....","filename":"exported.go:167"}
+{"time":"2018-06-06 16:55:20","level":"debug","scanID":"none","msg":"sqlString:select ifnull(((select 1 from t_device_bind_info where device_id='2342352') or (select 1 from t_device_bind_info where user_id=1 and roomnu='room2001')),0)","filename":"DBAppOpt.go:89"}
+{"time":"2018-06-06 16:55:20","level":"error","scanID":"none","msg":"err:Error 1054: Unknown column 'create_time' in 'field list'","filename":"DBBaseOpt.go:51"}
+{"time":"2018-06-06 16:55:20","level":"error","scanID":"none","msg":"err:Error 1054: Unknown column 'create_time' in 'field list'","filename":"DBAppOpt.go:124"}
+{"time":"2018-06-06 16:55:20","level":"error","scanID":"none","msg":"err:数据库异常，操作失败","filename":"appmsg.go:157"}
+{"time":"2018-06-06 16:56:14","level":"info","scanID":"none","msg":"model server starts success....","filename":"exported.go:167"}
+{"time":"2018-06-06 16:56:16","level":"debug","scanID":"none","msg":"sqlString:select ifnull(((select 1 from t_device_bind_info where device_id='2342352') or (select 1 from t_device_bind_info where user_id=1 and roomnu='room2001')),0)","filename":"DBAppOpt.go:88"}
+{"time":"2018-06-06 16:56:36","level":"debug","scanID":"none","msg":"sqlString:select ifnull(((select 1 from t_device_bind_info where device_id='2342352') or (select 1 from t_device_bind_info where user_id=1 and roomnu='room2001')),0)","filename":"DBAppOpt.go:88"}
+{"time":"2018-06-06 16:56:36","level":"info","scanID":"none","msg":"房间号或者设备ID已经被绑定过了:2342352,room2001","filename":"appmsg.go:149"}
+{"time":"2018-06-06 16:56:48","level":"debug","scanID":"none","msg":"sqlString:select ifnull(((select 1 from t_device_bind_info where device_id='23423521') or (select 1 from t_device_bind_info where user_id=1 and roomnu='room2001')),0)","filename":"DBAppOpt.go:88"}
+{"time":"2018-06-06 16:56:48","level":"info","scanID":"none","msg":"房间号或者设备ID已经被绑定过了:23423521,room2001","filename":"appmsg.go:149"}
+{"time":"2018-06-06 16:56:56","level":"debug","scanID":"none","msg":"sqlString:select ifnull(((select 1 from t_device_bind_info where device_id='2342352') or (select 1 from t_device_bind_info where user_id=1 and roomnu='room20011')),0)","filename":"DBAppOpt.go:88"}
+{"time":"2018-06-06 16:56:56","level":"info","scanID":"none","msg":"房间号或者设备ID已经被绑定过了:2342352,room20011","filename":"appmsg.go:149"}

@@ -1,9 +1,9 @@
-package main
+package HTTPServer
 
 import (
 	"DeviceServer/Common"
 	"DeviceServer/Config"
-	"encoding/json"
+	"DeviceServer/Handle"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,7 +12,10 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func httpInit(HTTPAddrPort int) error {
+/*
+HttpInit Http服务的初始化
+*/
+func HTTPInit(HTTPAddrPort int) error {
 	HTTPAddr := fmt.Sprintf("%s:%d", Common.GetLocalIP(), Config.GetConfig().HTTPServerPORT)
 
 	log.Info("httpserver start:", HTTPAddr)
@@ -48,17 +51,11 @@ func httpServerFunc(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	conn, isExist := ConnInfo[gwid[0]]
+	conn, isExist := Handle.ConnInfo[gwid[0]]
 	if !isExist {
 		log.Error("该网关不在线:", gwid)
 		return
 	}
-	data := make(map[string]interface{})
-	data["Cmd"] = "CTRL"
-	data["DeviceID"] = deviceid[0]
-	data["GatewayID"] = gwid[0]
 
-	dataBuf, _ := json.Marshal(data)
-	log.Debug("dataBuf:", string(dataBuf))
-	BaseSendMsg(conn, dataBuf)
+	Handle.DevCtrl(conn, gwid[0], deviceid[0])
 }

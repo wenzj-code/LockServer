@@ -9,6 +9,9 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+//DefaultHead 文件头
+const DefaultHead = "HTTP-JSON-BOCHIOT"
+
 //RedisServerOpt 服务列表
 var RedisServerOpt *Redis.RedisOpt
 

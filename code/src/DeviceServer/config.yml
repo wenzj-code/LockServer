@@ -4,6 +4,9 @@ LogLevel: DEBUG
 #监听IP地址
 Addr: 127.0.0.1:9090
 
+#数据库配置
+Database: root:12345678@tcp(127.0.0.1:3306)/outside
+
 #上报状态的HTTP地址
 ReportHTTPAddr: 127.0.0.1:8080
 #服务端HTTP地址端口号
