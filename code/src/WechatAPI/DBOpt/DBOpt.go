@@ -32,8 +32,8 @@ func (opt *DBOpt) CheckAppIDSecret(appid, secret string) (status bool, err error
 		return status, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := "select 1 from t_user_info where appid=? and secret=?"
-	rows, err := conn.Query(sqlString, appid, secret)
+	sqlString := fmt.Sprintf("select 1 from t_user_info where appid='%s' and secret='%s'", appid, secret)
+	rows, err := conn.Query(sqlString)
 	if err != nil {
 		log.Error("err:", err)
 		return status, err
@@ -81,7 +81,7 @@ func (opt *DBOpt) GetDeviceID(roomnu string, appid string) (deviceID string, err
 		return deviceID, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := "select device_id from t_device_bind_info a,t_user_info b where roomnu=? and b.id=a.user_id"
+	sqlString := "select device_id from t_device_bind_info a,t_user_info b where roomnu=? and b.id=a.user_id and b.appid=?"
 	rows, err := conn.Query(sqlString, roomnu, appid)
 	if err != nil {
 		log.Error("err:", err)
@@ -174,8 +174,13 @@ func (opt *DBOpt) KeyMethod(deviceID string) error {
 	return opt.addDoorOpenHistory(3, deviceID)
 }
 
+//PasswordMethod 密码开门方式
+func (opt *DBOpt) PasswordMethod(deviceID string) error {
+	return opt.addDoorOpenHistory(4, deviceID)
+}
+
 func (opt *DBOpt) addDoorOpenHistory(openMethod int, deviceID string) error {
-	sqlString := "insert into t_device_open_info(device_id,method_id,status,open_time) values(?,?,1,?)"
+	sqlString := "insert into t_device_open_info(device_id,method_id,open_time) values(?,?,?)"
 	err := opt.exec(nil, sqlString, deviceID, openMethod, time.Now().Unix())
 	if err != nil {
 		log.Error("err:", err)

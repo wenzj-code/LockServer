@@ -1,0 +1,93 @@
+{"time":"2018-06-12 17:08:08","level":"info","scanID":"none","msg":"DeviceServer server is starting.....version:1.1.3.1,port:127.0.0.1:9090","filename":"main.go:83"}
+{"time":"2018-06-12 17:08:08","level":"info","scanID":"none","msg":"httpserver start:192.168.50.129:8999","filename":"httpServer.go:21"}
+{"time":"2018-06-12 17:08:28","level":"debug","scanID":"none","msg":"msg:
+","filename":"Handle.go:22"}
+{"time":"2018-06-12 17:08:28","level":"error","scanID":"none","msg":"strFlag:ControlServer,read pack Eror:read tcp 127.0.0.1:9090->127.0.0.1:36223: use of closed network connection127.0.0.1:36223","filename":"conn.go:100"}
+{"time":"2018-06-12 17:08:47","level":"info","scanID":"none","msg":"DeviceServer server quit","filename":"main.go:64"}
+{"time":"2018-06-12 17:10:06","level":"info","scanID":"none","msg":"DeviceServer server is starting.....version:1.1.3.1,port:127.0.0.1:9090","filename":"main.go:83"}
+{"time":"2018-06-12 17:10:06","level":"info","scanID":"none","msg":"httpserver start:192.168.50.129:8999","filename":"httpServer.go:21"}
+{"time":"2018-06-12 17:10:35","level":"debug","scanID":"none","msg":"msg:sefsdf
+","filename":"Handle.go:22"}
+{"time":"2018-06-12 17:12:01","level":"info","scanID":"none","msg":"DeviceServer server is starting.....version:1.1.3.1,port:127.0.0.1:9090","filename":"main.go:83"}
+{"time":"2018-06-12 17:12:01","level":"info","scanID":"none","msg":"httpserver start:192.168.50.129:8999","filename":"httpServer.go:21"}
+{"time":"2018-06-12 17:12:05","level":"debug","scanID":"none","msg":"msg:sfasd
+","filename":"Handle.go:23"}
+{"time":"2018-06-12 17:12:05","level":"debug","scanID":"none","msg":"wrong pack","filename":"Handle.go:25"}
+{"time":"2018-06-12 17:13:25","level":"info","scanID":"none","msg":"DeviceServer server quit","filename":"main.go:64"}
+{"time":"2018-06-12 17:13:29","level":"info","scanID":"none","msg":"DeviceServer server is starting.....version:1.1.3.1,port:127.0.0.1:9090","filename":"main.go:83"}
+{"time":"2018-06-12 17:13:29","level":"info","scanID":"none","msg":"httpserver start:192.168.50.129:8999","filename":"httpServer.go:21"}
+{"time":"2018-06-12 17:13:35","level":"debug","scanID":"none","msg":"msg:faklsjdg;lakjweglakjwe;halkjwhwha
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:13:35","level":"debug","scanID":"none","msg":"head err","filename":"Handle.go:30"}
+{"time":"2018-06-12 17:18:35","level":"error","scanID":"none","msg":"strFlag:ControlServer,read pack Eror:read tcp 127.0.0.1:9090->127.0.0.1:36231: use of closed network connection127.0.0.1:36231","filename":"conn.go:100"}
+{"time":"2018-06-12 17:18:48","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "gw_register","swm_gateway_info": {"gw_mac": "1aaa01000001","gw_ip_addr": "192.168.0.104"}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:18:48","level":"info","scanID":"none","msg":"data:map[cmd:gw_register swm_gateway_info:map[gw_mac:1aaa01000001 gw_ip_addr:192.168.0.104]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:19:23","level":"debug","scanID":"none","msg":"msg:
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:19:23","level":"debug","scanID":"none","msg":"wrong pack","filename":"Handle.go:26"}
+{"time":"2018-06-12 17:19:27","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:19:27","level":"debug","scanID":"none","msg":"wrong pack","filename":"Handle.go:26"}
+{"time":"2018-06-12 17:20:07","level":"debug","scanID":"none","msg":"msg:
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:20:07","level":"debug","scanID":"none","msg":"wrong pack","filename":"Handle.go:26"}
+{"time":"2018-06-12 17:20:08","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "d2s_battery","gw_mac": "1aaa01000001","device_info": {"device_mac": "192.168.0.104","battery": 0}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:20:08","level":"info","scanID":"none","msg":"data:map[cmd:d2s_battery gw_mac:1aaa01000001 device_info:map[device_mac:192.168.0.104 battery:0]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:20:08","level":"debug","scanID":"none","msg":"httpServerIP:http://127.0.0.1:8080/report/dev-status?deviceid=192.168.0.104&barry=0.000000&status=1","filename":"CmdFunc.go:156"}
+{"time":"2018-06-12 17:20:08","level":"error","scanID":"none","msg":"err:Get http://127.0.0.1:8080/report/dev-status?deviceid=192.168.0.104&barry=0.000000&status=1: dial tcp 127.0.0.1:8080: connect: connection refused","filename":"CmdFunc.go:159"}
+{"time":"2018-06-12 17:21:12","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "d2s_request_devices","swm_gateway_info": {"gw_mac": "12345679010"}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:21:12","level":"info","scanID":"none","msg":"data:map[cmd:d2s_request_devices swm_gateway_info:map[gw_mac:12345679010]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:21:12","level":"error","scanID":"none","msg":"err:Error 1045: Access denied for user 'root'@'localhost' (using password: YES)","filename":"DBOpt.go:35"}
+{"time":"2018-06-12 17:21:12","level":"error","scanID":"none","msg":"err:Error 1045: Access denied for user 'root'@'localhost' (using password: YES)","filename":"CmdFunc.go:106"}
+{"time":"2018-06-12 17:21:40","level":"info","scanID":"none","msg":"DeviceServer server quit","filename":"main.go:64"}
+{"time":"2018-06-12 17:21:50","level":"info","scanID":"none","msg":"DeviceServer server is starting.....version:1.1.3.1,port:127.0.0.1:9090","filename":"main.go:83"}
+{"time":"2018-06-12 17:21:50","level":"info","scanID":"none","msg":"httpserver start:192.168.50.129:8999","filename":"httpServer.go:21"}
+{"time":"2018-06-12 17:21:59","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "d2s_request_devices","swm_gateway_info": {"gw_mac": "12345679010"}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:21:59","level":"info","scanID":"none","msg":"data:map[cmd:d2s_request_devices swm_gateway_info:map[gw_mac:12345679010]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:23:00","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "d2s_request_devices","swm_gateway_info1": {"gw_mac": "12345679010"}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:23:00","level":"info","scanID":"none","msg":"data:map[cmd:d2s_request_devices swm_gateway_info1:map[gw_mac:12345679010]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:23:00","level":"error","scanID":"none","msg":"swm_gateway_info 字段不存在:map[cmd:d2s_request_devices swm_gateway_info1:map[gw_mac:12345679010]]","filename":"CmdFunc.go:93"}
+{"time":"2018-06-12 17:23:09","level":"info","scanID":"none","msg":"DeviceServer server quit","filename":"main.go:64"}
+{"time":"2018-06-12 17:23:15","level":"info","scanID":"none","msg":"DeviceServer server is starting.....version:1.1.3.1,port:127.0.0.1:9090","filename":"main.go:83"}
+{"time":"2018-06-12 17:23:15","level":"info","scanID":"none","msg":"httpserver start:192.168.50.129:8999","filename":"httpServer.go:21"}
+{"time":"2018-06-12 17:23:19","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "d2s_request_devices","swm_gateway_info1": {"gw_mac": "12345679010"}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:23:19","level":"info","scanID":"none","msg":"data:map[cmd:d2s_request_devices swm_gateway_info1:map[gw_mac:12345679010]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:23:19","level":"error","scanID":"none","msg":"swm_gateway_info 字段不存在:map[cmd:d2s_request_devices swm_gateway_info1:map[gw_mac:12345679010]]","filename":"CmdFunc.go:93"}
+{"time":"2018-06-12 17:23:30","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "d2s_request_devices","swm_gateway_info": {"gw_mac": "12345679010"}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:23:30","level":"info","scanID":"none","msg":"data:map[cmd:d2s_request_devices swm_gateway_info:map[gw_mac:12345679010]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:23:30","level":"debug","scanID":"none","msg":"deviceList:map[]","filename":"CmdFunc.go:109"}
+{"time":"2018-06-12 17:24:07","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "d2s_request_devices","swm_gateway_info": {"gw_mac": "222222"}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:24:07","level":"info","scanID":"none","msg":"data:map[cmd:d2s_request_devices swm_gateway_info:map[gw_mac:222222]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:24:07","level":"error","scanID":"none","msg":"strFlag:ControlServer,read pack Eror:read tcp 127.0.0.1:9090->127.0.0.1:36240: use of closed network connection127.0.0.1:36240","filename":"conn.go:100"}
+{"time":"2018-06-12 17:25:20","level":"info","scanID":"none","msg":"DeviceServer server is starting.....version:1.1.3.1,port:127.0.0.1:9090","filename":"main.go:83"}
+{"time":"2018-06-12 17:25:20","level":"info","scanID":"none","msg":"httpserver start:192.168.50.129:8999","filename":"httpServer.go:21"}
+{"time":"2018-06-12 17:25:26","level":"debug","scanID":"none","msg":"msg:devListMap
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:25:26","level":"debug","scanID":"none","msg":"wrong pack","filename":"Handle.go:26"}
+{"time":"2018-06-12 17:25:34","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "d2s_request_devices","swm_gateway_info": {"gw_mac": "222222"}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:25:34","level":"info","scanID":"none","msg":"data:map[cmd:d2s_request_devices swm_gateway_info:map[gw_mac:222222]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:25:34","level":"debug","scanID":"none","msg":"deviceList:map[7530wwr:true 7530wwr0:true]","filename":"CmdFunc.go:109"}
+{"time":"2018-06-12 17:25:45","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "d2s_request_devices","swm_gateway_info": {"gw_mac": "222222"}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:25:45","level":"info","scanID":"none","msg":"data:map[cmd:d2s_request_devices swm_gateway_info:map[gw_mac:222222]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:25:45","level":"debug","scanID":"none","msg":"deviceList:map[7530wwr:true 7530wwr0:true]","filename":"CmdFunc.go:109"}
+{"time":"2018-06-12 17:27:35","level":"info","scanID":"none","msg":"DeviceServer server quit","filename":"main.go:64"}
+{"time":"2018-06-12 17:28:23","level":"info","scanID":"none","msg":"DeviceServer server is starting.....version:1.1.3.1,port:127.0.0.1:9090","filename":"main.go:83"}
+{"time":"2018-06-12 17:28:23","level":"info","scanID":"none","msg":"httpserver start:192.168.50.129:8999","filename":"httpServer.go:21"}
+{"time":"2018-06-12 17:29:20","level":"info","scanID":"none","msg":"DeviceServer server quit","filename":"main.go:64"}
+{"time":"2018-06-12 17:29:23","level":"info","scanID":"none","msg":"DeviceServer server is starting.....version:1.1.3.1,port:127.0.0.1:9090","filename":"main.go:83"}
+{"time":"2018-06-12 17:29:23","level":"info","scanID":"none","msg":"httpserver start:192.168.50.129:8999","filename":"httpServer.go:21"}
+{"time":"2018-06-12 17:45:22","level":"debug","scanID":"none","msg":"msg:HTTP-JSON-BOCHIOT12345{"cmd": "gw_register","swm_gateway_info": {"gw_mac": "222222","gw_ip_addr": "192.168.0.104"}}
+","filename":"Handle.go:24"}
+{"time":"2018-06-12 17:45:22","level":"info","scanID":"none","msg":"data:map[cmd:gw_register swm_gateway_info:map[gw_ip_addr:192.168.0.104 gw_mac:222222]]","filename":"Handle.go:46"}
+{"time":"2018-06-12 17:47:00","level":"debug","scanID":"none","msg":"value:map[gwid:[222222] deviceid:[7530wwr]]","filename":"httpServer.go:39"}
+{"time":"2018-06-12 17:47:17","level":"debug","scanID":"none","msg":"value:map[gwid:[222222] deviceid:[7530wwr]]","filename":"httpServer.go:39"}

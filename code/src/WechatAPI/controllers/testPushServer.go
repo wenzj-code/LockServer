@@ -1,5 +1,9 @@
 package controllers
 
+/*
+	该模块并不是项目功能，只是用来模拟第三方服务测试使用
+*/
+
 import (
 	"WechatAPI/common"
 	"WechatAPI/config"
@@ -10,9 +14,15 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/astaxie/beego"
 )
 
-func (c *MainController) TestToken() {
+//TestPushServerController .
+type TestPushServerController struct {
+	beego.Controller
+}
+
+func (c *TestPushServerController) TestToken() {
 	appid := c.GetString("appid")
 	secret := c.GetString("secret")
 	log.Info("appid=", appid, ",secret=", secret)
@@ -40,7 +50,7 @@ func (c *MainController) TestToken() {
 	c.ServeJSON()
 }
 
-func (c *MainController) TestPush() {
+func (c *TestPushServerController) TestPush() {
 	buf, _ := ioutil.ReadAll(c.Ctx.Request.Body)
 	log.Debug("push msg:\n", string(buf))
 	c.Data["json"] = common.GetErrCodeJSON(0)

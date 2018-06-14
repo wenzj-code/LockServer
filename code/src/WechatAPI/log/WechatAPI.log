@@ -1,1 +1,4 @@
-{"time":"2018-06-07 07:50:22","level":"info","scanID":"none","msg":"model server starts success....","filename":"exported.go:167"}
+{"time":"2018-06-14 07:55:50","level":"info","scanID":"none","msg":"model server starts success....","filename":"exported.go:167"}
+{"time":"2018-06-14 07:56:07","level":"error","scanID":"none","msg":"err:strconv.Atoi: parsing "": invalid syntax","filename":"wechatMethod.go:124"}
+{"time":"2018-06-14 07:56:35","level":"info","scanID":"none","msg":"DoorCtrlOpen DeviceID=1001,Token=23238d8b5e65d1666728a46492d22c8373a384372b445d2c82a768e84df1f347,appid:88236f6aa303fb212da966f5fe275b7c","filename":"wechatMethod.go:131"}
+{"time":"2018-06-14 07:56:35","level":"error","scanID":"none","msg":"err:<nil>","filename":"wechatMethod.go:188"}

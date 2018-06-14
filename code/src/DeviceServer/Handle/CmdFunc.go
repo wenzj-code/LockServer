@@ -106,6 +106,7 @@ func requestDeviceList(conn *gotcp.Conn, cmd string, data map[string]interface{}
 		log.Error("err:", err)
 		return
 	}
+	log.Debug("deviceList:", deviceList)
 
 	gwMap := make(map[string]interface{})
 	deviceInfoArray := make([]Common.DeviceInfo, 0)

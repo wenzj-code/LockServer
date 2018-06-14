@@ -71,7 +71,7 @@ func (s *Server) StartServer(addr string, flag string) error {
 		}
 
 		connVal := s.StoreClientSocket(conn)
-		//log.Info("new connection:", connVal.GetRemoteAddr(), ",flag1:", flag)
+		log.Info("new connection:", connVal.GetRemoteAddr(), ",flag1:", flag)
 		connVal.SetClientFlag(flag)
 		go connVal.Do()
 	}

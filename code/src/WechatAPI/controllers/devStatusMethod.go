@@ -1,5 +1,9 @@
 package controllers
 
+/*
+	该模块主要用来接收设备服务的状态通知，并且将状态推送给第三方服务
+*/
+
 import (
 	"WechatAPI/DBOpt"
 	"bytes"
@@ -11,15 +15,22 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/astaxie/beego"
 )
+
+//DevStatusController .
+type DevStatusController struct {
+	beego.Controller
+}
 
 ///////接收通知//////////
 //DoorRecvReport 接收数据上报
-func (c *MainController) DoorRecvReport() {
+func (c *DevStatusController) DoorRecvReport() {
 	deviceID := c.GetString("deviceid")
 	barry := c.GetString("barry")
 	status := c.GetString("status")
 
+	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
 	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)
 	if len(pushConfig.URL) < 10 {
 		log.Error("还没配置推送地址，不推送:", deviceID)
@@ -27,6 +38,7 @@ func (c *MainController) DoorRecvReport() {
 	}
 	log.Debug("config:", pushConfig)
 
+	//通过设备ID获取房间号
 	roomNum, _, err := DBOpt.GetDataOpt().GetRoomInfo(deviceID)
 	if err != nil {
 		log.Error("err:", err)
@@ -35,6 +47,7 @@ func (c *MainController) DoorRecvReport() {
 
 	dataMap := make(map[string]interface{})
 
+	//获取第三方Token的请求地址
 	token, err := getToken(pushConfig.TokenURL, pushConfig.AppID, pushConfig.Secret)
 	if err != nil {
 		log.Error("err:", err)
@@ -53,6 +66,7 @@ func (c *MainController) DoorRecvReport() {
 		return
 	}
 
+	//推送到第三方
 	err = pushMsg(pushConfig.URL, dataBuf)
 	if err != nil {
 		log.Error("err:", err)

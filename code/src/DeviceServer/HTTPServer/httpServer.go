@@ -36,7 +36,7 @@ func httpServerFunc(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//log.Debug("value:", req.Form)
+	log.Debug("value:", req.Form)
 	io.WriteString(w, "recv ok")
 
 	gwid, isExist := req.Form["gwid"]

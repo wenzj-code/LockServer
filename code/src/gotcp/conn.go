@@ -85,7 +85,7 @@ func (c *Conn) updateHeartTimer() {
 
 func (c *Conn) readLoop() {
 	defer func() {
-		recover()
+		//recover()
 		c.Close()
 	}()
 	for {
@@ -93,6 +93,7 @@ func (c *Conn) readLoop() {
 		case <-c.closeChan:
 			return
 		default:
+			c.updateHeartTimer()
 			reader := bufio.NewReader(c.conn)
 			data, err := reader.ReadBytes('\n')
 			if err != nil {
@@ -101,7 +102,6 @@ func (c *Conn) readLoop() {
 				}
 				return
 			}
-			c.updateHeartTimer()
 			c.ReceiveChan <- data
 		}
 	}
@@ -109,7 +109,7 @@ func (c *Conn) readLoop() {
 
 func (c *Conn) writeLoop() {
 	defer func() {
-		recover()
+		//recover()
 		c.Close()
 	}()
 	for {
@@ -118,7 +118,7 @@ func (c *Conn) writeLoop() {
 			return
 		case data := <-c.SendChan:
 			if _, err := c.conn.Write(data); err != nil {
-				//log.Error("clientFlag:", c.clientFlag, ",conn write err: ", err, c.GetRemoteAddr())
+				log.Error("clientFlag:", c.clientFlag, ",conn write err: ", err, c.GetRemoteAddr())
 				return
 			}
 		}
@@ -127,7 +127,7 @@ func (c *Conn) writeLoop() {
 
 func (c *Conn) handleLoop() {
 	defer func() {
-		recover()
+		//recover()
 		c.Close()
 	}()
 
@@ -136,7 +136,9 @@ func (c *Conn) handleLoop() {
 		case <-c.closeChan:
 			return
 		case p := <-c.ReceiveChan:
-			c.Srv.callback.HandleMsg(c, p)
+			if p != nil {
+				c.Srv.callback.HandleMsg(c, p)
+			}
 		}
 	}
 }

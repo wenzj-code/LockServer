@@ -1,5 +1,8 @@
 package controllers
 
+/*
+	该模块主要用来接收APP的请求，包括登陆，添加网关，设备绑定
+*/
 import (
 	"WechatAPI/DBOpt"
 	"WechatAPI/common"
@@ -7,10 +10,16 @@ import (
 	"encoding/hex"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/astaxie/beego"
 )
 
+//AppController .
+type AppController struct {
+	beego.Controller
+}
+
 //AppLogin APP登陆
-func (c *MainController) AppLogin() {
+func (c *AppController) AppLogin() {
 	username := c.GetString("username")
 	pwd := c.GetString("pwd")
 
@@ -51,7 +60,7 @@ func (c *MainController) AppLogin() {
 }
 
 //AddGateway 添加网关
-func (c *MainController) AddGateway() {
+func (c *AppController) AddGateway() {
 	gwid := c.GetString("gwid")
 	gwname := c.GetString("gwname")
 	token := c.GetString("token")
@@ -66,6 +75,7 @@ func (c *MainController) AddGateway() {
 		return
 	}
 
+	//从Redis里判断该token是否存在，不存在，则没有权限访问
 	_, status, err := common.RedisTokenOpt.Get(token)
 	if err != nil {
 		log.Error("err:", err)
@@ -80,6 +90,7 @@ func (c *MainController) AddGateway() {
 		return
 	}
 
+	//检查用户ID的合法性
 	status, err = DBOpt.GetDataOpt().CheckUserID(userid)
 	if err != nil {
 		log.Error("err:", err)
@@ -94,6 +105,7 @@ func (c *MainController) AddGateway() {
 		return
 	}
 
+	//添加网关到数据库
 	err = DBOpt.GetDataOpt().AddGatewayInfo(userid, gwid, gwname)
 	if err != nil {
 		log.Error("err:", err)
@@ -107,7 +119,7 @@ func (c *MainController) AddGateway() {
 }
 
 //BindDeviceRoom 绑定房间与设备
-func (c *MainController) BindDeviceRoom() {
+func (c *AppController) BindDeviceRoom() {
 	deviceid := c.GetString("deviceid")
 	roomnu := c.GetString("roomnu")
 	token := c.GetString("token")
@@ -122,6 +134,7 @@ func (c *MainController) BindDeviceRoom() {
 		return
 	}
 
+	//从Redis里判断该token是否存在，不存在，则没有权限访问
 	_, status, err := common.RedisTokenOpt.Get(token)
 	if err != nil {
 		log.Error("err:", err)
@@ -136,6 +149,7 @@ func (c *MainController) BindDeviceRoom() {
 		return
 	}
 
+	//检查用户ID的合法性
 	status, err = DBOpt.GetDataOpt().CheckUserID(userid)
 	if err != nil {
 		log.Error("err:", err)
@@ -150,6 +164,7 @@ func (c *MainController) BindDeviceRoom() {
 		return
 	}
 
+	//检查该用户ID下的设备ID与房间号的绑定情况,是否已经被绑定
 	status, err = DBOpt.GetDataOpt().CheckDeviceIDRoom(deviceid, roomnu, userid)
 	if err != nil {
 		log.Error("err:", err)
@@ -164,6 +179,7 @@ func (c *MainController) BindDeviceRoom() {
 		return
 	}
 
+	//添加设备的绑定信息
 	err = DBOpt.GetDataOpt().AddDeviceAndRoomBind(userid, deviceid, roomnu)
 	if err != nil {
 		log.Error("err:", err)

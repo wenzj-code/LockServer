@@ -37,6 +37,7 @@ func (opt *DBOpt) GetDeviceIDList(gatewayID string) (devListMap map[string]bool,
 	}
 	defer rows.Close()
 
+	devListMap = make(map[string]bool)
 	var deviceID string
 	for rows.Next() {
 		err = rows.Scan(&deviceID)

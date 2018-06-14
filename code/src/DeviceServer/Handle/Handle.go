@@ -4,7 +4,9 @@ import (
 	"DeviceServer/Common"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"gotcp"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -19,7 +21,20 @@ func (cb *CallBack) Close() {
 }
 
 func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
+	if len(MsgBody) < 10 {
+		log.Debug("msg:", string(MsgBody))
+
+		return nil
+	}
 	log.Debug("msg:", string(MsgBody))
+	if len(MsgBody) < len(Common.DefaultHead)+10 {
+		log.Debug("wrong pack")
+		return errors.New("wrong pack")
+	}
+	if !strings.Contains(string(MsgBody), Common.DefaultHead) {
+		log.Debug("head err")
+		return errors.New("head err")
+	}
 	jsonData := MsgBody[len(Common.DefaultHead)+5:]
 	data := make(map[string]interface{})
 	err := json.Unmarshal(jsonData, &data)
