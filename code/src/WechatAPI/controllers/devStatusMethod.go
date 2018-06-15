@@ -39,7 +39,7 @@ func (c *DevStatusController) DoorRecvReport() {
 	log.Debug("config:", pushConfig)
 
 	//通过设备ID获取房间号
-	roomNum, _, err := DBOpt.GetDataOpt().GetRoomInfo(deviceID)
+	roomNum, appid, err := DBOpt.GetDataOpt().GetRoomInfo(deviceID)
 	if err != nil {
 		log.Error("err:", err)
 		return
@@ -54,10 +54,10 @@ func (c *DevStatusController) DoorRecvReport() {
 		return
 	}
 
-	dataMap["deviceID"] = deviceID
 	dataMap["roomNum"] = roomNum
 	dataMap["barry"] = barry
 	dataMap["status"] = status
+	dataMap["appid"] = appid
 	dataMap["token"] = token
 
 	dataBuf, err := json.Marshal(dataMap)
@@ -71,7 +71,7 @@ func (c *DevStatusController) DoorRecvReport() {
 	if err != nil {
 		log.Error("err:", err)
 	} else {
-		log.Info("推送成功:", deviceID)
+		log.Info("推送成功:", string(dataBuf))
 	}
 	return
 }
