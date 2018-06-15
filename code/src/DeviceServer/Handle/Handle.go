@@ -21,6 +21,12 @@ func (cb *CallBack) Close() {
 }
 
 func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Error("HandleMsg:", e)
+			return
+		}
+	}()
 	if len(MsgBody) < 10 {
 		log.Debug("msg:", string(MsgBody))
 
@@ -48,7 +54,7 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 		return nil
 	}
 
-	log.Info("data:", data)
+	//log.Info("data:", data)
 	cmd := val.(string)
 	switch cmd {
 	case "gw_register": //网关注册
@@ -78,7 +84,8 @@ func ackGateway(conn *gotcp.Conn, dataMap map[string]interface{}) {
 }
 
 func baseSendMsg(conn *gotcp.Conn, msg []byte) {
-	conn.SendChan <- getPackage(msg)
+	//log.Debug("send msg:", string(msg))
+	conn.SendChan <- msg
 }
 
 /*
@@ -87,6 +94,7 @@ func baseSendMsg(conn *gotcp.Conn, msg []byte) {
 func getPackage(msg []byte) []byte {
 	var crc int
 	len := len(msg)
+
 	var dataBuff bytes.Buffer
 	//包头
 	dataBuff.WriteString(Common.DefaultHead)
@@ -104,6 +112,7 @@ func getPackage(msg []byte) []byte {
 	dataBuff.WriteByte(byte(crc >> 16))
 	dataBuff.WriteByte(byte(crc >> 8))
 	dataBuff.WriteByte(byte(crc))
+	dataBuff.WriteString("\n")
 
 	return dataBuff.Bytes()
 }
