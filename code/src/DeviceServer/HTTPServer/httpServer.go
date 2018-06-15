@@ -1,10 +1,7 @@
 package HTTPServer
 
 import (
-	"DeviceServer/Common"
-	"DeviceServer/Config"
 	"DeviceServer/Handle"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -15,13 +12,10 @@ import (
 /*
 HttpInit Http服务的初始化
 */
-func HTTPInit(HTTPAddrPort int) error {
-	HTTPAddr := fmt.Sprintf("%s:%d", Common.GetLocalIP(), Config.GetConfig().HTTPServerPORT)
-
-	log.Info("httpserver start:", HTTPAddr)
-
+func HTTPInit(HTTPAddrPort string) error {
+	log.Info("httpserver start:", HTTPAddrPort)
 	http.HandleFunc("/dev-ctrl", httpServerFunc)
-	err := http.ListenAndServe(HTTPAddr, nil)
+	err := http.ListenAndServe(HTTPAddrPort, nil)
 	if err != nil {
 		log.Error("err:", err)
 		os.Exit(0)

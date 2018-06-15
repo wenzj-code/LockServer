@@ -29,7 +29,7 @@ type Option struct {
 	SysLogAddr string `yaml:"SysLogAddr"`
 
 	ReportHTTPAddr string `yaml:"ReportHTTPAddr"`
-	HTTPServerPORT int    `yaml:"HTTPServerPORT"`
+	HTTPServer string    `yaml:"HTTPServer"`
 
 	RedisAddr      string `yaml:"RedisAddr"`
 	RedisPwd       string `yaml:"RedisPwd"`

@@ -86,7 +86,7 @@ func start() {
 	go Srv.StartServer(config.Addr, "ControlServer")
 
 	//初始化HTTP服务，接收WechatAPI的消息
-	go HTTPServer.HTTPInit(config.HTTPServerPORT)
+	go HTTPServer.HTTPInit(config.HTTPServer)
 
 }
 

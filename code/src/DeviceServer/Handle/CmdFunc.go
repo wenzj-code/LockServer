@@ -29,9 +29,8 @@ func gatewayRegister(conn *gotcp.Conn, cmd string, dataMap map[string]interface{
 
 	ConnInfo[gatewayID] = conn
 
-	IPaddr := fmt.Sprintf("%s:%d", Common.GetLocalIP(), Config.GetConfig().HTTPServerPORT)
 	//网关注册的时候，保存网关所注册的服务器地址到Redis
-	err := Common.RedisServerOpt.Set(gatewayID, IPaddr, Config.GetConfig().RedisTimeOut)
+	err := Common.RedisServerOpt.Set(gatewayID, Config.GetConfig().HTTPServer, Config.GetConfig().RedisTimeOut)
 	if err != nil {
 		log.Error("err:", err)
 		return
