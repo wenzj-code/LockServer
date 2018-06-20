@@ -32,7 +32,7 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 
 		return nil
 	}
-	log.Debug("msg:", string(MsgBody))
+	//log.Debug("msg:", string(MsgBody))
 	if len(MsgBody) < len(Common.DefaultHead)+10 {
 		log.Debug("wrong pack")
 		return errors.New("wrong pack")
@@ -72,6 +72,7 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 	return nil
 }
 
+//响应网关程序
 func ackGateway(conn *gotcp.Conn, dataMap map[string]interface{}) {
 	dataBuf, err := json.Marshal(dataMap)
 	if err != nil {
@@ -79,6 +80,7 @@ func ackGateway(conn *gotcp.Conn, dataMap map[string]interface{}) {
 		return
 	}
 
+	//获取打包的协议
 	protoclBuf := getPackage(dataBuf)
 	baseSendMsg(conn, protoclBuf)
 }

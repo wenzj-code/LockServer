@@ -13,6 +13,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+//网关注册信息
 func gatewayRegister(conn *gotcp.Conn, cmd string, dataMap map[string]interface{}) {
 	val, isExist := dataMap["swm_gateway_info"]
 	if !isExist {
@@ -43,6 +44,7 @@ func gatewayRegister(conn *gotcp.Conn, cmd string, dataMap map[string]interface{
 	ackGateway(conn, dataMap)
 }
 
+//开门状态返回
 func doorCtrlDeal(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	val, isExist := data["device_info"]
 	if !isExist {
@@ -60,6 +62,7 @@ func doorCtrlDeal(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	pushMsg(deviceID, -1, 1)
 }
 
+//电量信息上报
 func doorReportBarry(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	val, isExist := data["device_info"]
 	if !isExist {
@@ -100,6 +103,7 @@ func requestDeviceList(conn *gotcp.Conn, cmd string, data map[string]interface{}
 		return
 	}
 	gatewayID := val.(string)
+	//通过网关ID查询数据库,获取网关下的所有设备
 	deviceList, err := DBOpt.GetDataOpt().GetDeviceIDList(gatewayID)
 	if err != nil {
 		log.Error("err:", err)

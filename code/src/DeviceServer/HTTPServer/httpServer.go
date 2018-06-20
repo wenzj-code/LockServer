@@ -23,6 +23,7 @@ func HTTPInit(HTTPAddrPort string) error {
 	return err
 }
 
+//http路由回调函数
 func httpServerFunc(w http.ResponseWriter, req *http.Request) {
 	err := req.ParseForm()
 	if err != nil {
@@ -51,5 +52,6 @@ func httpServerFunc(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	//开门控制,转发到对应的网关
 	Handle.DevCtrl(conn, gwid[0], deviceid[0])
 }
