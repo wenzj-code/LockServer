@@ -174,8 +174,6 @@ func (c *WechatController) DoorCtrlOpen() {
 		return
 	}
 
-	data := make(map[string]interface{})
-
 	//用Redis获取该网关连接到哪台服务器，并且或者所在连接的服务器地址
 	serverIP, isExist, err := common.RedisServerListOpt.Get(gatewayID)
 	if err != nil {
@@ -208,8 +206,7 @@ func (c *WechatController) DoorCtrlOpen() {
 		//网关不在线
 		errcode = 10008
 	}
-	data["code"] = common.GetErrCodeJSON(errcode)
-	c.Data["json"] = data
+	c.Data["json"] = common.GetErrCodeJSON(errcode)
 	c.ServeJSON()
 	if errcode != 0 {
 		log.Info("网关或者设备不在线：gw=", gatewayID, ",deviceID=", DeviceID)
