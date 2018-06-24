@@ -134,7 +134,7 @@ func (opt *QrcodeClient) receiveData() {
 
 		len := binary.BigEndian.Uint32(head[headLen+1 : headLen+5])
 		//log.Debug("len:", len)
-		ibuf := make([]byte, len+5)
+		ibuf := make([]byte, uint32(headLen)+5+len+5)
 
 		if _, err := io.ReadFull(opt.conn, ibuf); err != nil {
 			log.Error("服务接收失败: " + err.Error())

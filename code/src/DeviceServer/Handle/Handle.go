@@ -27,16 +27,22 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 			return
 		}
 	}()
-	if len(MsgBody) < 10 {
-		log.Debug("msg:", string(MsgBody))
 
+	if len(MsgBody) < 10 {
+		//log.Debug("错误包:", string(MsgBody))
 		return nil
 	}
-	//log.Debug("msg:", string(MsgBody))
+
 	if len(MsgBody) < len(Common.DefaultHead)+10 {
 		log.Debug("wrong pack")
 		return errors.New("wrong pack")
 	}
+
+	if !strings.Contains(string(MsgBody), "0000-1111-2222") {
+		log.Debug("接收到消息msg:", string(MsgBody))
+	}
+	//log.Debug("msg:", string(MsgBody))
+
 	if !strings.Contains(string(MsgBody), Common.DefaultHead) {
 		log.Debug("head err")
 		return errors.New("head err")
@@ -82,6 +88,7 @@ func ackGateway(conn *gotcp.Conn, dataMap map[string]interface{}) {
 
 	//获取打包的协议
 	protoclBuf := getPackage(dataBuf)
+	log.Debug("ackmsg:", string(protoclBuf))
 	baseSendMsg(conn, protoclBuf)
 }
 

@@ -103,6 +103,11 @@ func requestDeviceList(conn *gotcp.Conn, cmd string, data map[string]interface{}
 		return
 	}
 	gatewayID := val.(string)
+	time.Sleep(3 * time.Second)
+	requestDeviceList2(conn, gatewayID)
+}
+
+func requestDeviceList2(conn *gotcp.Conn, gatewayID string) {
 	//通过网关ID查询数据库,获取网关下的所有设备
 	deviceList, err := DBOpt.GetDataOpt().GetDeviceIDList(gatewayID)
 	if err != nil {

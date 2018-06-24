@@ -4,7 +4,6 @@ import (
 
 	//"log"
 
-	"bufio"
 	"net"
 	"strings"
 	"sync"
@@ -64,6 +63,7 @@ func (c *Conn) GetRemoteAddr() string {
 }
 
 func (c *Conn) Close() {
+	log.Debug("Close.....")
 	c.closeOnce.Do(func() {
 		c.Srv.DeleteClientSocket(c.conn)
 		close(c.closeChan)
@@ -85,6 +85,7 @@ func (c *Conn) updateHeartTimer() {
 
 func (c *Conn) readLoop() {
 	defer func() {
+		log.Debug("readLoop end")
 		//recover()
 		c.Close()
 	}()
@@ -93,22 +94,26 @@ func (c *Conn) readLoop() {
 		case <-c.closeChan:
 			return
 		default:
+			//c.conn.Write([]byte("hb"))
 			c.updateHeartTimer()
-			reader := bufio.NewReader(c.conn)
-			data, err := reader.ReadBytes('\n')
+			var buf = make([]byte, 1024)
+			len, err := c.conn.Read(buf)
 			if err != nil {
 				if !strings.Contains(err.Error(), "EOF") {
 					log.Error("strFlag:", c.clientFlag, ",read pack Eror:", err, c.GetRemoteAddr())
 				}
+				log.Error("err:", err, ",addr:", c.GetRemoteAddr())
 				return
 			}
-			c.ReceiveChan <- data
+			//log.Debug("len:", len, ",buf:", string(buf[:len]))
+			c.ReceiveChan <- buf[:len]
 		}
 	}
 }
 
 func (c *Conn) writeLoop() {
 	defer func() {
+		log.Debug("writeLoop end")
 		//recover()
 		c.Close()
 	}()
@@ -127,6 +132,7 @@ func (c *Conn) writeLoop() {
 
 func (c *Conn) handleLoop() {
 	defer func() {
+		log.Debug("handleLoop end")
 		//recover()
 		c.Close()
 	}()
