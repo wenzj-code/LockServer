@@ -29,8 +29,11 @@ func init() {
 	errCodeMap[10008] = "网关不在线"
 	errCodeMap[10009] = "网关已存在"
 	errCodeMap[10010] = "用户数据不匹配"
-	errCodeMap[10011] = "设备或者房间号已被绑定"
+	errCodeMap[10011] = "设备已被绑定"
 	errCodeMap[10012] = "用户ID不存在"
+	errCodeMap[10013] = "网关不存在"
+	errCodeMap[10014] = "用户没有登陆权限"
+	errCodeMap[10015] = "房间号已绑定"
 }
 
 //GetErrCodeJSON 获取错误信息

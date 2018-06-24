@@ -6,8 +6,6 @@ package controllers
 import (
 	"WechatAPI/DBOpt"
 	"WechatAPI/common"
-	"crypto/md5"
-	"encoding/hex"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/astaxie/beego"
@@ -34,17 +32,17 @@ func (c *AppController) AppLogin() {
 	}
 	if userInfo.UserType != 3 {
 		log.Error("只有管理用户有权限登陆")
-		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.Data["json"] = common.GetErrCodeJSON(10014)
 		c.ServeJSON()
 		return
 	}
 
-	m := md5.New()
-	m.Write([]byte(pwd))
-	pwdMd5 := hex.EncodeToString(m.Sum(nil))
+	// m := md5.New()
+	// m.Write([]byte(pwd))
+	// pwdMd5 := hex.EncodeToString(m.Sum(nil))
 
-	if userInfo.UserPwd != pwdMd5 {
-		log.Error("登陆密码不匹配:name=", username, ",pwd=", pwd, ",pwdMd5=", pwdMd5)
+	if userInfo.UserPwd != pwd {
+		log.Error("登陆密码不匹配:name=", username, ",pwd=", pwd, ",pwdMd5=", userInfo.UserPwd)
 		c.Data["json"] = common.GetErrCodeJSON(10010)
 		c.ServeJSON()
 		return
@@ -120,6 +118,7 @@ func (c *AppController) AddGateway() {
 
 //BindDeviceRoom 绑定房间与设备
 func (c *AppController) BindDeviceRoom() {
+	gwid := c.GetString("gwid")
 	deviceid := c.GetString("deviceid")
 	roomnu := c.GetString("roomnu")
 	token := c.GetString("token")
@@ -128,7 +127,8 @@ func (c *AppController) BindDeviceRoom() {
 		log.Error("err:", err)
 	}
 
-	if deviceid == "" || roomnu == "" || userid == 0 || token == "" {
+	if deviceid == "" || gwid == "" || roomnu == "" || userid == 0 || token == "" {
+		log.Error("参数出错:", "gwid=", gwid, "deviceid=", deviceid, ",roomnu=", roomnu, ",userid=", userid, ",token=", token)
 		c.Data["json"] = common.GetErrCodeJSON(10003)
 		c.ServeJSON()
 		return
@@ -164,23 +164,51 @@ func (c *AppController) BindDeviceRoom() {
 		return
 	}
 
-	//检查该用户ID下的设备ID与房间号的绑定情况,是否已经被绑定
-	status, err = DBOpt.GetDataOpt().CheckDeviceIDRoom(deviceid, roomnu, userid)
+	gid, err := DBOpt.GetDataOpt().CheckGatewayExist(gwid, userid)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
 		c.ServeJSON()
 		return
 	}
-	if !status {
-		log.Info("房间号或者设备ID已经被绑定过了:", deviceid, ",", roomnu)
+	if gid == 0 {
+		log.Error("用户下该网关不存在:", gwid, ",userid:", userid)
+		c.Data["json"] = common.GetErrCodeJSON(10013)
+		c.ServeJSON()
+	}
+
+	//检查该用户ID下的设备ID与房间号的绑定情况,是否已经被绑定
+	status, err = DBOpt.GetDataOpt().CheckRoomBeenBind(roomnu, userid)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+	if status {
+		log.Info("该用户的该房间号已经被绑定过了:", userid, ",", roomnu)
+		c.Data["json"] = common.GetErrCodeJSON(10015)
+		c.ServeJSON()
+		return
+	}
+
+	//检查该用户ID下的设备ID与房间号的绑定情况,是否已经被绑定
+	status, err = DBOpt.GetDataOpt().CheckDeviceBeenBind(deviceid)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+	if status {
+		log.Info("设备ID已经被绑定过了:", deviceid, ",", roomnu)
 		c.Data["json"] = common.GetErrCodeJSON(10011)
 		c.ServeJSON()
 		return
 	}
 
 	//添加设备的绑定信息
-	err = DBOpt.GetDataOpt().AddDeviceAndRoomBind(userid, deviceid, roomnu)
+	err = DBOpt.GetDataOpt().AddDeviceAndRoomBind(userid, gid, deviceid, roomnu)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
