@@ -73,6 +73,31 @@ func (opt *DBOpt) GetRoomInfo(deviceID string) (roomnu, appid string, err error)
 	return roomnu, appid, err
 }
 
+//GetAgentIDAPPID 获取该设备所在的代理商ID
+func (opt *DBOpt) GetAgentIDAPPID(appid string) (agentid int, err error) {
+	conn, err := opt.connectDB()
+	if err != nil {
+		log.Error("err:", err)
+		return agentid, opt.errDBConnect
+	}
+	sqlString := fmt.Sprintf("select agent_id from t_user_info where id=(select parent_id from t_user_info where appid='%s')", appid)
+	//log.Debug("sqlString:", sqlString)
+	rows, err := conn.Query(sqlString)
+	if err != nil {
+		log.Error("err:", err)
+		return agentid, opt.errOptException
+	}
+	defer rows.Close()
+	if rows.Next() {
+		if err = rows.Scan(&agentid); err != nil {
+			log.Error("err:", err)
+			return agentid, err
+		}
+	}
+
+	return agentid, nil
+}
+
 //GetDeviceID 通过房间号与用户ID获取设备ＩＤ
 func (opt *DBOpt) GetDeviceID(roomnu string, appid string) (deviceID string, err error) {
 	conn, err := opt.connectDB()

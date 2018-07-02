@@ -1,0 +1,19 @@
+{"time":"2018-06-14 07:55:50","level":"info","scanID":"none","msg":"model server starts success....","filename":"exported.go:167"}
+{"time":"2018-06-14 07:56:07","level":"error","scanID":"none","msg":"err:strconv.Atoi: parsing "": invalid syntax","filename":"wechatMethod.go:124"}
+{"time":"2018-06-14 07:56:35","level":"info","scanID":"none","msg":"DoorCtrlOpen DeviceID=1001,Token=23238d8b5e65d1666728a46492d22c8373a384372b445d2c82a768e84df1f347,appid:88236f6aa303fb212da966f5fe275b7c","filename":"wechatMethod.go:131"}
+{"time":"2018-06-14 07:56:35","level":"error","scanID":"none","msg":"err:<nil>","filename":"wechatMethod.go:188"}
+{"time":"2018-06-14 19:53:01","level":"info","scanID":"none","msg":"model server starts success....","filename":"exported.go:167"}
+{"time":"2018-06-14 20:02:12","level":"info","scanID":"none","msg":"appid=88236f6aa303fb212da966f5fe275b7c,secret=d74270fbf70eaa517b8279a29b5db083","filename":"wechatMethod.go:32"}
+{"time":"2018-06-14 20:02:12","level":"error","scanID":"none","msg":"err:Error 1045: Access denied for user 'root'@'localhost' (using password: YES)","filename":"DBOpt.go:38"}
+{"time":"2018-06-14 20:02:12","level":"error","scanID":"none","msg":"err:Error 1045: Access denied for user 'root'@'localhost' (using password: YES)","filename":"wechatMethod.go:42"}
+{"time":"2018-06-14 20:02:30","level":"info","scanID":"none","msg":"model server starts success....","filename":"exported.go:167"}
+{"time":"2018-06-14 20:02:36","level":"info","scanID":"none","msg":"appid=88236f6aa303fb212da966f5fe275b7c,secret=d74270fbf70eaa517b8279a29b5db083","filename":"wechatMethod.go:32"}
+{"time":"2018-06-14 20:02:49","level":"info","scanID":"none","msg":"DoorCtrlOpen DeviceID=1001,Token=63c635bb426956d63e304e7d75e77806ffb94bb3bb04b01daf51c96b150a6423,appid:88236f6aa303fb212da966f5fe275b7c","filename":"wechatMethod.go:131"}
+{"time":"2018-06-14 20:02:49","level":"error","scanID":"none","msg":"err:<nil>","filename":"wechatMethod.go:188"}
+{"time":"2018-06-14 20:04:32","level":"info","scanID":"none","msg":"DoorCtrlOpen DeviceID=1001,Token=63c635bb426956d63e304e7d75e77806ffb94bb3bb04b01daf51c96b150a6423,appid:88236f6aa303fb212da966f5fe275b7c","filename":"wechatMethod.go:131"}
+{"time":"2018-06-14 20:04:32","level":"debug","scanID":"none","msg":"httpServerIP:http://192.168.2.142:8999/dev-ctrl?gwid=12345678&deviceid=00090909098","filename":"wechatMethod.go:221"}
+{"time":"2018-06-14 20:06:28","level":"info","scanID":"none","msg":"model server starts success....","filename":"exported.go:167"}
+{"time":"2018-06-14 20:06:31","level":"info","scanID":"none","msg":"DoorCtrlOpen DeviceID=1001,Token=63c635bb426956d63e304e7d75e77806ffb94bb3bb04b01daf51c96b150a6423,appid:88236f6aa303fb212da966f5fe275b7c","filename":"wechatMethod.go:131"}
+{"time":"2018-06-14 20:06:31","level":"debug","scanID":"none","msg":"httpServerIP:http://192.168.2.142:8999/dev-ctrl?gwid=12345678&deviceid=00090909098","filename":"wechatMethod.go:221"}
+{"time":"2018-06-14 20:06:31","level":"error","scanID":"none","msg":"还没配置推送地址，不推送:00090909098","filename":"devStatusMethod.go:36"}
+{"time":"2018-06-14 20:06:31","level":"error","scanID":"none","msg":"还没配置推送地址，不推送:00090909098","filename":"devStatusMethod.go:36"}

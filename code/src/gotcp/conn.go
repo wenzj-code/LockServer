@@ -21,6 +21,9 @@ type ConnCallbackInterface interface {
 	Close()
 }
 
+//GatewayCallBack 网关断开的回调函数
+type GatewayCallBack func(gatewayID string) error
+
 type Conn struct {
 	Srv            *Server
 	conn           *net.TCPConn
@@ -33,9 +36,13 @@ type Conn struct {
 
 	//标识，哪个客户端
 	clientFlag string
+
+	//网关断开回调
+	CallBack  GatewayCallBack
+	gateWayID string
 }
 
-func newConn(conn *net.TCPConn, srv *Server) *Conn {
+func newConn(conn *net.TCPConn, srv *Server, callBack GatewayCallBack) *Conn {
 	return &Conn{
 		Srv:            srv,
 		conn:           conn,
@@ -43,6 +50,7 @@ func newConn(conn *net.TCPConn, srv *Server) *Conn {
 		SendChan:       make(chan []byte, SendChanSize),
 		ReceiveChan:    make(chan []byte, ReceiveChanSize),
 		heartTimeCount: 0,
+		CallBack:       callBack,
 	}
 }
 
@@ -62,6 +70,10 @@ func (c *Conn) GetRemoteAddr() string {
 	return c.conn.RemoteAddr().String()
 }
 
+func (c *Conn) SetGatwayID(gwID string) {
+	c.gateWayID = gwID
+}
+
 func (c *Conn) Close() {
 	log.Debug("Close.....")
 	c.closeOnce.Do(func() {
@@ -70,6 +82,7 @@ func (c *Conn) Close() {
 		close(c.ReceiveChan)
 		close(c.SendChan)
 		c.conn.Close()
+		c.CallBack(c.gateWayID)
 	})
 }
 

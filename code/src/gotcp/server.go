@@ -48,7 +48,7 @@ func (s *Server) heatBeatDeal() {
 }
 
 //StartServer 开始服务
-func (s *Server) StartServer(addr string, flag string) error {
+func (s *Server) StartServer(addr string, flag string, callback GatewayCallBack) error {
 	var err error
 	var tcpAddr *net.TCPAddr
 	tcpAddr, err = net.ResolveTCPAddr("tcp", addr)
@@ -71,7 +71,7 @@ func (s *Server) StartServer(addr string, flag string) error {
 			continue
 		}
 
-		connVal := s.StoreClientSocket(conn)
+		connVal := s.StoreClientSocket(conn, callback)
 		log.Info("new connection:", connVal.GetRemoteAddr(), ",flag1:", flag)
 		connVal.SetClientFlag(flag)
 		go connVal.Do()
@@ -86,9 +86,9 @@ func (s *Server) DeleteClientSocket(conn *net.TCPConn) {
 }
 
 //StoreClientSocket ...
-func (s *Server) StoreClientSocket(conn *net.TCPConn) *Conn {
+func (s *Server) StoreClientSocket(conn *net.TCPConn, callback GatewayCallBack) *Conn {
 	s.Lock.Lock()
-	nconn := newConn(conn, s)
+	nconn := newConn(conn, s, callback)
 	s.ClientSocket[conn] = nconn
 	s.Lock.Unlock()
 	return nconn

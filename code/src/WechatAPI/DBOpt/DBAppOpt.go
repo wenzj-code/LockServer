@@ -123,6 +123,31 @@ func (opt *DBOpt) CheckRoomBeenBind(roomNu string, userid int) (bool, error) {
 	return false, nil
 }
 
+//GetAgentID 获取该设备所在的代理商ID
+func (opt *DBOpt) GetAgentID(userid int) (agentid int, err error) {
+	conn, err := opt.connectDB()
+	if err != nil {
+		log.Error("err:", err)
+		return agentid, opt.errDBConnect
+	}
+	sqlString := fmt.Sprintf("select agent_id from t_user_info where id=(select parent_id from t_user_info where id=%d)", userid)
+	//log.Debug("sqlString:", sqlString)
+	rows, err := conn.Query(sqlString)
+	if err != nil {
+		log.Error("err:", err)
+		return agentid, opt.errOptException
+	}
+	defer rows.Close()
+	if rows.Next() {
+		if err = rows.Scan(&agentid); err != nil {
+			log.Error("err:", err)
+			return agentid, err
+		}
+	}
+
+	return agentid, nil
+}
+
 //CheckGatewayExist 检查对应用户下是否有该网关
 func (opt *DBOpt) CheckGatewayExist(gatewayid string, userid int) (gwid int, err error) {
 	conn, err := opt.connectDB()

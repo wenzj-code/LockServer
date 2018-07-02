@@ -6,6 +6,7 @@ package controllers
 import (
 	"WechatAPI/DBOpt"
 	"WechatAPI/common"
+	"fmt"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/astaxie/beego"
@@ -164,6 +165,14 @@ func (c *AppController) BindDeviceRoom() {
 		return
 	}
 
+	agentid, err := DBOpt.GetDataOpt().GetAgentID(userid)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+
 	gid, err := DBOpt.GetDataOpt().CheckGatewayExist(gwid, userid)
 	if err != nil {
 		log.Error("err:", err)
@@ -176,6 +185,8 @@ func (c *AppController) BindDeviceRoom() {
 		c.Data["json"] = common.GetErrCodeJSON(10013)
 		c.ServeJSON()
 	}
+
+	agentidStr := fmt.Sprintf("%04d", agentid)
 
 	//检查该用户ID下的设备ID与房间号的绑定情况,是否已经被绑定
 	status, err = DBOpt.GetDataOpt().CheckRoomBeenBind(roomnu, userid)
@@ -193,7 +204,7 @@ func (c *AppController) BindDeviceRoom() {
 	}
 
 	//检查该用户ID下的设备ID与房间号的绑定情况,是否已经被绑定
-	status, err = DBOpt.GetDataOpt().CheckDeviceBeenBind(deviceid)
+	status, err = DBOpt.GetDataOpt().CheckDeviceBeenBind(agentidStr + deviceid)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
@@ -201,14 +212,14 @@ func (c *AppController) BindDeviceRoom() {
 		return
 	}
 	if status {
-		log.Info("设备ID已经被绑定过了:", deviceid, ",", roomnu)
+		log.Info("设备ID已经被绑定过了:", agentidStr+deviceid, ",", roomnu)
 		c.Data["json"] = common.GetErrCodeJSON(10011)
 		c.ServeJSON()
 		return
 	}
 
 	//添加设备的绑定信息
-	err = DBOpt.GetDataOpt().AddDeviceAndRoomBind(userid, gid, deviceid, roomnu)
+	err = DBOpt.GetDataOpt().AddDeviceAndRoomBind(userid, gid, agentidStr+deviceid, roomnu)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)

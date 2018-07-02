@@ -151,22 +151,35 @@ func (c *WechatController) DoorCtrlOpen() {
 	}
 
 	//通过房间号与酒店appid获取设备id信息
-	DeviceID, err := DBOpt.GetDataOpt().GetDeviceID(roomnu, appid)
+	DeviceIDAgent, err := DBOpt.GetDataOpt().GetDeviceID(roomnu, appid)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
 		c.ServeJSON()
 		return
 	}
-	if len(DeviceID) == 0 {
+	if len(DeviceIDAgent) == 0 {
 		log.Error("房间数据不存在:", roomnu, ",userid:", appid)
 		c.Data["json"] = common.GetErrCodeJSON(10004)
 		c.ServeJSON()
 		return
 	}
+	log.Debug("DeviceIDAgent:", DeviceIDAgent)
+
+	DeviceID := DeviceIDAgent[4:]
+
+	agentid, err := DBOpt.GetDataOpt().GetAgentIDAPPID(appid)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+
+	agentidStr := fmt.Sprintf("%04d", agentid)
 
 	//通过设备ID获取网关ID与在线状态
-	gatewayID, gwOnline, devOnline, err := DBOpt.GetDataOpt().CheckGatewayOnline(DeviceID)
+	gatewayID, gwOnline, devOnline, err := DBOpt.GetDataOpt().CheckGatewayOnline(agentidStr + DeviceID)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
