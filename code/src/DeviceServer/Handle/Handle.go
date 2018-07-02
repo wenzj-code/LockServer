@@ -29,19 +29,17 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 	}()
 
 	if len(MsgBody) < 10 {
+		baseSendMsg(conn, []byte("abc"))
 		//log.Debug("错误包:", string(MsgBody))
 		return nil
 	}
 
 	if len(MsgBody) < len(Common.DefaultHead)+10 {
-		log.Debug("wrong pack")
+		log.Error("wrong pack")
 		return errors.New("wrong pack")
 	}
 
-	if !strings.Contains(string(MsgBody), "0000-1111-2222") {
-		log.Debug("接收到消息msg:", string(MsgBody))
-	}
-	//log.Debug("msg:", string(MsgBody))
+	log.Debug("接收到消息msg:", string(MsgBody))
 
 	if !strings.Contains(string(MsgBody), Common.DefaultHead) {
 		log.Debug("head err")

@@ -83,7 +83,7 @@ func start() {
 	log.Info("DeviceServer server is starting.....version:", version, ",port:", config.Addr)
 	//初始化网关监听服务
 	Srv = gotcp.NewServer(&Handle.CallBack{})
-	go Srv.StartServer(config.Addr, "ControlServer")
+	go Srv.StartServer(config.Addr, "GateWayServer", DBOpt.GetDataOpt().SetGatwayOffline)
 
 	//初始化HTTP服务，接收WechatAPI的消息
 	go HTTPServer.HTTPInit(config.HTTPServer)

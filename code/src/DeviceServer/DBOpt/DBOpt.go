@@ -49,3 +49,26 @@ func (opt *DBOpt) GetDeviceIDList(gatewayID string) (devListMap map[string]bool,
 	}
 	return devListMap, err
 }
+
+//SetGatwayOnline 设置网关在线
+func (opt *DBOpt) SetGatwayOnline(gatewayID string) error {
+	return opt.setGatewayStatus(gatewayID, 1)
+}
+
+//SetGatwayOffline 设置网关下线
+func (opt *DBOpt) SetGatwayOffline(gatewayID string) error {
+	err := opt.setGatewayStatus(gatewayID, 0)
+	if err != nil {
+		log.Error("err:", err)
+	}
+	return err
+}
+
+func (opt *DBOpt) setGatewayStatus(gatewayID string, status int) (err error) {
+	sqlString := "update t_gateway_info set status=? where gateway_id=?"
+	err = opt.exec(nil, sqlString, status, gatewayID)
+	if err != nil {
+		log.Error("err:", err)
+	}
+	return
+}
