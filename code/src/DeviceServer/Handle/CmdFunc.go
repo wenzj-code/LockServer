@@ -8,6 +8,7 @@ import (
 	"gotcp"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -27,6 +28,7 @@ func gatewayRegister(conn *gotcp.Conn, cmd string, dataMap map[string]interface{
 		return
 	}
 	gatewayID := val.(string)
+	gatewayID = strings.ToUpper(gatewayID)
 
 	ConnInfo[gatewayID] = conn
 
@@ -109,6 +111,7 @@ func requestDeviceList(conn *gotcp.Conn, cmd string, data map[string]interface{}
 		return
 	}
 	gatewayID := val.(string)
+	gatewayID = strings.ToUpper(gatewayID)
 	time.Sleep(3 * time.Second)
 	requestDeviceList2(conn, gatewayID)
 }

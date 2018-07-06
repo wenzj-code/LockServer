@@ -7,6 +7,7 @@ import (
 	"WechatAPI/DBOpt"
 	"WechatAPI/common"
 	"fmt"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/astaxie/beego"
@@ -61,6 +62,7 @@ func (c *AppController) AppLogin() {
 //AddGateway 添加网关
 func (c *AppController) AddGateway() {
 	gwid := c.GetString("gwid")
+	gwid = strings.ToUpper(gwid)
 	gwname := c.GetString("gwname")
 	token := c.GetString("token")
 	userid, err := c.GetInt("userid")
@@ -120,7 +122,9 @@ func (c *AppController) AddGateway() {
 //BindDeviceRoom 绑定房间与设备
 func (c *AppController) BindDeviceRoom() {
 	gwid := c.GetString("gwid")
+	gwid = strings.ToUpper(gwid)
 	deviceid := c.GetString("deviceid")
+	deviceid = strings.ToUpper(deviceid)
 	roomnu := c.GetString("roomnu")
 	token := c.GetString("token")
 	userid, err := c.GetInt("userid")
