@@ -191,6 +191,7 @@ func (c *AppController) BindDeviceRoom() {
 	}
 
 	agentidStr := fmt.Sprintf("%04d", agentid)
+	agentidStr = ""
 
 	//检查该用户ID下的设备ID与房间号的绑定情况,是否已经被绑定
 	status, err = DBOpt.GetDataOpt().CheckRoomBeenBind(roomnu, userid)
@@ -208,7 +209,7 @@ func (c *AppController) BindDeviceRoom() {
 	}
 
 	//检查该用户ID下的设备ID与房间号的绑定情况,是否已经被绑定
-	status, err = DBOpt.GetDataOpt().CheckDeviceBeenBind(agentidStr + deviceid)
+	status, err = DBOpt.GetDataOpt().CheckDeviceBeenBind(deviceid)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
