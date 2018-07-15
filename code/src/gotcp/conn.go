@@ -98,7 +98,7 @@ func (c *Conn) updateHeartTimer() {
 
 func (c *Conn) readLoop() {
 	defer func() {
-		log.Debug("readLoop end")
+		log.Debug("readLoop end:", c.gateWayID)
 		//recover()
 		c.Close()
 	}()
@@ -113,9 +113,9 @@ func (c *Conn) readLoop() {
 			len, err := c.conn.Read(buf)
 			if err != nil {
 				if !strings.Contains(err.Error(), "EOF") {
-					log.Error("strFlag:", c.clientFlag, ",read pack Eror:", err, c.GetRemoteAddr())
+					log.Error("strFlag:", c.clientFlag, ",read pack Eror:", err, c.GetRemoteAddr(), ",gwID:", c.gateWayID)
 				}
-				log.Error("err:", err, ",addr:", c.GetRemoteAddr())
+				log.Error("err:", err, ",addr:", c.GetRemoteAddr(), ",gwID:", c.gateWayID)
 				return
 			}
 			//log.Debug("len:", len, ",buf:", string(buf[:len]))
@@ -126,7 +126,7 @@ func (c *Conn) readLoop() {
 
 func (c *Conn) writeLoop() {
 	defer func() {
-		log.Debug("writeLoop end")
+		log.Debug("writeLoop end:", c.gateWayID)
 		//recover()
 		c.Close()
 	}()
@@ -136,7 +136,7 @@ func (c *Conn) writeLoop() {
 			return
 		case data := <-c.SendChan:
 			if _, err := c.conn.Write(data); err != nil {
-				log.Error("clientFlag:", c.clientFlag, ",conn write err: ", err, c.GetRemoteAddr())
+				log.Error("clientFlag:", c.clientFlag, ",conn write err: ", err, c.GetRemoteAddr(), ",gwID:", c.gateWayID)
 				return
 			}
 		}
@@ -145,7 +145,7 @@ func (c *Conn) writeLoop() {
 
 func (c *Conn) handleLoop() {
 	defer func() {
-		log.Debug("handleLoop end")
+		log.Debug("handleLoop end:", c.gateWayID)
 		//recover()
 		c.Close()
 	}()
