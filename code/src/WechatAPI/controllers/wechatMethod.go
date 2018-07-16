@@ -202,8 +202,9 @@ func (c *WechatController) DoorCtrlOpen() {
 		return
 	}
 
+	log.Debug("gatewayID:", gatewayID, ",gwOnline:", gwOnline)
+
 	//目前网关心跳只是一人空包，没有网关ＩＤ，无法做到网关是否线
-	gwOnline = true
 	devOnline = true
 	var errcode int
 	if gwOnline {

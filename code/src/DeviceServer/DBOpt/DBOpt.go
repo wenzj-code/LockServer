@@ -52,11 +52,13 @@ func (opt *DBOpt) GetDeviceIDList(gatewayID string) (devListMap map[string]bool,
 
 //SetGatwayOnline 设置网关在线
 func (opt *DBOpt) SetGatwayOnline(gatewayID string) error {
+	log.Debug("SetGatwayOnline:", gatewayID)
 	return opt.setGatewayStatus(gatewayID, 1)
 }
 
 //SetGatwayOffline 设置网关下线
 func (opt *DBOpt) SetGatwayOffline(gatewayID string) error {
+	log.Debug("SetGatwayOffline:", gatewayID)
 	err := opt.setGatewayStatus(gatewayID, 0)
 	if err != nil {
 		log.Error("err:", err)
