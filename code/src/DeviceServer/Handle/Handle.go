@@ -35,6 +35,7 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 	}
 
 	if len(MsgBody) < len(Common.DefaultHead)+10 {
+		baseSendMsg(conn, []byte("abc"))
 		log.Error("wrong pack")
 		return errors.New("wrong pack")
 	}
@@ -70,6 +71,7 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 	case "d2s_battery": //上报电量
 		doorReportBarry(conn, cmd, data)
 	default:
+		baseSendMsg(conn, []byte("abc"))
 		log.Error("cmd invalid:", cmd)
 	}
 

@@ -75,9 +75,9 @@ func (c *Conn) SetGatwayID(gwID string) {
 }
 
 func (c *Conn) Close() {
-	log.Debug("Close.....")
+	log.Debug("Close socket")
 	c.closeOnce.Do(func() {
-		c.Srv.DeleteClientSocket(c.conn)
+		//c.Srv.DeleteClientSocket(c.conn)
 		close(c.closeChan)
 		close(c.ReceiveChan)
 		close(c.SendChan)

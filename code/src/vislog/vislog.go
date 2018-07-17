@@ -47,8 +47,8 @@ func (f *VisFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		strFile = fmt.Sprint(filepath.Base(file), ":", line)
 	}
 	strTime := time.Now().Format("2006-01-02 15:04:05")
-	serialized := fmt.Sprintf("{\"time\":\"%s\",\"level\":\"%s\",\"scanID\":\"%s\",\"msg\":\"%s\",\"filename\":\"%s\"}",
-		strTime, entry.Level.String(), strScanID, entry.Message, strFile)
+	serialized := fmt.Sprintf("{\"time\":\"%s\",\"level\":\"%s\",\"msg\":\"%s\",\"filename\":\"%s\"}",
+		strTime, entry.Level.String(), entry.Message, strFile)
 
 	return append([]byte(serialized), '\n'), nil
 }
