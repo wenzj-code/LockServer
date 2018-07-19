@@ -71,6 +71,11 @@ func (c *Conn) GetRemoteAddr() string {
 }
 
 func (c *Conn) SetGatwayID(gwID string) {
+	for k, v := range c.Srv.ClientSocket {
+		if v.gateWayID == gwID {
+			c.Srv.ClientSocket[k].gateWayID = ""
+		}
+	}
 	c.gateWayID = gwID
 }
 

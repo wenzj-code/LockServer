@@ -45,13 +45,16 @@ func (opt *DBOpt) GetDeviceIDList(gatewayID string) (devListMap map[string]bool,
 			log.Error("err:", err)
 			return devListMap, err
 		}
-		devListMap[deviceID] = true
+		devListMap[deviceID] = true	
 	}
 	return devListMap, err
 }
 
 //SetGatwayOnline 设置网关在线
 func (opt *DBOpt) SetGatwayOnline(gatewayID string) error {
+	if len(gatewayID) == 0 {
+		return nil
+	}
 	log.Debug("SetGatwayOnline:", gatewayID)
 	return opt.setGatewayStatus(gatewayID, 1)
 }
