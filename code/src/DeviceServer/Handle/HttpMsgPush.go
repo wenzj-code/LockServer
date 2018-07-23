@@ -1,0 +1,73 @@
+package Handle
+
+import (
+	"DeviceServer/Config"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+
+	log "github.com/Sirupsen/logrus"
+)
+
+/*
+	模块说明：用于信息推送到WechatAPI
+*/
+
+//推送开门，电量信息给WechatAPI
+func pushMsgDevCtrl(deviceID string, barray float64, status int) {
+	config := Config.GetConfig()
+	httpServerIP := fmt.Sprintf("http://%s/report/dev-status?deviceid=%s&barry=%f&status=%d", config.ReportHTTPAddr, deviceID, barray, status)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	defer resp.Body.Close()
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	log.Info("上报成功:", deviceID)
+}
+
+//推送消息发卡/密码的响应给WechatAPI, status = dna
+func pushMsgSettingPassword(deviceID, keyVal string, keyType int, status int) {
+	config := Config.GetConfig()
+	httpServerIP := fmt.Sprintf("http://%s/report/dev-setting-password-status?deviceid=%s&keyvalue=%s&keytype=%d&status=%d",
+		config.ReportHTTPAddr, deviceID, keyVal, keyType, status)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	defer resp.Body.Close()
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	log.Info("卡/密码设置上报成功:", deviceID)
+}
+
+//取消卡/密码开门的响应给WechatAPI, status = dna
+func pushMsgCancelPassword(deviceID, keyVal string, keyType int, status int) {
+	config := Config.GetConfig()
+	httpServerIP := fmt.Sprintf("http://%s/report/dev-cancel-password-status?deviceid=%s&keyvalue=%s&keytype=%d&status=%d",
+		config.ReportHTTPAddr, deviceID, keyVal, keyType, status)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	defer resp.Body.Close()
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	log.Info("卡/密码设置上报成功:", deviceID)
+}

@@ -4,10 +4,7 @@ import (
 	"DeviceServer/Common"
 	"DeviceServer/Config"
 	"DeviceServer/DBOpt"
-	"fmt"
 	"gotcp"
-	"io/ioutil"
-	"net/http"
 	"strings"
 	"time"
 
@@ -15,7 +12,7 @@ import (
 )
 
 //网关注册信息
-func gatewayRegister(conn *gotcp.Conn, cmd string, dataMap map[string]interface{}) {
+func gatewayRegisterRsp(conn *gotcp.Conn, cmd string, dataMap map[string]interface{}) {
 	val, isExist := dataMap["swm_gateway_info"]
 	if !isExist {
 		log.Error("swm_gateway_info 字段不存在:", dataMap)
@@ -53,7 +50,7 @@ func gatewayRegister(conn *gotcp.Conn, cmd string, dataMap map[string]interface{
 }
 
 //开门状态返回
-func doorCtrlDeal(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
+func doorCtrlDealRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	val, isExist := data["device_info"]
 	if !isExist {
 		log.Error("device_info 字段不存在:", data)
@@ -67,11 +64,11 @@ func doorCtrlDeal(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	}
 	deviceID := val.(string)
 
-	pushMsg(deviceID, -1, 1)
+	pushMsgDevCtrl(deviceID, -1, 1)
 }
 
 //电量信息上报
-func doorReportBarry(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
+func doorReportBarryRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	val, isExist := data["device_info"]
 	if !isExist {
 		log.Error("device_info 字段不存在:", data)
@@ -92,11 +89,11 @@ func doorReportBarry(conn *gotcp.Conn, cmd string, data map[string]interface{}) 
 	}
 	battery := val.(float64)
 
-	pushMsg(deviceID, battery, 1)
+	pushMsgDevCtrl(deviceID, battery, 1)
 }
 
 //获取设备列表
-func requestDeviceList(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
+func requestDeviceListRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 
 	val, isExist := data["swm_gateway_info"]
 	if !isExist {
@@ -154,8 +151,87 @@ func requestDeviceList2(conn *gotcp.Conn, gatewayID string) {
 	}
 }
 
-//DevCtrl 控制开门
-func DevCtrl(conn *gotcp.Conn, gatewayID, deviceID string) {
+//下发卡号/密码响应
+func devSettingPasswordRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
+	val, isExist := data["device_info"]
+	if !isExist {
+		log.Error("device_info 字段不存在:", data)
+		return
+	}
+	deviceInfo := val.(map[string]interface{})
+	val, isExist = deviceInfo["device_mac"]
+	if !isExist {
+		log.Error("device_mac 字段不存在:", data)
+		return
+	}
+	deviceID := val.(string)
+
+	val, isExist = deviceInfo["ekey_value"]
+	if !isExist {
+		log.Error("ekey_value 字段不存在:", data)
+		return
+	}
+	ekeyValue := val.(string)
+
+	val, isExist = deviceInfo["ekey_type"]
+	if !isExist {
+		log.Error("ekey_type 字段不存在:", data)
+		return
+	}
+	ekeyType := int(val.(float64))
+
+	val, isExist = deviceInfo["statuscode "]
+	if !isExist {
+		log.Error("statuscode  字段不存在:", data)
+		return
+	}
+	statuscode := int(val.(float64))
+
+	pushMsgSettingPassword(deviceID, ekeyValue, ekeyType, statuscode)
+}
+
+//取消下发卡号/密码响应
+func devCancelPasswordRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
+	val, isExist := data["device_info"]
+	if !isExist {
+		log.Error("device_info 字段不存在:", data)
+		return
+	}
+	deviceInfo := val.(map[string]interface{})
+	val, isExist = deviceInfo["device_mac"]
+	if !isExist {
+		log.Error("device_mac 字段不存在:", data)
+		return
+	}
+	deviceID := val.(string)
+
+	val, isExist = deviceInfo["ekey_value"]
+	if !isExist {
+		log.Error("ekey_value 字段不存在:", data)
+		return
+	}
+	ekeyValue := val.(string)
+
+	val, isExist = deviceInfo["ekey_type"]
+	if !isExist {
+		log.Error("ekey_type 字段不存在:", data)
+		return
+	}
+	ekeyType := int(val.(float64))
+
+	val, isExist = deviceInfo["statuscode "]
+	if !isExist {
+		log.Error("statuscode  字段不存在:", data)
+		return
+	}
+	statuscode := int(val.(float64))
+
+	pushMsgCancelPassword(deviceID, ekeyValue, ekeyType, statuscode)
+}
+
+////////////////////////////////////////////////////////////////////
+//devCtrl 控制开门
+func devCtrl(conn *gotcp.Conn, gatewayID, deviceID string) {
 	dataMap := make(map[string]interface{})
 	deviceInfo := make(map[string]interface{})
 	deviceInfo["device_mac"] = deviceID
@@ -167,21 +243,38 @@ func DevCtrl(conn *gotcp.Conn, gatewayID, deviceID string) {
 	ackGateway(conn, dataMap)
 }
 
-//推送消息给WechatAPI
-func pushMsg(deviceID string, barray float64, status int) {
-	config := Config.GetConfig()
-	httpServerIP := fmt.Sprintf("http://%s/report/dev-status?deviceid=%s&barry=%f&status=%d", config.ReportHTTPAddr, deviceID, barray, status)
-	log.Debug("httpServerIP:", httpServerIP)
-	resp, err := http.Get(httpServerIP)
-	if err != nil {
-		log.Error("err:", err)
-		return
-	}
-	defer resp.Body.Close()
-	_, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Error("err:", err)
-		return
-	}
-	log.Info("上报成功:", deviceID)
+//DevSettingPassword 发卡与设置开门密码
+/*
+ *参数说明： devMac 门锁ID
+ *			keyValue 允许开门的卡号或者密码
+ *			keyType 设备类型，0发卡，1密码
+ *			expireDate 过期时间
+ */
+func DevSettingPassword(conn *gotcp.Conn, devMac, keyValue, expireDate string, keyType int) {
+	dataMap := make(map[string]interface{})
+	dataMap["cmd"] = "dev_single_password_setting"
+	dataMap["dev_mac"] = devMac
+	dataMap["ekey_type"] = keyType
+	dataMap["ekey_value"] = keyValue
+	dataMap["expiry_date"] = expireDate
+	dataMap["statuscode"] = 0
+
+	ackGateway(conn, dataMap)
+}
+
+//DevCancelPassword 取消卡号/密码开门
+/*
+ *参数说明： devMac 门锁ID
+ *			keyValue 允许开门的卡号或者密码
+ *			keyType 设备类型，0发卡，1密码
+ */
+func DevCancelPassword(conn *gotcp.Conn, devMac, keyValue string, keyType int) {
+	dataMap := make(map[string]interface{})
+	dataMap["cmd"] = "dev_single_password_cancel"
+	dataMap["dev_mac"] = devMac
+	dataMap["ekey_type"] = keyType
+	dataMap["ekey_value"] = keyValue
+	dataMap["statuscode"] = 0
+
+	ackGateway(conn, dataMap)
 }

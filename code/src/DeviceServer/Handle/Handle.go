@@ -63,13 +63,17 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 	cmd := val.(string)
 	switch cmd {
 	case "gw_register": //网关注册
-		gatewayRegister(conn, cmd, data)
+		gatewayRegisterRsp(conn, cmd, data)
 	case "d2s_status": //开门返回来的状态
-		doorCtrlDeal(conn, cmd, data)
+		doorCtrlDealRsp(conn, cmd, data)
 	case "d2s_request_devices": //网关请求所有节点信息
-		requestDeviceList(conn, cmd, data)
+		requestDeviceListRsp(conn, cmd, data)
 	case "d2s_battery": //上报电量
-		doorReportBarry(conn, cmd, data)
+		doorReportBarryRsp(conn, cmd, data)
+	case "dev_single_password_setting":
+		devSettingPasswordRsp(conn, cmd, data)
+	case "dev_single_password_cancel":
+		devCancelPasswordRsp(conn, cmd, data)
 	default:
 		baseSendMsg(conn, []byte("abc"))
 		log.Error("cmd invalid:", cmd)
