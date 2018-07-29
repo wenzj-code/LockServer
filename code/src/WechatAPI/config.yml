@@ -2,7 +2,7 @@ LogFile: ./log/WechatAPI.log
 LogLevel: DEBUG
 
 #Database: root:12345678@tcp(127.0.0.1:3306)/outside 
-Database: root:12345678@tcp(127.0.0.1:3306)/outside_help 
+Database: root:admin123@tcp(127.0.0.1:3306)/outside_help 
 
 RedisAddr: 127.0.0.1:6379
 RedisPwd: 

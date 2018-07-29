@@ -230,8 +230,8 @@ func devCancelPasswordRsp(conn *gotcp.Conn, cmd string, data map[string]interfac
 }
 
 ////////////////////////////////////////////////////////////////////
-//devCtrl 控制开门
-func devCtrl(conn *gotcp.Conn, gatewayID, deviceID string) {
+//DevCtrl 控制开门
+func DevCtrl(conn *gotcp.Conn, gatewayID, deviceID string) {
 	dataMap := make(map[string]interface{})
 	deviceInfo := make(map[string]interface{})
 	deviceInfo["device_mac"] = deviceID

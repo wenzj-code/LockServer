@@ -15,6 +15,8 @@ func init() {
 	beego.Router("/v1/token", &controllers.WechatController{}, "get:GetToken")
 	beego.Router("/v1/open-door", &controllers.WechatController{}, "get:DoorCtrlOpen")
 	beego.Router("/v1/get-roominfo", &controllers.WechatController{}, "get:GetRoomInfo")
+	beego.Router("/v1/setting-card-password", &controllers.WechatController{}, "get:SettingCardPassword")
+	beego.Router("/v1/cancel-card-password", &controllers.WechatController{}, "get:CancleCardPassword")
 
 	//APP扫描绑定接口
 	beego.Router("/v1/login", &controllers.AppController{}, "get:AppLogin")

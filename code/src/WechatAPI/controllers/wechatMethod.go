@@ -127,103 +127,16 @@ func (c *WechatController) DoorCtrlOpen() {
 		return
 	}
 
-	Token := c.GetString("token")
-	log.Info("DoorCtrlOpen DeviceID=", roomnu, ",Token=", Token, ",appid:", appid)
-	if roomnu == "" || appid == "" || Token == "" {
+	token := c.GetString("token")
+	log.Info("DoorCtrlOpen DeviceID=", roomnu, ",Token=", token, ",appid:", appid)
+	if roomnu == "" || appid == "" || token == "" {
 		c.Data["json"] = common.GetErrCodeJSON(10003)
 		c.ServeJSON()
 		return
 	}
 
-	//从Redis里判断该token是否存在，不存在，则没有权限访问
-	_, status, err := common.RedisTokenOpt.Get(Token)
-	if err != nil {
-		log.Error("err:", err)
-		c.Data["json"] = common.GetErrCodeJSON(10007)
-		c.ServeJSON()
-		return
-	}
+	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token)
 	if !status {
-		log.Info("Token数据不存在")
-		c.Data["json"] = common.GetErrCodeJSON(10001)
-		c.ServeJSON()
-		return
-	}
-
-	//通过房间号与酒店appid获取设备id信息
-	DeviceID, err := DBOpt.GetDataOpt().GetDeviceID(roomnu, appid)
-	if err != nil {
-		log.Error("err:", err)
-		c.Data["json"] = common.GetErrCodeJSON(10006)
-		c.ServeJSON()
-		return
-	}
-	if len(DeviceID) == 0 {
-		log.Error("房间数据不存在:", roomnu, ",userid:", appid)
-		c.Data["json"] = common.GetErrCodeJSON(10004)
-		c.ServeJSON()
-		return
-	}
-	log.Debug("DeviceID:", DeviceID)
-
-	//DeviceID := DeviceIDAgent[4:]
-
-	// agentid, err := DBOpt.GetDataOpt().GetAgentIDAPPID(appid)
-	// if err != nil {
-	// 	log.Error("err:", err)
-	// 	c.Data["json"] = common.GetErrCodeJSON(10006)
-	// 	c.ServeJSON()
-	// 	return
-	// }
-
-	// agentidStr := fmt.Sprintf("%04d", agentid)
-
-	//通过设备ID获取网关ID与在线状态
-	gatewayID, gwOnline, devOnline, err := DBOpt.GetDataOpt().CheckGatewayOnline(DeviceID)
-	if err != nil {
-		log.Error("err:", err)
-		c.Data["json"] = common.GetErrCodeJSON(10006)
-		c.ServeJSON()
-		return
-	}
-
-	//用Redis获取该网关连接到哪台服务器，并且或者所在连接的服务器地址
-	serverIP, isExist, err := common.RedisServerListOpt.Get(gatewayID)
-	if err != nil {
-		log.Error("err:", err)
-		c.Data["json"] = common.GetErrCodeJSON(10007)
-		c.ServeJSON()
-		return
-	}
-	if !isExist {
-		log.Error("err:", err)
-		c.Data["json"] = common.GetErrCodeJSON(10008)
-		c.ServeJSON()
-		return
-	}
-
-	log.Debug("gatewayID:", gatewayID, ",gwOnline:", gwOnline)
-
-	//目前网关心跳只是一人空包，没有网关ＩＤ，无法做到网关是否线
-	devOnline = true
-	var errcode int
-	if gwOnline {
-		//网关在线
-		errcode = 0
-		if devOnline {
-			errcode = 0
-		} else {
-			//设备不在线
-			errcode = 10009
-		}
-	} else {
-		//网关不在线
-		errcode = 10008
-	}
-	c.Data["json"] = common.GetErrCodeJSON(errcode)
-	c.ServeJSON()
-	if errcode != 0 {
-		log.Info("网关或者设备不在线：gw=", gatewayID, ",deviceID=", DeviceID)
 		return
 	}
 
@@ -257,4 +170,194 @@ func (c *WechatController) DoorCtrlOpen() {
 	}
 
 	return
+}
+
+//SettingCardPassword 发卡、密码
+func (c *WechatController) SettingCardPassword() {
+	roomnu := c.GetString("roomnu")
+	appid := c.GetString("appid")
+	keyvalue := c.GetString("keyvalue")
+	keytype, err := c.GetInt("keytype")
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	expireDate, err := c.GetInt64("expire-date")
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	token := c.GetString("token")
+	log.Info("DoorCtrlOpen DeviceID=", roomnu, ",Token=", token, ",appid:", appid)
+	if roomnu == "" || appid == "" || token == "" ||
+		keyvalue == "" {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token)
+	if !status {
+		return
+	}
+
+	//向设备服务请求发卡
+	httpServerIP := fmt.Sprintf("http://%s/setting-card-password?gwid=%s&deviceid=%s&keyvalue=%s&keytype=%d&expire-date=%d",
+		serverIP, gatewayID, DeviceID, keyvalue, keytype, expireDate)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	defer resp.Body.Close()
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+
+}
+
+//CancleCardPassword 发卡、密码
+func (c *WechatController) CancleCardPassword() {
+	roomnu := c.GetString("roomnu")
+	appid := c.GetString("appid")
+	keyvalue := c.GetString("keyvalue")
+	keytype, err := c.GetInt("keytype")
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	token := c.GetString("token")
+	log.Info("DoorCtrlOpen DeviceID=", roomnu, ",Token=", token, ",appid:", appid)
+	if roomnu == "" || appid == "" || token == "" ||
+		keyvalue == "" {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token)
+	if !status {
+		return
+	}
+
+	//向设备服务请求发卡
+	httpServerIP := fmt.Sprintf("http://%s/cancel-card-password?gwid=%s&deviceid=%s&keyvalue=%s&keytype=%d",
+		serverIP, gatewayID, DeviceID, keyvalue, keytype)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	defer resp.Body.Close()
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+
+}
+
+func (c *WechatController) checkAppidUser(roomnu, appid, token string) (string, string, string, bool) {
+	//从Redis里判断该token是否存在，不存在，则没有权限访问
+	_, status, err := common.RedisTokenOpt.Get(token)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10007)
+		c.ServeJSON()
+		return "", "", "", false
+	}
+	if !status {
+		log.Info("Token数据不存在")
+		c.Data["json"] = common.GetErrCodeJSON(10001)
+		c.ServeJSON()
+		return "", "", "", false
+	}
+
+	//通过房间号与酒店appid获取设备id信息
+	DeviceID, err := DBOpt.GetDataOpt().GetDeviceID(roomnu, appid)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return "", "", "", false
+	}
+	if len(DeviceID) == 0 {
+		log.Error("房间数据不存在:", roomnu, ",userid:", appid)
+		c.Data["json"] = common.GetErrCodeJSON(10004)
+		c.ServeJSON()
+		return "", "", "", false
+	}
+	log.Debug("DeviceID:", DeviceID)
+
+	//通过设备ID获取网关ID与在线状态
+	gatewayID, gwOnline, devOnline, err := DBOpt.GetDataOpt().CheckGatewayOnline(DeviceID)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return "", "", "", false
+	}
+
+	//用Redis获取该网关连接到哪台服务器，并且或者所在连接的服务器地址
+	serverIP, isExist, err := common.RedisServerListOpt.Get(gatewayID)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10007)
+		c.ServeJSON()
+		return "", "", "", false
+	}
+	if !isExist {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10008)
+		c.ServeJSON()
+		return "", "", "", false
+	}
+
+	log.Debug("gatewayID:", gatewayID, ",gwOnline:", gwOnline)
+
+	//目前网关心跳只是一人空包，没有网关ＩＤ，无法做到网关是否线
+	devOnline = true
+	var errcode int
+	if gwOnline {
+		//网关在线
+		errcode = 0
+		if devOnline {
+			errcode = 0
+		} else {
+			//设备不在线
+			errcode = 10009
+		}
+	} else {
+		//网关不在线
+		errcode = 10008
+	}
+	c.Data["json"] = common.GetErrCodeJSON(errcode)
+	c.ServeJSON()
+	if errcode != 0 {
+		log.Info("网关或者设备不在线：gw=", gatewayID, ",deviceID=", DeviceID)
+		return "", "", "", false
+	}
+
+	return string(serverIP), gatewayID, DeviceID, true
 }
