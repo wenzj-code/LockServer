@@ -101,7 +101,7 @@ func httpServerFuncCancelCard(w http.ResponseWriter, req *http.Request) {
 	conn, isExist := Handle.ConnInfo[gwid[0]]
 	if !isExist {
 		log.Error("该网关不在线:", gwid)
-		//return
+		return
 	}
 
 	//开门控制,转发到对应的网关
@@ -162,7 +162,7 @@ func httpServerFuncSettingCard(w http.ResponseWriter, req *http.Request) {
 	conn, isExist := Handle.ConnInfo[gwid[0]]
 	if !isExist {
 		log.Error("该网关不在线:", gwid)
-		//return
+		return
 	}
 
 	//开门控制,转发到对应的网关
