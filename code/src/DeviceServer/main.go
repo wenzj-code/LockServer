@@ -22,9 +22,9 @@ import (
 var Srv *gotcp.Server
 
 var (
-	version         = "1.1.3.1"
-	versionTime     = "20171208"
-	versionFunction = ""
+	version         = "1.1.3.2"
+	versionTime     = "20180730"
+	versionFunction = "1 增加发卡功\n"
 )
 
 func usage() bool {
