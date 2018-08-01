@@ -253,7 +253,7 @@ func DevCtrl(conn *gotcp.Conn, gatewayID, deviceID string) {
 func DevSettingPassword(conn *gotcp.Conn, devMac, keyValue, expireDate string, keyType int) {
 	dataMap := make(map[string]interface{})
 	dataMap["cmd"] = "dev_single_password_setting"
-	dataMap["dev_mac"] = devMac
+	dataMap["device_mac"] = devMac
 	dataMap["ekey_type"] = keyType
 	dataMap["ekey_value"] = keyValue
 	dataMap["expiry_date"] = expireDate
@@ -271,7 +271,7 @@ func DevSettingPassword(conn *gotcp.Conn, devMac, keyValue, expireDate string, k
 func DevCancelPassword(conn *gotcp.Conn, devMac, keyValue string, keyType int) {
 	dataMap := make(map[string]interface{})
 	dataMap["cmd"] = "dev_single_password_cancel"
-	dataMap["dev_mac"] = devMac
+	dataMap["device_mac"] = devMac
 	dataMap["ekey_type"] = keyType
 	dataMap["ekey_value"] = keyValue
 	dataMap["statuscode"] = 0
