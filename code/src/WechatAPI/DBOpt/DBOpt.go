@@ -24,6 +24,72 @@ func GetDataOpt() *DBOpt {
 	return dataOpt
 }
 
+//DelRoomInfo 删除指定的一个房间
+func (opt *DBOpt) DelRoomInfo(roomnu string, userid int) (err error) {
+	sqlString := "delete from t_room_info where roomnu=? and user_id=?"
+	if err = opt.exec(nil, sqlString, roomnu, userid); err != nil {
+		log.Error("err:", err)
+	}
+	return
+}
+
+//SyncRoomInfos 同步所有的房间，需要将原来的房间信息删除,
+func (opt *DBOpt) SyncRoomInfos(RoomInfos []common.RoomInfo, userid int) (err error) {
+	conn, err := opt.connectDB()
+	if err != nil {
+		log.Error("err:", err)
+		return err
+	}
+	defer opt.releaseDB(conn)
+
+	var sqlString string
+
+	if len(RoomInfos) > 1 {
+		sqlString = "delete from t_room_info where user_id=?"
+		if err = opt.exec(conn, sqlString, userid); err != nil {
+			log.Error("err:", err)
+			return err
+		}
+	}
+
+	sqlString = "insert ignore into t_room_info(rname,roomnu,user_id) values"
+	for _, roomInfo := range RoomInfos {
+		sqlString += fmt.Sprintf("('%s','%s',%d),", roomInfo.RName, roomInfo.Roomnu, userid)
+	}
+	sqlString = sqlString[:len(sqlString)-2]
+	if err = opt.exec(conn, sqlString); err != nil {
+		log.Error("err:", err)
+	}
+
+	return err
+}
+
+//GetUserID 通过APPID获取用户的ID
+func (opt *DBOpt) GetUserID(appid string) (userid int, err error) {
+	conn, err := opt.connectDB()
+	if err != nil {
+		log.Error("err:", err)
+		return userid, err
+	}
+	defer opt.releaseDB(conn)
+
+	sqlString := "select id from t_user_info where appid=?"
+	rows, err := conn.Query(sqlString, appid)
+	if err != nil {
+		log.Error("err:", err)
+		return userid, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&userid)
+		if err != nil {
+			log.Error("err:", err)
+			return userid, err
+		}
+	}
+	return userid, err
+}
+
 //CheckAppIDSecret 校验
 func (opt *DBOpt) CheckAppIDSecret(appid, secret string) (status bool, err error) {
 	conn, err := opt.connectDB()
@@ -71,31 +137,6 @@ func (opt *DBOpt) GetRoomInfo(deviceID string) (roomnu, appid string, err error)
 		}
 	}
 	return roomnu, appid, err
-}
-
-//GetAgentIDAPPID 获取该设备所在的代理商ID
-func (opt *DBOpt) GetAgentIDAPPID(appid string) (agentid int, err error) {
-	conn, err := opt.connectDB()
-	if err != nil {
-		log.Error("err:", err)
-		return agentid, opt.errDBConnect
-	}
-	sqlString := fmt.Sprintf("select agent_id from t_user_info where id=(select parent_id from t_user_info where appid='%s')", appid)
-	//log.Debug("sqlString:", sqlString)
-	rows, err := conn.Query(sqlString)
-	if err != nil {
-		log.Error("err:", err)
-		return agentid, opt.errOptException
-	}
-	defer rows.Close()
-	if rows.Next() {
-		if err = rows.Scan(&agentid); err != nil {
-			log.Error("err:", err)
-			return agentid, err
-		}
-	}
-
-	return agentid, nil
 }
 
 //GetDeviceID 通过房间号与用户ID获取设备ＩＤ

@@ -8,6 +8,7 @@ import (
 	"WechatAPI/DBOpt"
 	"WechatAPI/common"
 	"WechatAPI/config"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 
@@ -128,8 +129,9 @@ func (c *WechatController) DoorCtrlOpen() {
 	}
 
 	token := c.GetString("token")
+	requestid := c.GetString("requestid")
 	log.Info("DoorCtrlOpen DeviceID=", roomnu, ",Token=", token, ",appid:", appid)
-	if roomnu == "" || appid == "" || token == "" {
+	if roomnu == "" || appid == "" || token == "" || requestid == "" {
 		c.Data["json"] = common.GetErrCodeJSON(10003)
 		c.ServeJSON()
 		return
@@ -141,7 +143,7 @@ func (c *WechatController) DoorCtrlOpen() {
 	}
 
 	//向设备服务请求开门
-	httpServerIP := fmt.Sprintf("http://%s/dev-ctrl?gwid=%s&deviceid=%s", serverIP, gatewayID, DeviceID)
+	httpServerIP := fmt.Sprintf("http://%s/dev-ctrl?gwid=%s&deviceid=%s&requestid=%s", serverIP, gatewayID, DeviceID, requestid)
 	log.Debug("httpServerIP:", httpServerIP)
 	resp, err := http.Get(httpServerIP)
 	if err != nil {
@@ -194,9 +196,10 @@ func (c *WechatController) SettingCardPassword() {
 	}
 
 	token := c.GetString("token")
+	requestid := c.GetString("requestid")
 	log.Info("DoorCtrlOpen DeviceID=", roomnu, ",Token=", token, ",appid:", appid)
 	if roomnu == "" || appid == "" || token == "" ||
-		keyvalue == "" {
+		keyvalue == "" || requestid == "" {
 		c.Data["json"] = common.GetErrCodeJSON(10003)
 		c.ServeJSON()
 		return
@@ -208,8 +211,8 @@ func (c *WechatController) SettingCardPassword() {
 	}
 
 	//向设备服务请求发卡
-	httpServerIP := fmt.Sprintf("http://%s/setting-card-password?gwid=%s&deviceid=%s&keyvalue=%s&keytype=%d&expire-date=%d",
-		serverIP, gatewayID, DeviceID, keyvalue, keytype, expireDate)
+	httpServerIP := fmt.Sprintf("http://%s/setting-card-password?gwid=%s&deviceid=%s&keyvalue=%s&keytype=%d&expire-date=%d&requestid=%s",
+		serverIP, gatewayID, DeviceID, keyvalue, keytype, expireDate, requestid)
 	log.Debug("httpServerIP:", httpServerIP)
 	resp, err := http.Get(httpServerIP)
 	if err != nil {
@@ -243,9 +246,11 @@ func (c *WechatController) CancleCardPassword() {
 	}
 
 	token := c.GetString("token")
+	requestid := c.GetString("requestid")
+
 	log.Info("DoorCtrlOpen DeviceID=", roomnu, ",Token=", token, ",appid:", appid)
 	if roomnu == "" || appid == "" || token == "" ||
-		keyvalue == "" {
+		keyvalue == "" || requestid == "" {
 		c.Data["json"] = common.GetErrCodeJSON(10003)
 		c.ServeJSON()
 		return
@@ -257,8 +262,8 @@ func (c *WechatController) CancleCardPassword() {
 	}
 
 	//向设备服务请求发卡
-	httpServerIP := fmt.Sprintf("http://%s/cancel-card-password?gwid=%s&deviceid=%s&keyvalue=%s&keytype=%d",
-		serverIP, gatewayID, DeviceID, keyvalue, keytype)
+	httpServerIP := fmt.Sprintf("http://%s/cancel-card-password?gwid=%s&deviceid=%s&keyvalue=%s&keytype=%d&requestid=%s",
+		serverIP, gatewayID, DeviceID, keyvalue, keytype, requestid)
 	log.Debug("httpServerIP:", httpServerIP)
 	resp, err := http.Get(httpServerIP)
 	if err != nil {
@@ -360,4 +365,162 @@ func (c *WechatController) checkAppidUser(roomnu, appid, token string) (string, 
 	}
 
 	return string(serverIP), gatewayID, DeviceID, true
+}
+
+//SyncAllRooms 同步所有房间
+func (c *WechatController) SyncAllRooms() {
+	dataMap := make(map[string]interface{})
+
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &dataMap); err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	Token := dataMap["token"]
+	if Token == nil {
+		log.Error("token字段不存在")
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	log.Debug("token:", Token)
+	//从Redis里判断该token是否存在，不存在，则没有权限访问
+	_, status, err := common.RedisTokenOpt.Get(Token.(string))
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10007)
+		c.ServeJSON()
+		return
+	}
+	if !status {
+		log.Info("Token数据不存在")
+		c.Data["json"] = common.GetErrCodeJSON(10001)
+		c.ServeJSON()
+		return
+	}
+
+	appid := dataMap["appid"]
+	if appid == nil {
+		log.Error("appid字段不存在")
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	userid, err := DBOpt.GetDataOpt().GetUserID(appid.(string))
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+
+	dataRoomInfos := dataMap["data"].([]common.RoomInfo)
+	if err := DBOpt.GetDataOpt().SyncRoomInfos(dataRoomInfos, userid); err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+	c.Data["json"] = common.GetErrCodeJSON(0)
+	c.ServeJSON()
+}
+
+//AddRoomInfo 添加一个房间
+func (c *WechatController) AddRoomInfo() {
+	appid := c.GetString("appid")
+	token := c.GetString("token")
+	rname := c.GetString("rname")
+	roomnu := c.GetString("roomnu")
+
+	if appid == "" || token == "" || rname == "" ||
+		roomnu == "" {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+	//从Redis里判断该token是否存在，不存在，则没有权限访问
+	_, status, err := common.RedisTokenOpt.Get(token)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10007)
+		c.ServeJSON()
+		return
+	}
+	if !status {
+		log.Info("Token数据不存在")
+		c.Data["json"] = common.GetErrCodeJSON(10001)
+		c.ServeJSON()
+		return
+	}
+
+	userid, err := DBOpt.GetDataOpt().GetUserID(appid)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+
+	dataRoomInfos := make([]common.RoomInfo, 1)
+	dataRoomInfos[0].RName = rname
+	dataRoomInfos[0].Roomnu = roomnu
+	if err := DBOpt.GetDataOpt().SyncRoomInfos(dataRoomInfos, userid); err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+	c.Data["json"] = common.GetErrCodeJSON(0)
+	c.ServeJSON()
+}
+
+//DelRoomInfo 添加一个房间
+func (c *WechatController) DelRoomInfo() {
+	appid := c.GetString("appid")
+	token := c.GetString("token")
+	rname := c.GetString("rname")
+	roomnu := c.GetString("roomnu")
+
+	if appid == "" || token == "" || rname == "" ||
+		roomnu == "" {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	//从Redis里判断该token是否存在，不存在，则没有权限访问
+	_, status, err := common.RedisTokenOpt.Get(token)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10007)
+		c.ServeJSON()
+		return
+	}
+	if !status {
+		log.Info("Token数据不存在")
+		c.Data["json"] = common.GetErrCodeJSON(10001)
+		c.ServeJSON()
+		return
+	}
+
+	userid, err := DBOpt.GetDataOpt().GetUserID(appid)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+
+	if err := DBOpt.GetDataOpt().DelRoomInfo(roomnu, userid); err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+	c.Data["json"] = common.GetErrCodeJSON(0)
+	c.ServeJSON()
 }

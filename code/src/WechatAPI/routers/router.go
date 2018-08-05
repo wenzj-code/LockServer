@@ -17,16 +17,23 @@ func init() {
 	beego.Router("/v1/get-roominfo", &controllers.WechatController{}, "get:GetRoomInfo")
 	beego.Router("/v1/setting-card-password", &controllers.WechatController{}, "get:SettingCardPassword")
 	beego.Router("/v1/cancel-card-password", &controllers.WechatController{}, "get:CancleCardPassword")
+	beego.Router("/v1/sync-room-info", &controllers.WechatController{}, "post:SyncAllRooms")
+	beego.Router("/v1/add-room-info", &controllers.WechatController{}, "get:AddRoomInfo")
+	beego.Router("/v1/del-room-info", &controllers.WechatController{}, "get:DelRoomInfo")
 
 	//APP扫描绑定接口
 	beego.Router("/v1/login", &controllers.AppController{}, "get:AppLogin")
 	beego.Router("/v1/add-gateway", &controllers.AppController{}, "get:AddGateway")
 	beego.Router("/v1/bind-room", &controllers.AppController{}, "get:BindDeviceRoom")
+	beego.Router("/v1/sync-room-info", &controllers.AppController{}, "get:SyncRoomInfo")
 
 	//模拟推送接收接口
 	beego.Router("/test/token", &controllers.TestPushServerController{}, "get:TestToken")
 	beego.Router("/test/push", &controllers.TestPushServerController{}, "post:TestPush")
 
 	//接收设备服务的状态上报接口
-	beego.Router("/report/dev-status", &controllers.DevStatusController{}, "get:DoorRecvReport")
+	beego.Router("/report/door-ctrl-rsp", &controllers.DevStatusController{}, "get:DoorCtrlRsp")
+	beego.Router("/report/setting-card-rsp", &controllers.DevStatusController{}, "get:SettingCardlRsp")
+	beego.Router("/report/cancel-card-rsp", &controllers.DevStatusController{}, "get:CancelCardlRsp")
+	beego.Router("/report/card-open-rsp", &controllers.DevStatusController{}, "get:CardDoorOpenlRsp")
 }

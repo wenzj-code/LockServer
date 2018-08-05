@@ -6,7 +6,6 @@ package controllers
 import (
 	"WechatAPI/DBOpt"
 	"WechatAPI/common"
-	"fmt"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -169,14 +168,6 @@ func (c *AppController) BindDeviceRoom() {
 		return
 	}
 
-	agentid, err := DBOpt.GetDataOpt().GetAgentID(userid)
-	if err != nil {
-		log.Error("err:", err)
-		c.Data["json"] = common.GetErrCodeJSON(10006)
-		c.ServeJSON()
-		return
-	}
-
 	gid, err := DBOpt.GetDataOpt().CheckGatewayExist(gwid, userid)
 	if err != nil {
 		log.Error("err:", err)
@@ -189,9 +180,6 @@ func (c *AppController) BindDeviceRoom() {
 		c.Data["json"] = common.GetErrCodeJSON(10013)
 		c.ServeJSON()
 	}
-
-	agentidStr := fmt.Sprintf("%04d", agentid)
-	agentidStr = ""
 
 	//检查该用户ID下的设备ID与房间号的绑定情况,是否已经被绑定
 	status, err = DBOpt.GetDataOpt().CheckRoomBeenBind(roomnu, userid)
@@ -217,14 +205,14 @@ func (c *AppController) BindDeviceRoom() {
 		return
 	}
 	if status {
-		log.Info("设备ID已经被绑定过了:", agentidStr+deviceid, ",", roomnu)
+		log.Info("设备ID已经被绑定过了:", deviceid, ",", roomnu)
 		c.Data["json"] = common.GetErrCodeJSON(10011)
 		c.ServeJSON()
 		return
 	}
 
 	//添加设备的绑定信息
-	err = DBOpt.GetDataOpt().AddDeviceAndRoomBind(userid, gid, agentidStr+deviceid, roomnu)
+	err = DBOpt.GetDataOpt().AddDeviceAndRoomBind(userid, gid, deviceid, roomnu)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
@@ -233,6 +221,48 @@ func (c *AppController) BindDeviceRoom() {
 	}
 
 	c.Data["json"] = common.GetErrCodeJSON(0)
+	c.ServeJSON()
+	return
+}
+
+//SyncRoomInfo 同步所有的房间
+func (c *AppController) SyncRoomInfo() {
+	username := c.GetString("username")
+	token := c.GetString("token")
+
+	if username == "" || token == "" {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	//从Redis里判断该token是否存在，不存在，则没有权限访问
+	_, status, err := common.RedisTokenOpt.Get(token)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10007)
+		c.ServeJSON()
+		return
+	}
+	if !status {
+		log.Info("Token数据不存在")
+		c.Data["json"] = common.GetErrCodeJSON(10001)
+		c.ServeJSON()
+		return
+	}
+
+	dataRoomInfo, err := DBOpt.GetDataOpt().GetAllRoomInfos(username)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+
+	dataMap := make(map[string]interface{})
+	dataMap["username"] = username
+	dataMap["data"] = dataRoomInfo
+	c.Data["json"] = dataMap
 	c.ServeJSON()
 	return
 }
