@@ -20,9 +20,9 @@ func init() {
 }
 
 var (
-	version         = "1.1.5.0"
-	versionTime     = "20180402"
-	versionFunction = "1 修改数据库BUG，没有关闭行连接，导致连接数增加\n"
+	version         = "1.1.3.2"
+	versionTime     = "20180730"
+	versionFunction = "1 增加发卡功\n"
 )
 
 func usage() bool {
