@@ -25,7 +25,7 @@ func init() {
 	beego.Router("/v1/login", &controllers.AppController{}, "get:AppLogin")
 	beego.Router("/v1/add-gateway", &controllers.AppController{}, "get:AddGateway")
 	beego.Router("/v1/bind-room", &controllers.AppController{}, "get:BindDeviceRoom")
-	beego.Router("/v1/sync-room-info", &controllers.AppController{}, "get:SyncRoomInfo")
+	beego.Router("/v1/get-room-info", &controllers.AppController{}, "get:GetAllRoomInfos")
 
 	//模拟推送接收接口
 	beego.Router("/test/token", &controllers.TestPushServerController{}, "get:TestToken")
@@ -35,5 +35,5 @@ func init() {
 	beego.Router("/report/door-ctrl-rsp", &controllers.DevStatusController{}, "get:DoorCtrlRsp")
 	beego.Router("/report/setting-card-rsp", &controllers.DevStatusController{}, "get:SettingCardlRsp")
 	beego.Router("/report/cancel-card-rsp", &controllers.DevStatusController{}, "get:CancelCardlRsp")
-	beego.Router("/report/card-open-rsp", &controllers.DevStatusController{}, "get:CardDoorOpenlRsp")
+	beego.Router("/report/card-openlock-record", &controllers.DevStatusController{}, "get:CardDoorOpenlRsp")
 }

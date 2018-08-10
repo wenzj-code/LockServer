@@ -56,7 +56,8 @@ func (opt *DBOpt) SyncRoomInfos(RoomInfos []common.RoomInfo, userid int) (err er
 	for _, roomInfo := range RoomInfos {
 		sqlString += fmt.Sprintf("('%s','%s',%d),", roomInfo.RName, roomInfo.Roomnu, userid)
 	}
-	sqlString = sqlString[:len(sqlString)-2]
+	sqlString = sqlString[:len(sqlString)-1]
+	log.Debug("sqlString:", sqlString)
 	if err = opt.exec(conn, sqlString); err != nil {
 		log.Error("err:", err)
 	}
@@ -73,6 +74,7 @@ func (opt *DBOpt) GetUserID(appid string) (userid int, err error) {
 	}
 	defer opt.releaseDB(conn)
 
+	userid = -1
 	sqlString := "select id from t_user_info where appid=?"
 	rows, err := conn.Query(sqlString, appid)
 	if err != nil {

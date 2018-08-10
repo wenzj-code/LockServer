@@ -172,7 +172,7 @@ func (opt *DBOpt) GetAllRoomInfos(username string) (roomInfos []common.RoomInfo,
 	}
 	defer opt.releaseDB(conn)
 
-	sqlString := "select rname,roomnuu from t_room_info a " +
+	sqlString := "select rname,roomnu from t_room_info a " +
 		"inner join t_user_info b on user_account=? and b.id=a.user_id"
 
 	rows, err := conn.Query(sqlString, username)
@@ -182,16 +182,14 @@ func (opt *DBOpt) GetAllRoomInfos(username string) (roomInfos []common.RoomInfo,
 	}
 	defer rows.Close()
 
-	var rname, roomnu string
-	var i int
-	roomInfos = make([]common.RoomInfo, 1)
-	if rows.Next() {
-		if err = rows.Scan(&rname, &roomnu); err != nil {
+	//roomInfos = make([]common.RoomInfo, 0)
+	for rows.Next() {
+		var roomInfo common.RoomInfo
+		if err = rows.Scan(&roomInfo.RName, &roomInfo.Roomnu); err != nil {
 			log.Error("err:", err)
 			return nil, err
 		}
-		roomInfos[i].RName = rname
-		roomInfos[i].Roomnu = roomnu
+		roomInfos = append(roomInfos, roomInfo)
 	}
 
 	return roomInfos, nil

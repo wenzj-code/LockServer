@@ -418,7 +418,22 @@ func (c *WechatController) SyncAllRooms() {
 		return
 	}
 
-	dataRoomInfos := dataMap["data"].([]common.RoomInfo)
+	dataInfo := dataMap["data"].([]interface{})
+	if dataInfo == nil {
+		log.Error("data字段不存在")
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	dataRoomInfos := make([]common.RoomInfo, len(dataInfo))
+	for k, v := range dataInfo {
+		vMap := v.(map[string]interface{})
+		dataRoomInfos[k].RName = vMap["rname"].(string)
+		dataRoomInfos[k].Roomnu = vMap["roomnu"].(string)
+	}
+	log.Debug("roomInfo:", dataRoomInfos)
+
 	if err := DBOpt.GetDataOpt().SyncRoomInfos(dataRoomInfos, userid); err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
@@ -436,6 +451,7 @@ func (c *WechatController) AddRoomInfo() {
 	rname := c.GetString("rname")
 	roomnu := c.GetString("roomnu")
 
+	log.Debug("roomnu:", roomnu, ",rname:", rname)
 	if appid == "" || token == "" || rname == "" ||
 		roomnu == "" {
 		c.Data["json"] = common.GetErrCodeJSON(10003)
@@ -461,6 +477,12 @@ func (c *WechatController) AddRoomInfo() {
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+	if userid < 0 {
+		log.Error("用户不存在")
+		c.Data["json"] = common.GetErrCodeJSON(10012)
 		c.ServeJSON()
 		return
 	}
@@ -482,11 +504,9 @@ func (c *WechatController) AddRoomInfo() {
 func (c *WechatController) DelRoomInfo() {
 	appid := c.GetString("appid")
 	token := c.GetString("token")
-	rname := c.GetString("rname")
 	roomnu := c.GetString("roomnu")
 
-	if appid == "" || token == "" || rname == "" ||
-		roomnu == "" {
+	if appid == "" || token == "" || roomnu == "" {
 		c.Data["json"] = common.GetErrCodeJSON(10003)
 		c.ServeJSON()
 		return
@@ -511,6 +531,12 @@ func (c *WechatController) DelRoomInfo() {
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10006)
+		c.ServeJSON()
+		return
+	}
+	if userid < 0 {
+		log.Error("用户不存在")
+		c.Data["json"] = common.GetErrCodeJSON(10012)
 		c.ServeJSON()
 		return
 	}

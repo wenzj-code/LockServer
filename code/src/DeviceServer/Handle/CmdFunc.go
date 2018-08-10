@@ -64,7 +64,14 @@ func doorCtrlDealRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) 
 	}
 	deviceID := val.(string)
 
-	pushMsgDevCtrl(deviceID, -1, 1)
+	val, isExist = deviceInfo["requestid"]
+	if !isExist {
+		log.Error("requestid 字段不存在:", data)
+		return
+	}
+	requestid := val.(string)
+
+	pushMsgDevCtrl(deviceID, requestid, 0, 1)
 }
 
 //电量信息上报
@@ -89,7 +96,7 @@ func doorReportBarryRsp(conn *gotcp.Conn, cmd string, data map[string]interface{
 	}
 	battery := val.(float64)
 
-	pushMsgDevCtrl(deviceID, battery, 1)
+	pushMsgDevCtrl(deviceID, "", battery, 1)
 }
 
 //获取设备列表
@@ -187,7 +194,14 @@ func devSettingPasswordRsp(conn *gotcp.Conn, cmd string, data map[string]interfa
 	}
 	statuscode := int(val.(float64))
 
-	pushMsgSettingPassword(deviceID, ekeyValue, ekeyType, statuscode)
+	val, isExist = deviceInfo["requestid"]
+	if !isExist {
+		log.Error("ekey_type 字段不存在:", data)
+		return
+	}
+	requestid := val.(string)
+
+	pushMsgSettingPassword(deviceID, ekeyValue, requestid, ekeyType, statuscode)
 }
 
 //取消下发卡号/密码响应
@@ -226,17 +240,71 @@ func devCancelPasswordRsp(conn *gotcp.Conn, cmd string, data map[string]interfac
 	}
 	statuscode := int(val.(float64))
 
-	pushMsgCancelPassword(deviceID, ekeyValue, ekeyType, statuscode)
+	val, isExist = deviceInfo["requestid"]
+	if !isExist {
+		log.Error("ekey_type 字段不存在:", data)
+		return
+	}
+	requestid := val.(string)
+
+	pushMsgCancelPassword(deviceID, ekeyValue, requestid, ekeyType, statuscode)
+}
+
+//刷卡开门上报
+func cardOpenLockRecord(conn *gotcp.Conn, cmd string, deviceInfo map[string]interface{}) {
+	val, isExist := deviceInfo["device_mac"]
+	if !isExist {
+		log.Error("device_mac 字段不存在:", deviceInfo)
+		return
+	}
+	deviceID := val.(string)
+
+	val, isExist = deviceInfo["openlock_cardnumber"]
+	if !isExist {
+		log.Error("openlock_cardnumber 字段不存在:", deviceInfo)
+		return
+	}
+	ekeyValue := val.(string)
+
+	val, isExist = deviceInfo["ekey_type"]
+	if !isExist {
+		log.Error("ekey_type 字段不存在:", deviceInfo)
+		return
+	}
+	ekeyType := int(val.(float64))
+
+	// val, isExist = deviceInfo["openlock_status"]
+	// if !isExist {
+	// 	log.Error("openlock_status 字段不存在:", deviceInfo)
+	// 	return
+	// }
+	// openlockStatus := val.(string)
+	val, isExist = deviceInfo["openlock_time"]
+	if !isExist {
+		log.Error("openlock_time 字段不存在:", deviceInfo)
+		return
+	}
+	openlockTime := val.(string)
+
+	val, isExist = deviceInfo["requestid"]
+	if !isExist {
+		log.Error("requestid 字段不存在:", deviceInfo)
+		return
+	}
+	requestid := val.(string)
+
+	pushMsgCardOpenLockRsp(deviceID, ekeyValue, openlockTime, requestid, ekeyType)
 }
 
 ////////////////////////////////////////////////////////////////////
 //DevCtrl 控制开门
-func DevCtrl(conn *gotcp.Conn, gatewayID, deviceID string) {
+func DevCtrl(conn *gotcp.Conn, gatewayID, deviceID, requestid string) {
 	dataMap := make(map[string]interface{})
 	deviceInfo := make(map[string]interface{})
 	deviceInfo["device_mac"] = deviceID
 	deviceInfo["switchStatus"] = 1
 	dataMap["cmd"] = "dev_ctrl"
+	dataMap["requestid"] = requestid
 	dataMap["device_info"] = deviceInfo
 	dataMap["statuscode"] = 0
 
@@ -250,10 +318,11 @@ func DevCtrl(conn *gotcp.Conn, gatewayID, deviceID string) {
  *			keyType 设备类型，0发卡，1密码
  *			expireDate 过期时间
  */
-func DevSettingPassword(conn *gotcp.Conn, devMac, keyValue, expireDate string, keyType int) {
+func DevSettingPassword(conn *gotcp.Conn, devMac, keyValue, expireDate, requestid string, keyType int) {
 	dataMap := make(map[string]interface{})
 	dataMap["cmd"] = "dev_single_password_setting"
 	dataMap["device_mac"] = devMac
+	dataMap["requestid"] = requestid
 	dataMap["ekey_type"] = keyType
 	dataMap["ekey_value"] = keyValue
 	dataMap["expiry_date"] = expireDate
@@ -268,9 +337,10 @@ func DevSettingPassword(conn *gotcp.Conn, devMac, keyValue, expireDate string, k
  *			keyValue 允许开门的卡号或者密码
  *			keyType 设备类型，0发卡，1密码
  */
-func DevCancelPassword(conn *gotcp.Conn, devMac, keyValue string, keyType int) {
+func DevCancelPassword(conn *gotcp.Conn, devMac, keyValue, requestid string, keyType int) {
 	dataMap := make(map[string]interface{})
 	dataMap["cmd"] = "dev_single_password_cancel"
+	dataMap["requestid"] = requestid
 	dataMap["device_mac"] = devMac
 	dataMap["ekey_type"] = keyType
 	dataMap["ekey_value"] = keyValue

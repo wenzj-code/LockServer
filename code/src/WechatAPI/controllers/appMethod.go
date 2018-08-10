@@ -226,7 +226,7 @@ func (c *AppController) BindDeviceRoom() {
 }
 
 //SyncRoomInfo 同步所有的房间
-func (c *AppController) SyncRoomInfo() {
+func (c *AppController) GetAllRoomInfos() {
 	username := c.GetString("username")
 	token := c.GetString("token")
 

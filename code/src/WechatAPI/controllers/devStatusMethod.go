@@ -206,13 +206,12 @@ func (c *DevStatusController) CancelCardlRsp() {
 
 //CardDoorOpenlRsp 卡开门状态上报
 func (c *DevStatusController) CardDoorOpenlRsp() {
+	//	httpServerIP := fmt.Sprintf("http://%s/report/card-openlock-record?deviceid=%s&keyvalue=%s&keytype=%d&opentime=%s&requestid=%s",
 	deviceID := c.GetString("deviceid")
-	requestid := c.GetString("requestid")
 	keyvalue := c.GetString("keyvalue")
 	keytype, _ := c.GetInt("keytype")
 	opentime, _ := c.GetInt64("open_time")
-	doorStatus, _ := c.GetInt("door_status")
-	doorBarray, _ := c.GetFloat("door_barray")
+	requestid := c.GetString("requestid")
 
 	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
 	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)
@@ -242,8 +241,8 @@ func (c *DevStatusController) CardDoorOpenlRsp() {
 	dataInfo["key_value"] = keyvalue
 	dataInfo["key_type"] = keytype
 	dataInfo["open_time"] = opentime
-	dataInfo["door_status"] = doorStatus
-	dataInfo["door_barray"] = doorBarray
+	dataInfo["door_status"] = 1
+	dataInfo["door_barray"] = 0
 
 	dataMap["cmd"] = "cardpassword_dev_status"
 	dataMap["deviceid"] = deviceID

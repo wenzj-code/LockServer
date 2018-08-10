@@ -50,6 +50,12 @@ func httpServerFuncDevCtrl(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	requestid, isExist := req.Form["requestid"]
+	if !isExist {
+		log.Error("requestid 字段不存在:", req.Form)
+		return
+	}
+
 	conn, isExist := Handle.ConnInfo[gwid[0]]
 	if !isExist {
 		log.Error("该网关不在线:", gwid)
@@ -57,7 +63,7 @@ func httpServerFuncDevCtrl(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//开门控制,转发到对应的网关
-	Handle.DevCtrl(conn, gwid[0], deviceid[0])
+	Handle.DevCtrl(conn, gwid[0], deviceid[0], requestid[0])
 }
 
 //取消发卡
@@ -74,6 +80,12 @@ func httpServerFuncCancelCard(w http.ResponseWriter, req *http.Request) {
 	gwid, isExist := req.Form["gwid"]
 	if !isExist {
 		log.Error("gwid 字段不存在:", req.Form)
+		return
+	}
+
+	requestid, isExist := req.Form["requestid"]
+	if !isExist {
+		log.Error("requestid 字段不存在:", req.Form)
 		return
 	}
 
@@ -105,7 +117,7 @@ func httpServerFuncCancelCard(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//开门控制,转发到对应的网关
-	Handle.DevCancelPassword(conn, deviceid[0], keyvalue[0], int(keytypeFloat))
+	Handle.DevCancelPassword(conn, deviceid[0], keyvalue[0], requestid[0], int(keytypeFloat))
 }
 
 //发卡
@@ -124,7 +136,11 @@ func httpServerFuncSettingCard(w http.ResponseWriter, req *http.Request) {
 		log.Error("gwid 字段不存在:", req.Form)
 		return
 	}
-
+	requestid, isExist := req.Form["requestid"]
+	if !isExist {
+		log.Error("requestid 字段不存在:", req.Form)
+		return
+	}
 	deviceid, isExist := req.Form["deviceid"]
 	if !isExist {
 		log.Error("deviceid 字段不存在:", req.Form)
@@ -166,5 +182,5 @@ func httpServerFuncSettingCard(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//开门控制,转发到对应的网关
-	Handle.DevSettingPassword(conn, deviceid[0], keyvalue[0], dateTime, int(keytypeFloat))
+	Handle.DevSettingPassword(conn, deviceid[0], keyvalue[0], dateTime, requestid[0], int(keytypeFloat))
 }

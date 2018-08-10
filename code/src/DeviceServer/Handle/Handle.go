@@ -62,7 +62,7 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 	//log.Info("data:", data)
 	cmd := val.(string)
 	switch cmd {
-	case "gw_register": //网关注册
+	case "gw_register": //心跳
 		gatewayRegisterRsp(conn, cmd, data)
 	case "d2s_status": //开门返回来的状态
 		doorCtrlDealRsp(conn, cmd, data)
@@ -74,6 +74,8 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 		devSettingPasswordRsp(conn, cmd, data)
 	case "dev_single_password_cancel":
 		devCancelPasswordRsp(conn, cmd, data)
+	case "openlock_record_return":
+
 	default:
 		baseSendMsg(conn, []byte("abc"))
 		log.Error("cmd invalid:", cmd)
