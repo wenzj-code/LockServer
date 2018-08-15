@@ -75,7 +75,7 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 	case "dev_single_password_cancel":
 		devCancelPasswordRsp(conn, cmd, data)
 	case "openlock_record_return":
-
+		cardOpenLockRecord(conn, cmd, data)
 	default:
 		baseSendMsg(conn, []byte("abc"))
 		log.Error("cmd invalid:", cmd)

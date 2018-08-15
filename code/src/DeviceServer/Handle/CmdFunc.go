@@ -187,16 +187,16 @@ func devSettingPasswordRsp(conn *gotcp.Conn, cmd string, data map[string]interfa
 	}
 	ekeyType := int(val.(float64))
 
-	val, isExist = deviceInfo["statuscode "]
+	val, isExist = deviceInfo["statuscode"]
 	if !isExist {
 		log.Error("statuscode  字段不存在:", data)
 		return
 	}
 	statuscode := int(val.(float64))
 
-	val, isExist = deviceInfo["requestid"]
+	val, isExist = data["requestid"]
 	if !isExist {
-		log.Error("ekey_type 字段不存在:", data)
+		log.Error("requestid 字段不存在:", data)
 		return
 	}
 	requestid := val.(string)
@@ -292,6 +292,14 @@ func cardOpenLockRecord(conn *gotcp.Conn, cmd string, deviceInfo map[string]inte
 		return
 	}
 	requestid := val.(string)
+
+	dataMap := make(map[string]interface{})
+	dataMap["cmd"] = "openlock_record_return"
+	dataMap["device_mac"] = deviceID
+	dataMap["requestid"] = requestid
+	dataMap["openlock_time"] = openlockTime
+	dataMap["statuscode"] = 0
+	ackGateway(conn, dataMap)
 
 	pushMsgCardOpenLockRsp(deviceID, ekeyValue, openlockTime, requestid, ekeyType)
 }
