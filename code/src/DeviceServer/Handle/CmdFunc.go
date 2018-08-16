@@ -297,6 +297,7 @@ func cardOpenLockRecord(conn *gotcp.Conn, cmd string, deviceInfo map[string]inte
 	dataMap["cmd"] = "openlock_record_return"
 	dataMap["device_mac"] = deviceID
 	dataMap["requestid"] = requestid
+	dataMap["ekey_type"] = ekeyType
 	dataMap["openlock_time"] = openlockTime
 	dataMap["statuscode"] = 0
 	ackGateway(conn, dataMap)
