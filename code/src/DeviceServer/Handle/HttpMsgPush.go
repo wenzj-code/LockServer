@@ -70,7 +70,7 @@ func pushMsgCancelPassword(deviceID, keyVal, requestid string, keyType int, stat
 		log.Error("err:", err)
 		return
 	}
-	log.Info("卡/密码设置上报成功:", deviceID)
+	log.Info("卡/密码取消上报成功:", deviceID)
 }
 
 //取消卡/密码开门的响应给WechatAPI

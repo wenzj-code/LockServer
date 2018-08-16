@@ -64,7 +64,7 @@ func doorCtrlDealRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) 
 	}
 	deviceID := val.(string)
 
-	val, isExist = deviceInfo["requestid"]
+	val, isExist = data["requestid"]
 	if !isExist {
 		log.Error("requestid 字段不存在:", data)
 		return
@@ -233,14 +233,14 @@ func devCancelPasswordRsp(conn *gotcp.Conn, cmd string, data map[string]interfac
 	}
 	ekeyType := int(val.(float64))
 
-	val, isExist = deviceInfo["statuscode "]
+	val, isExist = deviceInfo["statuscode"]
 	if !isExist {
 		log.Error("statuscode  字段不存在:", data)
 		return
 	}
 	statuscode := int(val.(float64))
 
-	val, isExist = deviceInfo["requestid"]
+	val, isExist = data["requestid"]
 	if !isExist {
 		log.Error("ekey_type 字段不存在:", data)
 		return
