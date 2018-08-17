@@ -96,6 +96,11 @@ func doorReportBarryRsp(conn *gotcp.Conn, cmd string, data map[string]interface{
 	}
 	battery := val.(float64)
 
+	if err := DBOpt.GetDataOpt().UpdateDeviceBarray(deviceID, battery); err != nil {
+		log.Error("err:", err)
+		return
+	}
+
 	pushMsgDevCtrl(deviceID, "", battery, 1)
 }
 

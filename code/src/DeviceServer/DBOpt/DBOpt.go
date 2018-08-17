@@ -45,7 +45,7 @@ func (opt *DBOpt) GetDeviceIDList(gatewayID string) (devListMap map[string]bool,
 			log.Error("err:", err)
 			return devListMap, err
 		}
-		devListMap[deviceID] = true	
+		devListMap[deviceID] = true
 	}
 	return devListMap, err
 }
@@ -72,6 +72,16 @@ func (opt *DBOpt) SetGatwayOffline(gatewayID string) error {
 func (opt *DBOpt) setGatewayStatus(gatewayID string, status int) (err error) {
 	sqlString := "update t_gateway_info set status=? where gateway_id=?"
 	err = opt.exec(nil, sqlString, status, gatewayID)
+	if err != nil {
+		log.Error("err:", err)
+	}
+	return
+}
+
+//UpdateDeviceBarray 更新电量
+func (opt *DBOpt) UpdateDeviceBarray(deviceID string, barray float64) (err error) {
+	sqlString := "update t_device_info set barray=? where device_id=?"
+	err = opt.exec(nil, sqlString, barray, deviceID)
 	if err != nil {
 		log.Error("err:", err)
 	}
