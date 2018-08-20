@@ -34,6 +34,8 @@ func (c *DevStatusController) DoorCtrlRsp() {
 	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)
 	if len(pushConfig.URL) < 10 {
 		log.Error("还没配置推送地址，不推送:", deviceID)
+		c.Data["json"] = "{\"code\":0}"
+		c.ServeJSON()
 		return
 	}
 	log.Debug("config:", pushConfig)

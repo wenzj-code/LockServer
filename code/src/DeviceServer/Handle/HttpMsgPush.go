@@ -25,12 +25,12 @@ func pushMsgDevCtrl(deviceID, requestid string, barray float64, status int) {
 		return
 	}
 	defer resp.Body.Close()
-	_, err = ioutil.ReadAll(resp.Body)
+	rspData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Error("err:", err)
 		return
 	}
-	log.Info("上报成功:", deviceID)
+	log.Info("上报成功:", deviceID, ",msg:", string(rspData))
 }
 
 //推送消息发卡/密码的响应给WechatAPI, status = dna
