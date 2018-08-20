@@ -80,7 +80,7 @@ func (opt *DBOpt) setGatewayStatus(gatewayID string, status int) (err error) {
 
 //UpdateDeviceBarray 更新电量
 func (opt *DBOpt) UpdateDeviceBarray(deviceID string, barray float64) (err error) {
-	sqlString := "update t_device_info set barray=? where device_id=?"
+	sqlString := "update t_device_info set barry=? where device_id=?"
 	err = opt.exec(nil, sqlString, barray, deviceID)
 	if err != nil {
 		log.Error("err:", err)
