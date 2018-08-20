@@ -16,7 +16,7 @@ import (
 //推送开门，电量信息给WechatAPI
 func pushMsgDevCtrl(deviceID, requestid string, barray float64, status int) {
 	config := Config.GetConfig()
-	httpServerIP := fmt.Sprintf("http://%s/report/dev-status?deviceid=%s&barry=%f&status=%d&requestid=%s",
+	httpServerIP := fmt.Sprintf("http://%s/report/door-ctrl-rsp?deviceid=%s&barry=%f&status=%d&requestid=%s",
 		config.ReportHTTPAddr, deviceID, barray, status, requestid)
 	log.Debug("httpServerIP:", httpServerIP)
 	resp, err := http.Get(httpServerIP)
