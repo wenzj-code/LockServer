@@ -34,7 +34,7 @@ func (s *Server) heatBeatDeal() {
 		for k, v := range s.ClientSocket {
 			v.heartTimeCount++
 			//60*5
-			if v.heartTimeCount == 5000 {
+			if v.heartTimeCount == 180 {
 				delete(s.ClientSocket, k)
 				v.Close()
 				log.Debug("心跳超时断开:", v.gateWayID)
