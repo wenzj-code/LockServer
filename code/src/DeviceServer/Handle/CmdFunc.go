@@ -126,6 +126,18 @@ func requestDeviceListRsp(conn *gotcp.Conn, cmd string, data map[string]interfac
 }
 
 func requestDeviceList2(conn *gotcp.Conn, gatewayID string) {
+	gwMap := make(map[string]interface{})
+	deviceInfoArray := make([]Common.DeviceInfo, 0)
+	gwMap["gw_mac"] = gatewayID
+
+	dataMap := make(map[string]interface{})
+	dataMap["cmd"] = "d2s_request_devices"
+	dataMap["swm_gateway_info"] = gwMap
+	dataMap["device_info"] = deviceInfoArray
+	dataMap["statuscode"] = 0
+	ackGateway(conn, dataMap)
+	return
+
 	//通过网关ID查询数据库,获取网关下的所有设备
 	deviceList, err := DBOpt.GetDataOpt().GetDeviceIDList(gatewayID)
 	if err != nil {
@@ -134,14 +146,20 @@ func requestDeviceList2(conn *gotcp.Conn, gatewayID string) {
 	}
 	log.Debug("deviceList:", deviceList)
 
-	gwMap := make(map[string]interface{})
-	deviceInfoArray := make([]Common.DeviceInfo, 0)
-	gwMap["gw_mac"] = gatewayID
-
 	count := 0
 	//设备列表过大，分包处理
 	lenMap := len(deviceList)
 	countDeviceList := 0
+
+	if len(deviceList) == 0 {
+		dataMap := make(map[string]interface{})
+		dataMap["cmd"] = "d2s_request_devices"
+		dataMap["swm_gateway_info"] = gwMap
+		dataMap["device_info"] = deviceInfoArray
+		dataMap["statuscode"] = 0
+		ackGateway(conn, dataMap)
+		return
+	}
 	for k := range deviceList {
 		countDeviceList++
 		deviceInfo := new(Common.DeviceInfo)
