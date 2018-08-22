@@ -137,7 +137,12 @@ func (c *WechatController) DoorCtrlOpen() {
 		return
 	}
 
-	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token)
+	//门禁开门
+	if method == 3 {
+
+	}
+
+	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token, method)
 	if !status {
 		return
 	}
@@ -205,7 +210,7 @@ func (c *WechatController) SettingCardPassword() {
 		return
 	}
 
-	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token)
+	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token, 0)
 	if !status {
 		return
 	}
@@ -256,7 +261,7 @@ func (c *WechatController) CancleCardPassword() {
 		return
 	}
 
-	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token)
+	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token, 0)
 	if !status {
 		return
 	}
@@ -283,7 +288,9 @@ func (c *WechatController) CancleCardPassword() {
 
 }
 
-func (c *WechatController) checkAppidUser(roomnu, appid, token string) (string, string, string, bool) {
+func (c *WechatController) checkAppidUser(roomnu, appid, token string, method int) (serverIP, gatewayID, DeviceID string, gwOnline bool) {
+	var devOnline bool
+
 	//从Redis里判断该token是否存在，不存在，则没有权限访问
 	_, status, err := common.RedisTokenOpt.Get(token)
 	if err != nil {
@@ -299,33 +306,43 @@ func (c *WechatController) checkAppidUser(roomnu, appid, token string) (string, 
 		return "", "", "", false
 	}
 
-	//通过房间号与酒店appid获取设备id信息
-	DeviceID, err := DBOpt.GetDataOpt().GetDeviceID(roomnu, appid)
-	if err != nil {
-		log.Error("err:", err)
-		c.Data["json"] = common.GetErrCodeJSON(10006)
-		c.ServeJSON()
-		return "", "", "", false
-	}
-	if len(DeviceID) == 0 {
-		log.Error("房间数据不存在:", roomnu, ",userid:", appid)
-		c.Data["json"] = common.GetErrCodeJSON(10004)
-		c.ServeJSON()
-		return "", "", "", false
-	}
-	log.Debug("DeviceID:", DeviceID)
+	if method == 3 {
+		gatewayID, DeviceID, gwOnline, err = DBOpt.GetDataOpt().GetDoorCardInfo(roomnu, appid)
+		if err != nil {
+			log.Error("err:", err)
+			c.Data["json"] = common.GetErrCodeJSON(10006)
+			c.ServeJSON()
+			return "", "", "", false
+		}
+	} else {
+		//通过房间号与酒店appid获取设备id信息
+		DeviceID, err = DBOpt.GetDataOpt().GetDeviceID(roomnu, appid)
+		if err != nil {
+			log.Error("err:", err)
+			c.Data["json"] = common.GetErrCodeJSON(10006)
+			c.ServeJSON()
+			return "", "", "", false
+		}
+		if len(DeviceID) == 0 {
+			log.Error("房间数据不存在:", roomnu, ",userid:", appid)
+			c.Data["json"] = common.GetErrCodeJSON(10004)
+			c.ServeJSON()
+			return "", "", "", false
+		}
+		log.Debug("DeviceID:", DeviceID)
 
-	//通过设备ID获取网关ID与在线状态
-	gatewayID, gwOnline, devOnline, err := DBOpt.GetDataOpt().CheckGatewayOnline(DeviceID)
-	if err != nil {
-		log.Error("err:", err)
-		c.Data["json"] = common.GetErrCodeJSON(10006)
-		c.ServeJSON()
-		return "", "", "", false
+		//通过设备ID获取网关ID与在线状态
+		gatewayID, gwOnline, devOnline, err = DBOpt.GetDataOpt().CheckGatewayOnline(DeviceID)
+		if err != nil {
+			log.Error("err:", err)
+			c.Data["json"] = common.GetErrCodeJSON(10006)
+			c.ServeJSON()
+			return "", "", "", false
+		}
 	}
 
 	//用Redis获取该网关连接到哪台服务器，并且或者所在连接的服务器地址
-	serverIP, isExist, err := common.RedisServerListOpt.Get(gatewayID)
+	dataBuf, isExist, err := common.RedisServerListOpt.Get(gatewayID)
 	if err != nil {
 		log.Error("err:", err)
 		c.Data["json"] = common.GetErrCodeJSON(10007)
@@ -338,6 +355,7 @@ func (c *WechatController) checkAppidUser(roomnu, appid, token string) (string, 
 		c.ServeJSON()
 		return "", "", "", false
 	}
+	serverIP = string(dataBuf)
 
 	log.Debug("gatewayID:", gatewayID, ",gwOnline:", gwOnline)
 
@@ -363,8 +381,7 @@ func (c *WechatController) checkAppidUser(roomnu, appid, token string) (string, 
 		log.Info("网关或者设备不在线：gw=", gatewayID, ",deviceID=", DeviceID)
 		return "", "", "", false
 	}
-
-	return string(serverIP), gatewayID, DeviceID, true
+	return serverIP, gatewayID, DeviceID, true
 }
 
 //SyncAllRooms 同步所有房间

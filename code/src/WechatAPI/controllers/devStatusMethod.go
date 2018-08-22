@@ -260,6 +260,10 @@ func (c *DevStatusController) CardDoorOpenlRsp() {
 		return
 	}
 
+	err = DBOpt.GetDataOpt().CardMethod(deviceID)
+	if err != nil {
+		log.Error("err:", err)
+	}
 	//推送到第三方
 	err = pushMsg(pushConfig.URL, dataBuf)
 	if err != nil {

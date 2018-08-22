@@ -255,3 +255,34 @@ func (opt *DBOpt) addDoorOpenHistory(openMethod int, deviceID string) error {
 	}
 	return err
 }
+
+//GetDoorCardInfo 获取门禁的信息
+func (opt *DBOpt) GetDoorCardInfo(roomnu, appid string) (gatewayID string, deviceID string, status bool, err error) {
+	conn, err := opt.connectDB()
+	if err != nil {
+		log.Error("err:", err)
+		return gatewayID, deviceID, status, err
+	}
+	defer opt.releaseDB(conn)
+	var ret int
+	sqlString := "select gateway_id,door_id,status  from t_doorcard_info a " +
+		"inner join t_user_info b on a.user_id=b.id and b.appid=? " +
+		"where a.room=? "
+	rows, err := conn.Query(sqlString, appid, roomnu)
+	if err != nil {
+		log.Error("err:", err)
+		return gatewayID, deviceID, status, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&gatewayID, &deviceID, &ret)
+		if err != nil {
+			log.Error("err:", err)
+			return gatewayID, deviceID, status, err
+		}
+	}
+	if ret == 1 {
+		status = true
+	}
+	return gatewayID, deviceID, status, err
+}
