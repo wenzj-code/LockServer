@@ -6,6 +6,7 @@ package controllers
 
 import (
 	"WechatAPI/DBOpt"
+	"WechatAPI/common"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -33,8 +34,8 @@ func (c *DevStatusController) DoorCtrlRsp() {
 	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
 	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)
 	if len(pushConfig.URL) < 10 {
-		log.Error("还没配置推送地址，不推送:", deviceID)
-		c.Data["json"] = "{\"code\":0}"
+		log.Error("还没配置推送地址，不推送1:", deviceID)
+		c.Data["json"] = common.GetErrCodeJSON(0)
 		c.ServeJSON()
 		return
 	}
@@ -215,13 +216,10 @@ func (c *DevStatusController) CardDoorOpenlRsp() {
 	opentime, _ := c.GetInt64("open_time")
 	requestid := c.GetString("requestid")
 
-	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
-	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)
-	if len(pushConfig.URL) < 10 {
-		log.Error("还没配置推送地址，不推送:", deviceID)
-		return
+	err := DBOpt.GetDataOpt().CardMethod(deviceID)
+	if err != nil {
+		log.Error("err:", err)
 	}
-	log.Debug("config:", pushConfig)
 
 	//通过设备ID获取房间号
 	roomNum, appid, err := DBOpt.GetDataOpt().GetRoomInfo(deviceID)
@@ -229,6 +227,14 @@ func (c *DevStatusController) CardDoorOpenlRsp() {
 		log.Error("err:", err)
 		return
 	}
+
+	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
+	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)
+	if len(pushConfig.URL) < 10 {
+		log.Error("还没配置推送地址，不推送:", deviceID)
+		return
+	}
+	log.Debug("config:", pushConfig)
 
 	dataMap := make(map[string]interface{})
 
@@ -260,10 +266,6 @@ func (c *DevStatusController) CardDoorOpenlRsp() {
 		return
 	}
 
-	err = DBOpt.GetDataOpt().CardMethod(deviceID)
-	if err != nil {
-		log.Error("err:", err)
-	}
 	//推送到第三方
 	err = pushMsg(pushConfig.URL, dataBuf)
 	if err != nil {
