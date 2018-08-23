@@ -6,12 +6,12 @@ import (
 	"DeviceServer/DBOpt"
 	"DeviceServer/HTTPServer"
 	"DeviceServer/Handle"
+	"DeviceServer/ThirdPush"
 	"fmt"
+	"gotcp"
 	"log/syslog"
 	"os"
 	"os/signal"
-
-	"gotcp"
 	"syscall"
 	"vislog"
 
@@ -47,6 +47,7 @@ func usage() bool {
 }
 
 func main() {
+	//ThirdPush.PushEmail("wenzhongjian@suanier.com", "公司", "aaaaaaa")
 	if usage() {
 		return
 	}
@@ -67,6 +68,7 @@ func main() {
 func start() {
 	Config.InitConfig()
 	config := Config.GetConfig()
+	ThirdPush.SendPhoneMessage("13723450181", "服务重启")
 	//初始化日志
 	initLog(config.LogFile, config.LogLevel, config.SysLogAddr)
 

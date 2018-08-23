@@ -1,9 +1,15 @@
 package ThirdPush
 
 import (
+	"DeviceServer/Config"
+	"bytes"
 	"fmt"
 	"net/smtp"
+	"os/exec"
 	"strings"
+	"time"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 /*
@@ -12,10 +18,10 @@ import (
 
 //PushEmail 邮件推送接口
 func PushEmail(toPerson, gatewayName, gatewayID string) {
-	auth := smtp.PlainAuth("", "690905084@qq.com", "lqdoamsyipgdbfdc", "smtp.qq.com")
+	auth := smtp.PlainAuth("", "563951092@qq.com", "psibjzctuwspbcag", "smtp.qq.com")
 	to := []string{toPerson}
 	nickname := "测试"
-	user := "690905084@qq.com"
+	user := "563951092@qq.com"
 	subject := "网关掉线通知"
 	contentType := "Content-Type: text/plain; charset=UTF-8"
 	body := fmt.Sprintf("网关名: %s,网关ID:%s ,该设备掉线了，请及时处理!", gatewayName, gatewayID)
@@ -23,7 +29,29 @@ func PushEmail(toPerson, gatewayName, gatewayID string) {
 		"<" + user + ">\r\nSubject: " + subject + "\r\n" + contentType + "\r\n\r\n" + body)
 	err := smtp.SendMail("smtp.qq.com:25", auth, user, to, msg)
 	if err != nil {
-		fmt.Printf("send mail error: %v", err)
+		log.Error("掉线通知失败: ", err)
+		return
 	}
-	fmt.Println("发送成功")
+	log.Info("掉线通知发送成功")
+}
+
+//SendPhoneMessage 发送短信
+func SendPhoneMessage(phone, gatewayID string) {
+	cmdStr := "python " + Config.GetConfig().EmailPythonPath + " " + phone + " " + gatewayID + " " + time.Now().Format("2006-01-02 15:04:05")
+	log.Info("cmdStr:", cmdStr)
+	result := execshell(cmdStr)
+	log.Info("短信发送状态:", result)
+}
+
+func execshell(s string) string {
+	cmd := exec.Command("/bin/bash", "-c", s)
+	var out bytes.Buffer
+
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	result := out.String()
+	return result[:len(result)-1]
 }

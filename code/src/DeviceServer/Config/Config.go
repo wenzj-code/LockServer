@@ -29,12 +29,14 @@ type Option struct {
 	SysLogAddr string `yaml:"SysLogAddr"`
 
 	ReportHTTPAddr string `yaml:"ReportHTTPAddr"`
-	HTTPServer string    `yaml:"HTTPServer"`
+	HTTPServer     string `yaml:"HTTPServer"`
 
 	RedisAddr      string `yaml:"RedisAddr"`
 	RedisPwd       string `yaml:"RedisPwd"`
 	RedisTimeOut   int    `yaml:"RedisTimeOut"`
 	RedisServerNum int    `yaml:"RedisServerNum"`
+
+	EmailPythonPath string `yaml:"EmailPythonPath"`
 }
 
 func loadConfig() (p Option) {

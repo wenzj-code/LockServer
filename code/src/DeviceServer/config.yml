@@ -19,3 +19,5 @@ RedisTimeOut: 6000
 #设备的所在连接的服务地址列表 
 RedisServerNum: 2 
 #####################
+
+EmailPythonPath: /mnt/hgfs/suanier/dysms_python/demo_sms_send.py
