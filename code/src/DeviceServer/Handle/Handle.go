@@ -67,7 +67,7 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 	case "d2s_status": //开门返回来的状态
 		doorCtrlDealRsp(conn, cmd, data)
 	case "d2s_request_devices": //网关请求所有节点信息
-		requestDeviceListRsp(conn, cmd, data)
+		//requestDeviceListRsp(conn, cmd, data)
 	case "d2s_battery": //上报电量
 		doorReportBarryRsp(conn, cmd, data)
 	case "dev_single_password_setting":
