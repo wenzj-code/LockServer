@@ -23,7 +23,7 @@ var Srv *gotcp.Server
 
 var (
 	version         = "1.1.3.2"
-	versionTime     = "20180730"
+	versionTime     = "20180824"
 	versionFunction = "1 增加发卡功\n"
 )
 

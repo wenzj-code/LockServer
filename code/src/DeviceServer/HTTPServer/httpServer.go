@@ -173,7 +173,7 @@ func httpServerFuncSettingCard(w http.ResponseWriter, req *http.Request) {
 		log.Error("err:", err)
 		return
 	}
-	dateTime := time.Unix(int64(expireDateFloat), 0).Format("2006-01-02 03:04:05")
+	dateTime := time.Unix(int64(expireDateFloat), 0).Format("2006-01-02 15:04:05")
 
 	conn, isExist := Handle.ConnInfo[gwid[0]]
 	if !isExist {
