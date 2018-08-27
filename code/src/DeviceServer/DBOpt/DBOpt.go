@@ -96,6 +96,10 @@ func (opt *DBOpt) SetGatwayOffline(gatewayID string) error {
 		log.Error("err:", err)
 	} else {
 		log.Debug("phone:", phone)
+		if len(phone) < 10 {
+			log.Error("错误的手机号:", phone)
+			return nil
+		}
 		ThirdPush.SendPhoneMessage(phone, gatewayID)
 	}
 	log.Debug("推送掉线通知完毕")
