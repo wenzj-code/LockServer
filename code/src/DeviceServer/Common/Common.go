@@ -9,6 +9,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+var ServerStarTime int64
+
 //DefaultHead 文件头
 const DefaultHead = "HTTP-JSON-BOCHIOT"
 

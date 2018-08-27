@@ -31,12 +31,16 @@ func (c *DevStatusController) DoorCtrlRsp() {
 	barry, _ := c.GetFloat("barry")
 	status, _ := c.GetInt("status")
 
+	log.Debug("status:", status)
+	log.Debug("requestid:", requestid)
+
+	c.Data["json"] = common.GetErrCodeJSON(0)
+	c.ServeJSON()
+
 	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
 	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)
 	if len(pushConfig.URL) < 10 {
 		log.Error("还没配置推送地址，不推送1:", deviceID)
-		c.Data["json"] = common.GetErrCodeJSON(0)
-		c.ServeJSON()
 		return
 	}
 	log.Debug("config:", pushConfig)

@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 	"vislog"
 
 	log "github.com/Sirupsen/logrus"
@@ -22,9 +23,9 @@ import (
 var Srv *gotcp.Server
 
 var (
-	version         = "1.1.3.2"
-	versionTime     = "20180824"
-	versionFunction = "1 增加发卡功\n"
+	version         = "1.1.3.3"
+	versionTime     = "20180827"
+	versionFunction = "1 增加发卡功,重新１分钟内掉线的不需要短信通知\n"
 )
 
 func usage() bool {
@@ -47,6 +48,7 @@ func usage() bool {
 }
 
 func main() {
+	Common.ServerStarTime = time.Now().Unix()
 	//ThirdPush.PushEmail("wenzhongjian@suanier.com", "公司", "aaaaaaa")
 	if usage() {
 		return

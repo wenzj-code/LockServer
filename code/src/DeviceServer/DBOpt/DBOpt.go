@@ -1,8 +1,10 @@
 package DBOpt
 
 import (
+	"DeviceServer/Common"
 	"DeviceServer/ThirdPush"
 	"sync"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -62,12 +64,24 @@ func (opt *DBOpt) SetGatwayOnline(gatewayID string) error {
 
 //SetGatwayOffline 设置网关下线
 func (opt *DBOpt) SetGatwayOffline(gatewayID string) error {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Error("HandleMsg:", e)
+			return
+		}
+	}()
+
 	log.Debug("SetGatwayOffline1:", gatewayID)
 	err := opt.setGatewayStatus(gatewayID, 0)
 	if err != nil {
 		log.Error("err:", err)
 	}
 
+	timeNow := time.Now().Unix()
+	if (timeNow - Common.ServerStarTime) < 60 {
+		log.Info("重启服务导致的掉线，不需要通知，１分钟以内")
+		return nil
+	}
 	log.Debug("开始推送掉线通知")
 	// email, err := opt.GetAdminEmail()
 	// if err != nil {

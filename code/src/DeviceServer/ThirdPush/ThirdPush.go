@@ -37,7 +37,7 @@ func PushEmail(toPerson, gatewayName, gatewayID string) {
 
 //SendPhoneMessage 发送短信
 func SendPhoneMessage(phone, gatewayID string) {
-	cmdStr := "python " + Config.GetConfig().EmailPythonPath + " " + phone + " " + gatewayID + " " + time.Now().Format("2006-01-02 15:04:05")
+	cmdStr := "python " + Config.GetConfig().EmailPythonPath + " " + phone + " " + gatewayID + " " + time.Now().Format("2006-01-02@15:04:05")
 	log.Info("cmdStr:", cmdStr)
 	result := execshell(cmdStr)
 	log.Info("短信发送状态:", result)
@@ -50,7 +50,7 @@ func execshell(s string) string {
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Error("err:", err)
 	}
 	result := out.String()
 	return result[:len(result)-1]
