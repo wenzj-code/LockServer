@@ -567,3 +567,48 @@ func (c *WechatController) DelRoomInfo() {
 	c.Data["json"] = common.GetErrCodeJSON(0)
 	c.ServeJSON()
 }
+
+
+//@cmt clear node dev's ekey info in flash   （WechatAPI-->DeviceServer）
+func (c *WechatController) ResetDev(){
+
+	roomnu := c.GetString("roomnu")
+	appid := c.GetString("appid")
+	token := c.GetString("token")
+	requestid := c.GetString("requestid")
+
+	log.Info("DevReset: Roomnu=", roomnu, ",Token=", token, ",appid:", appid)
+	if roomnu == "" || appid == "" || token == "" ||
+		keyvalue == "" || requestid == "" {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token, 0)
+	if !status {
+		return
+	}
+
+	//通过http发送给DeviceServer....
+	httpServerIP := fmt.Sprintf("http://%s/dev-reset?gwid=%s&deviceid=%s&requestid=%s",
+								serverIP, gatewayID, DeviceID, requestid )
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	
+}

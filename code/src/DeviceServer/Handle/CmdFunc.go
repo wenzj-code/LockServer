@@ -380,3 +380,67 @@ func DevCancelPassword(conn *gotcp.Conn, devMac, keyValue, requestid string, key
 
 	ackGateway(conn, dataMap)
 }
+
+
+//@cmt DevResetEkeyInfo 清除节点卡号密码信息
+/* e.g.
+{  
+	"cmd": "dev_reset",
+	"requestid": "", 
+	"device_info": {
+		"device_mac": "123456789"
+	}
+	"statuscode ": 0
+}
+*/
+func DevResetEkeyInfo(conn *gotcp.Conn, devMac, requestid string){
+
+	dataMap:=make( map[string]interface{} )
+	deviceInfo:=make( map[string]interface{} )
+
+	dataMap["cmd"]="dev_reset"
+	dataMap["requestid"]= requestid
+
+	deviceInfo["device_mac"]= devMac
+	dataMap["device_info"]= deviceInfo
+
+	dataMap["statuscode"]= 0
+
+	ackGateway(conn, dataMap)
+
+}
+
+
+//@cmt devResetRsp: 返回 *清楚节点卡号信息* 的结果给 应用层
+func devResetRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
+
+	val, isExist := data["device_info"]
+	if !isExist {
+		log.Error("device_info 字段不存在:", data)
+		return
+	}
+
+	deviceInfo := val.(map[string]interface{})
+	val, isExist = deviceInfo["device_mac"]
+	if !isExist {
+		log.Error("device_mac 字段不存在:", data)
+		return
+	}
+	deviceID := val.(string)
+	val, isExist = deviceInfo["reset_status"]
+	if !isExist {
+		log.Error("reset_status", data)
+		return
+	}
+	resetStatus :=val.(float64)
+
+	val, isExist = data["requestid"]
+	if !isExist {
+		log.Error("requestid字段不存在:", data)
+		return
+	}
+	requestid := val.(string)
+
+	pushMsgResetDev(deviceID, requestid, resetStatus)
+
+}

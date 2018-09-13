@@ -92,3 +92,25 @@ func pushMsgCardOpenLockRsp(deviceID, keyVal, openTime, requestid string, keyTyp
 	}
 	log.Info("刷卡上报成功:", deviceID)
 }
+
+
+//@cmt 发送 *清除节点卡号密码信息*的结果给 WechatAPI 
+func pushMsgResetDev(deviceID, requestid string, resetStatus float64 ){
+	config := Config.GetConfig()
+	httpServerIP := fmt.Sprintf("http://%s/report/reset-dev?deviceid=%s&resetStatus=%d&requestid=%s",
+		config.ReportHTTPAddr, deviceID, resetStatus, requestid)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	log.Info("清除节点卡号密码信息 上报成功:", deviceID)	
+}

@@ -20,6 +20,7 @@ func init() {
 	beego.Router("/v1/sync-room-info", &controllers.WechatController{}, "post:SyncAllRooms")
 	beego.Router("/v1/add-room-info", &controllers.WechatController{}, "get:AddRoomInfo")
 	beego.Router("/v1/del-room-info", &controllers.WechatController{}, "get:DelRoomInfo")
+	beego.Router("/v1/dev-reset", &controllers.WechatController{}, "get:ResetDev")
 
 	//APP扫描绑定接口
 	beego.Router("/v1/login", &controllers.AppController{}, "get:AppLogin")
@@ -36,4 +37,5 @@ func init() {
 	beego.Router("/report/setting-card-rsp", &controllers.DevStatusController{}, "get:SettingCardlRsp")
 	beego.Router("/report/cancel-card-rsp", &controllers.DevStatusController{}, "get:CancelCardlRsp")
 	beego.Router("/report/card-openlock-record", &controllers.DevStatusController{}, "get:CardDoorOpenlRsp")
+	beego.Router("/report/reset-dev", &controllers.DevStatusController{}, "get:ResetDevRsp")
 }
