@@ -20,6 +20,7 @@ func HTTPInit(HTTPAddrPort string) error {
 	http.HandleFunc("/cancel-card-password", httpServerFuncCancelCard)
 	http.HandleFunc("/setting-card-password", httpServerFuncSettingCard)
 	http.HandleFunc("/dev-reset", httpServerFuncResetDev)
+	http.HandleFunc("/dev_nonc_set", httpServerFuncNoncDev)
 	err := http.ListenAndServe(HTTPAddrPort, nil)
 	if err != nil {
 		log.Error("err:", err)
@@ -196,7 +197,7 @@ func httpServerFuncResetDev(w http.ResponseWriter, req *http.Request) {
 	}
 
 	log.Debug("value:", req.Form)
-	io.WriteString(w, "recv ok")  //DeviceServer-->WechatAPI
+	io.WriteString(w, "dev-reset recv ok")  //DeviceServer-->WechatAPI
 
 	gwid, isExist := req.Form["gwid"]
 	if !isExist {
@@ -224,5 +225,57 @@ func httpServerFuncResetDev(w http.ResponseWriter, req *http.Request) {
 
 	//*清除节点卡号密码信息*命令,转发到对应的网关
 	Handle.DevResetEkeyInfo(conn, deviceid[0], requestid[0] )
+
+}
+
+
+//@cmt 收到从WechatAPI发来的 *设备常开常闭* 命令
+func httpServerFuncNoncDev(w http.ResponseWriter, req *http.Request) {
+	err := req.ParseForm()
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	log.Debug("value:", req.Form)
+	io.WriteString(w, "dev-nonc recv ok")  //DeviceServer-->WechatAPI
+
+	gwid, isExist := req.Form["gwid"]
+	if !isExist {
+		log.Error("gwid 字段不存在:", req.Form)
+		return
+	}
+
+	requestid, isExist := req.Form["requestid"]
+	if !isExist {
+		log.Error("requestid 字段不存在:", req.Form)
+		return
+	}
+	//@cmt actiontype 和devtype 这两个字段现在还没有用到..
+	actionType, isExist :=req.Form["actiontype"]
+	if !isExist {
+		log.Error("actiontype 字段不存在:", req.Form)
+		return
+	}
+	actionTypeFloat, err := strconv.ParseFloat(actionType[0], 32)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+
+	deviceid, isExist := req.Form["deviceid"]
+	if !isExist {
+		log.Error("deviceid 字段不存在:", req.Form)
+		return
+	}
+	conn, isExist := Handle.ConnInfo[gwid[0]]
+	if !isExist {
+		log.Error("该网关不在线:", gwid)
+		return
+	}
+
+	//*设备常开常闭*命令,转发到对应的网关
+	Handle.DevNoncSet(conn, deviceid[0], requestid[0], int(actionTypeFloat) )
 
 }

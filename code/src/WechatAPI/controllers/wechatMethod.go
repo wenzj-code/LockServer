@@ -612,3 +612,62 @@ func (c *WechatController) ResetDev(){
 	}
 	
 }
+
+
+//@cmt 节点设备常开常闭
+func (c *WechatController)NoncDev(){
+	roomnu := c.GetString("roomnu")
+	appid := c.GetString("appid")
+	token := c.GetString("token")
+	requestid := c.GetString("requestid")
+
+	actionType, err := c.GetInt("actiontype")
+	if err != nil {
+		log.Error("actionType err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	devType, err := c.GetInt("devtype")
+	if err != nil {
+		log.Error("devType err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	log.Info("DevNonc: Roomnu=", roomnu, ",Token=", token, ",appid:", appid)
+	if roomnu == "" || appid == "" || token == "" ||
+		keyvalue == "" || requestid == "" {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token, 0)
+	if !status {
+		return
+	}
+
+	//通过http发送给DeviceServer....
+	httpServerIP := fmt.Sprintf("http://%s/dev_nonc_set?gwid=%s&deviceid=%s&requestid=%s&actiontype=%d&devtype=%d",
+								serverIP, gatewayID, DeviceID, requestid, actionType, devType )
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}	
+}

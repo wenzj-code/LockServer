@@ -444,3 +444,58 @@ func devResetRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	pushMsgResetDev(deviceID, requestid, resetStatus)
 
 }
+
+//@cmt *设备常开常闭* 服务器-->网关
+func DevNoncSet(conn *gotcp.Conn, devMac, requestid string, status int){
+	dataMap:=make( map[string]interface{} )
+	deviceInfo:=make( map[string]interface{} )
+
+	dataMap["cmd"]="dev_nonc_set"
+	dataMap["requestid"]= requestid
+
+	deviceInfo["device_mac"]= devMac
+	deviceInfo["status"]= status
+	dataMap["device_info"]= deviceInfo
+
+	ackGateway(conn, dataMap)	
+}
+
+
+//@cmt devNoncSet: *设备常开常闭*结果上传 (DeviceServer-->WechatAPI)
+func devNoncSetRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}){
+	val, isExist := data["device_info"]
+	if !isExist {
+		log.Error("device_info 字段不存在:", data)
+		return
+	}
+
+	deviceInfo := val.(map[string]interface{})
+	val, isExist = deviceInfo["device_mac"]
+	if !isExist {
+		log.Error("device_mac 字段不存在:", data)
+		return
+	}
+	deviceID := val.(string)
+
+	val, isExist = deviceInfo["status"]
+	if !isExist {
+		log.Error("status", data)
+		return
+	}
+	status :=val.(int)
+	val, isExist = deviceInfo["set_status"]
+	if !isExist {
+		log.Error("set_status", data)
+		return
+	}
+	setStatus :=val.(int)
+
+	val, isExist = data["requestid"]
+	if !isExist {
+		log.Error("requestid字段不存在:", data)
+		return
+	}
+	requestid := val.(string)
+
+	pushMsgDevNonc(deviceID, requestid, status, setStatus)
+}

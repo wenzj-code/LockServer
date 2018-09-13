@@ -114,3 +114,25 @@ func pushMsgResetDev(deviceID, requestid string, resetStatus float64 ){
 	}
 	log.Info("清除节点卡号密码信息 上报成功:", deviceID)	
 }
+
+
+//@cmt 发送 *设备常开常闭*的结果给 WechatAPI
+func pushMsgDevNonc(deviceID, requestid string, status, setStatus int){
+	config := Config.GetConfig()
+	httpServerIP := fmt.Sprintf("http://%s/report/dev_nonc_set?deviceid=%s&setStatus=%d&status=%d&requestid=%s",
+		config.ReportHTTPAddr, deviceID, setStatus, status, requestid)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	log.Info("设备常开常闭状态 上报成功:", deviceID)
+}

@@ -78,7 +78,9 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 		cardOpenLockRecord(conn, cmd, data)
 	case "dev_reset": //@cmt
 		devResetRsp(conn, cmd, data)
-		
+	case "dev_nonc_set": //@cmt
+		devNoncSetRsp(conn, cmd, data)
+			
 	default:
 		baseSendMsg(conn, []byte("abc"))
 		log.Error("cmd invalid:", cmd)
