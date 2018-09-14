@@ -499,3 +499,59 @@ func devNoncSetRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}){
 
 	pushMsgDevNonc(deviceID, requestid, status, setStatus)
 }
+
+
+//@cmt 收到节点-->网关 的*节点注册*命令
+func devBindGw(conn *gotcp.Conn, cmd string, data map[string]interface{}){
+	val, isExist := data["device_info"]
+	if !isExist {
+		log.Error("device_info 字段不存在:", data)
+		return
+	}
+
+	deviceInfo := val.(map[string]interface{}) //deviceinfo 
+	val, isExist = deviceInfo["device_mac"]
+	if !isExist {
+		log.Error("device_mac 字段不存在:", data)
+		return
+	}
+	deviceID := val.(string)   //device_mac
+
+	val, isExist = data["requestid"]
+	if !isExist {
+		log.Error("requestid字段不存在:", data)
+		return
+	}
+	requestid := val.(string)  //requestid
+
+	val, isExist = data["gw_mac"]
+	if !isExist {
+		log.Error("gw_mac 字段不存在:", data)
+		return
+	}
+	gwMac := val.(string)  //gw_mac	
+
+	//@cmt 查询数据库判断是否 (gwMac, deviceID) 为绑定关系, 是则 status=1 否则 status=0
+	isBind, err := DBOpt.GetDataOpt().IsGwDevBind(gwMac, deviceID)
+	if err!=nil{
+		log.Error("查询数据库错误 isGwDevBind：", gwMac, deviceID)
+		return 
+	}
+	status:= 0
+	if isBind==true{
+		status=1
+	}
+
+	dataMap:=make( map[string]interface{} )
+	deviceInfo2:=make( map[string]interface{} )
+
+	dataMap["cmd"]="cmd_bind_gw"
+	dataMap["gw_mac"]= gwMac
+	dataMap["requestid"]= requestid
+	deviceInfo2["device_mac"]= deviceID
+	deviceInfo2["status"]= status  //status
+	dataMap["device_info"]= deviceInfo2
+
+	ackGateway(conn, dataMap) // server-->gw
+
+}

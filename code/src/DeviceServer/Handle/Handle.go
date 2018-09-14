@@ -76,11 +76,13 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 		devCancelPasswordRsp(conn, cmd, data)
 	case "openlock_record_return":
 		cardOpenLockRecord(conn, cmd, data)
-	case "dev_reset": //@cmt
+	case "dev_reset": //@cmt 上报*清除节点卡号密码*状态
 		devResetRsp(conn, cmd, data)
-	case "dev_nonc_set": //@cmt
+	case "dev_nonc_set": //@cmt 上报 *设备常开常闭* 
 		devNoncSetRsp(conn, cmd, data)
-			
+	case "cmd_bind_gw": //@cmt 节点请求注册
+		devBindGw(conn, cmd, data)
+
 	default:
 		baseSendMsg(conn, []byte("abc"))
 		log.Error("cmd invalid:", cmd)

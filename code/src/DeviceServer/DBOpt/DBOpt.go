@@ -177,3 +177,36 @@ func (opt *DBOpt) GetManagerPhone(gatewayID string) (phone string, err error) {
 	}
 	return phone, err
 }
+
+
+//@cmt 查询数据库 判断 （gw_mac , device_mac）是否为绑定关系
+func (opt *DBOpt) IsGwDevBind(gatewayID, devMac string) (isBind bool, err error) {
+	conn, err := opt.connectDB()
+	if err != nil {
+		log.Error("err:", err)
+		return false, err
+	}
+	defer opt.releaseDB(conn)
+
+	sqlString := "select device_id from t_device_info a,t_gateway_info b where a.gw_id=b.id and b.gateway_id=?"
+	rows, err := conn.Query(sqlString, gatewayID)
+	if err != nil {
+		log.Error("err:", err)
+		return false, err
+	}
+	defer rows.Close()
+
+	var deviceID string
+	for rows.Next() {
+		err = rows.Scan(&deviceID)
+		if err != nil {
+			log.Error("err:", err)
+			return false, err
+		}
+		if deviceID==devMac{
+			return true, err  //true nil
+		}
+		
+	}
+	return false, err   //false nil
+}
