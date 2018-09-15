@@ -19,8 +19,9 @@ func HTTPInit(HTTPAddrPort string) error {
 	http.HandleFunc("/dev-ctrl", httpServerFuncDevCtrl)
 	http.HandleFunc("/cancel-card-password", httpServerFuncCancelCard)
 	http.HandleFunc("/setting-card-password", httpServerFuncSettingCard)
-	http.HandleFunc("/dev-reset", httpServerFuncResetDev)
-	http.HandleFunc("/dev_nonc_set", httpServerFuncNoncDev)
+	http.HandleFunc("/dev-reset", httpServerFuncResetDev) //@cmt 
+	http.HandleFunc("/dev-nonc-set", httpServerFuncNoncDev) //@cmt
+	http.HandleFunc("/set-mode", httpServerFuncSetTestMode) //@cmt
 	err := http.ListenAndServe(HTTPAddrPort, nil)
 	if err != nil {
 		log.Error("err:", err)
@@ -278,4 +279,68 @@ func httpServerFuncNoncDev(w http.ResponseWriter, req *http.Request) {
 	//*设备常开常闭*命令,转发到对应的网关
 	Handle.DevNoncSet(conn, deviceid[0], requestid[0], int(actionTypeFloat) )
 
+}
+
+
+//@cmt 设置节点 “测试模式”
+func httpServerFuncSetTestMode(w http.ResponseWriter, req *http.Request){
+	err := req.ParseForm()
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	log.Debug("value:", req.Form)
+	io.WriteString(w, "dev set-mode, recv ok")  //DeviceServer-->WechatAPI
+
+	// requestid, isExist := req.Form["requestid"]
+	// if !isExist {
+	// 	log.Error("requestid 字段不存在:", req.Form)
+	// 	return
+	// }
+
+	workMode, isExist :=req.Form["work_mode"]
+	if !isExist {
+		log.Error("work_mode 字段不存在:", req.Form)
+		return
+	}
+	workModeFloat, err := strconv.ParseFloat(workMode[0], 32) //work_mode
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+	txRate, isExist := req.Form["tx_rate"]
+	if !isExist {
+		log.Error("tx_rate 字段不存在:", req.Form)
+		return
+	}	
+	txRateFloat,err := strconv.ParseFloat(txRate[0], 32)  //tx_rate
+
+	txWait, isExist := req.Form["tx_wait"]
+	if !isExist {
+		log.Error("tx_wait 字段不存在:", req.Form)
+		return
+	}
+	txWaitFloat,err := strconv.ParseFloat(txWait[0], 32)  //tx_wait
+
+	deviceid, isExist := req.Form["deviceid"]
+	if !isExist {
+		log.Error("deviceid 字段不存在:", req.Form)
+		return
+	}
+
+	gwid, isExist := req.Form["gwid"]
+	if !isExist {
+		log.Error("gwid 字段不存在:", req.Form)
+		return
+	}
+	conn, isExist := Handle.ConnInfo[gwid[0]]
+	if !isExist {
+		log.Error("该网关不在线:", gwid)
+		return
+	}
+
+
+	//*设置节点模式*命令,转发到对应的网关
+	Handle.DevSetMode(conn, gwid[0], deviceid[0], int(workModeFloat), int(txRateFloat), int(txWaitFloat) )
 }

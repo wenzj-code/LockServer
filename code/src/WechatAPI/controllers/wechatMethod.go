@@ -651,7 +651,7 @@ func (c *WechatController)NoncDev(){
 	}
 
 	//通过http发送给DeviceServer....
-	httpServerIP := fmt.Sprintf("http://%s/dev_nonc_set?gwid=%s&deviceid=%s&requestid=%s&actiontype=%d&devtype=%d",
+	httpServerIP := fmt.Sprintf("http://%s/dev-nonc-set?gwid=%s&deviceid=%s&requestid=%s&actiontype=%d&devtype=%d",
 								serverIP, gatewayID, DeviceID, requestid, actionType, devType )
 	log.Debug("httpServerIP:", httpServerIP)
 	resp, err := http.Get(httpServerIP)

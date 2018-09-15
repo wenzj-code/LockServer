@@ -82,7 +82,7 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 		devNoncSetRsp(conn, cmd, data)
 	case "cmd_bind_gw": //@cmt 节点请求注册
 		devBindGw(conn, cmd, data)
-
+	
 	default:
 		baseSendMsg(conn, []byte("abc"))
 		log.Error("cmd invalid:", cmd)
