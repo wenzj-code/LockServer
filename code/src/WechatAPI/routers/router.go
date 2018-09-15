@@ -22,6 +22,7 @@ func init() {
 	beego.Router("/v1/del-room-info", &controllers.WechatController{}, "get:DelRoomInfo")
 	beego.Router("/v1/dev-reset", &controllers.WechatController{}, "get:ResetDev")
 	beego.Router("/v1/dev-nonc-set", &controllers.WechatController{}, "get:NoncDev")
+	beego.Router("/v1/dev-set-mode", &controllers.WechatController{}, "get:SetModeDev")
 
 	//APP扫描绑定接口
 	beego.Router("/v1/login", &controllers.AppController{}, "get:AppLogin")
