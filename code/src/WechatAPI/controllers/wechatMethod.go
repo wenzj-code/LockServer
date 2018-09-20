@@ -672,16 +672,10 @@ func (c *WechatController)NoncDev(){
 
 
 //@cmt 设备*测试模式*
-func (c *WechatController)SetModeDev(){
+func (c *WechatController)SetTestModeDev(){
 	gwid := c.GetString("gwid")
 	device_mac:=c.GetString("device_mac")
-	work_mode, err:=c.GetInt("work_mode")
-	if err != nil {
-		log.Error("work_mode err:", err)
-		c.Data["json"] = common.GetErrCodeJSON(10003)
-		c.ServeJSON()
-		return
-	}
+	requestid:= c.GetString("requestid")
 	tx_rate, err:=c.GetInt("tx_rate")
 	if err != nil {
 		log.Error("tx_rate err:", err)
@@ -696,8 +690,8 @@ func (c *WechatController)SetModeDev(){
 		c.ServeJSON()
 		return
 	}
-	log.Info("DevSetMode: gwid=", gwid, ",device_mac:", device_mac, ",tx_rate:", tx_rate, ",tx_wait:", tx_wait)
-	if gwid == "" || device_mac == ""  {
+	log.Info("SetTestModeDev: gwid=", gwid, ",device_mac:", device_mac, ",tx_rate:", tx_rate, ",tx_wait:", tx_wait, ",requestid:", requestid)
+	if gwid == "" || device_mac == "" || requestid ==""  {
 		c.Data["json"] = common.GetErrCodeJSON(10003)
 		c.ServeJSON()
 		return
@@ -719,8 +713,60 @@ func (c *WechatController)SetModeDev(){
 	}
 	serverIP := string(dataBuf) //get http server IP
 	//通过http发送给DeviceServer....
-    httpServerIP := fmt.Sprintf("http://%s/set-mode?gwid=%s&deviceid=%s&work_mode=%d&tx_rate=%d&tx_wait=%d",
-                                    serverIP, gwid, device_mac, work_mode, tx_rate, tx_wait )
+    httpServerIP := fmt.Sprintf("http://%s/set-test-mode?gwid=%s&deviceid=%s&tx_rate=%d&tx_wait=%d&requestid=%s",
+                                    serverIP, gwid, device_mac, tx_rate, tx_wait, requestid )
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+		
+}
+
+
+//@cmt set device normal mode
+func (c *WechatController)SetNormalModeDev(){
+	gwid := c.GetString("gwid")
+	device_mac:=c.GetString("device_mac")
+	requestid:= c.GetString("requestid")
+
+	log.Info("SetNormalModeDev: gwid=", gwid, ",device_mac:", device_mac, ",requestid:", requestid )
+	if gwid == "" || device_mac == "" || requestid==""  {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	// serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token, 0)
+	// if !status {
+	// 	return
+	// }
+	//@cmt 用Redis获取该网关连接到哪台服务器，并且或者所在连接的服务器地址
+	dataBuf, isExist, err := common.RedisServerListOpt.Get(gwid)
+	if err != nil {
+		log.Error("err:", err)
+		return 
+	}
+	if !isExist {
+		log.Error("err:", err)
+		return 
+	}
+	serverIP := string(dataBuf) //get http server IP
+	//通过http发送给DeviceServer....
+    httpServerIP := fmt.Sprintf("http://%s/set-normal-mode?gwid=%s&deviceid=%s&requestid=%s",
+                                    serverIP, gwid, device_mac, requestid)
 	log.Debug("httpServerIP:", httpServerIP)
 	resp, err := http.Get(httpServerIP)
 	if err != nil {

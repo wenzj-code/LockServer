@@ -22,7 +22,8 @@ func init() {
 	beego.Router("/v1/del-room-info", &controllers.WechatController{}, "get:DelRoomInfo")
 	beego.Router("/v1/dev-reset", &controllers.WechatController{}, "get:ResetDev")
 	beego.Router("/v1/dev-nonc-set", &controllers.WechatController{}, "get:NoncDev")
-	beego.Router("/v1/dev-set-mode", &controllers.WechatController{}, "get:SetModeDev")
+	beego.Router("/v1/dev-set-test-mode", &controllers.WechatController{}, "get:SetTestModeDev")
+	beego.Router("/v1/dev-set-normal-mode", &controllers.WechatController{}, "get:SetNormalModeDev")
 
 	//APP扫描绑定接口
 	beego.Router("/v1/login", &controllers.AppController{}, "get:AppLogin")
@@ -36,8 +37,8 @@ func init() {
 
 	//接收设备服务的状态上报接口
 	beego.Router("/report/door-ctrl-rsp", &controllers.DevStatusController{}, "get:DoorCtrlRsp")
-	beego.Router("/report/setting-card-rsp", &controllers.DevStatusController{}, "get:SettingCardlRsp")
-	beego.Router("/report/cancel-card-rsp", &controllers.DevStatusController{}, "get:CancelCardlRsp")
+	beego.Router("/report/dev-setting-password-status", &controllers.DevStatusController{}, "get:SettingCardlRsp")
+	beego.Router("/report/dev-cancel-password-status", &controllers.DevStatusController{}, "get:CancelCardlRsp")
 	beego.Router("/report/card-openlock-record", &controllers.DevStatusController{}, "get:CardDoorOpenlRsp")
 	beego.Router("/report/reset-dev", &controllers.DevStatusController{}, "get:ResetDevRsp")
 	beego.Router("/report/dev-nonc-set", &controllers.DevStatusController{}, "get:NoncDevRsp")

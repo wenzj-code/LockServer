@@ -557,17 +557,32 @@ func devBindGw(conn *gotcp.Conn, cmd string, data map[string]interface{}){
 }
 
 
-//@cmt 设置节点模式 work_mode=1 测试模式  0 正常模式
-func DevSetMode(conn *gotcp.Conn, gwid, deviceMac string, workMode ,txRate, txWait int){
+//@cmt 设置节点测试模式
+func DevSetTestMode(conn *gotcp.Conn, gwid, deviceMac string,txRate, txWait int, requestid string){
 	dataMap:=make( map[string]interface{} )
 	deviceInfo:=make( map[string]interface{} )
 
 	dataMap["cmd"]="cmd_set_mode"
 	dataMap["gw_mac"]= gwid
-	dataMap["work_mode"]= workMode
+	dataMap["requestid"]= requestid
 	deviceInfo["device_mac"]= deviceMac
 	deviceInfo["tx_rate"]= txRate  
 	deviceInfo["tx_wait"]= txWait 
+	dataMap["device_info"]= deviceInfo
+
+	ackGateway(conn, dataMap) // server-->gw
+}
+
+
+//@cmt set device normal mode
+func DevSetNormalMode(conn *gotcp.Conn, gwid, deviceMac, requestid string){
+	dataMap:=make( map[string]interface{} )
+	deviceInfo:=make( map[string]interface{} )
+
+	dataMap["cmd"]="cmd_set_normal_mode"
+	dataMap["gw_mac"]= gwid
+	dataMap["requestid"]=requestid
+	deviceInfo["device_mac"]= deviceMac
 	dataMap["device_info"]= deviceInfo
 
 	ackGateway(conn, dataMap) // server-->gw

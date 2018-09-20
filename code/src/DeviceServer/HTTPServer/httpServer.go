@@ -21,7 +21,8 @@ func HTTPInit(HTTPAddrPort string) error {
 	http.HandleFunc("/setting-card-password", httpServerFuncSettingCard)
 	http.HandleFunc("/dev-reset", httpServerFuncResetDev) //@cmt 
 	http.HandleFunc("/dev-nonc-set", httpServerFuncNoncDev) //@cmt
-	http.HandleFunc("/set-mode", httpServerFuncSetTestMode) //@cmt
+	http.HandleFunc("/set-test-mode", httpServerFuncSetTestMode) //@cmt
+	http.HandleFunc("/set-normal-mode", httpServerFuncSetNormalMode) //@cmt
 	err := http.ListenAndServe(HTTPAddrPort, nil)
 	if err != nil {
 		log.Error("err:", err)
@@ -291,24 +292,14 @@ func httpServerFuncSetTestMode(w http.ResponseWriter, req *http.Request){
 	}
 
 	log.Debug("value:", req.Form)
-	io.WriteString(w, "dev set-mode, recv ok")  //DeviceServer-->WechatAPI
+	io.WriteString(w, "dev set-test-mode, recv ok")  //DeviceServer-->WechatAPI
 
-	// requestid, isExist := req.Form["requestid"]
-	// if !isExist {
-	// 	log.Error("requestid 字段不存在:", req.Form)
-	// 	return
-	// }
-
-	workMode, isExist :=req.Form["work_mode"]
+	requestid, isExist := req.Form["requestid"]
 	if !isExist {
-		log.Error("work_mode 字段不存在:", req.Form)
+		log.Error("requestid 字段不存在:", req.Form)
 		return
 	}
-	workModeFloat, err := strconv.ParseFloat(workMode[0], 32) //work_mode
-	if err != nil {
-		log.Error("err:", err)
-		return
-	}
+
 	txRate, isExist := req.Form["tx_rate"]
 	if !isExist {
 		log.Error("tx_rate 字段不存在:", req.Form)
@@ -342,5 +333,45 @@ func httpServerFuncSetTestMode(w http.ResponseWriter, req *http.Request){
 
 
 	//*设置节点模式*命令,转发到对应的网关
-	Handle.DevSetMode(conn, gwid[0], deviceid[0], int(workModeFloat), int(txRateFloat), int(txWaitFloat) )
+	Handle.DevSetTestMode(conn, gwid[0], deviceid[0], int(txRateFloat), int(txWaitFloat), requestid[0] )
+}
+
+
+//@cmt set device normal mode
+func httpServerFuncSetNormalMode(w http.ResponseWriter, req *http.Request){
+	err := req.ParseForm()
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	log.Debug("value:", req.Form)
+	io.WriteString(w, "dev set-normal-mode, recv ok")  //DeviceServer-->WechatAPI
+
+	requestid, isExist := req.Form["requestid"]
+	if !isExist {
+		log.Error("requestid  字段不存在:", req.Form)
+		return
+	}
+
+	deviceid, isExist := req.Form["deviceid"]
+	if !isExist {
+		log.Error("deviceid 字段不存在:", req.Form)
+		return
+	}
+
+	gwid, isExist := req.Form["gwid"]
+	if !isExist {
+		log.Error("gwid 字段不存在:", req.Form)
+		return
+	}
+	conn, isExist := Handle.ConnInfo[gwid[0]]
+	if !isExist {
+		log.Error("该网关不在线:", gwid)
+		return
+	}
+
+
+	//*设置节点模式*命令,转发到对应的网关
+	Handle.DevSetNormalMode(conn, gwid[0], deviceid[0], requestid[0])
 }
