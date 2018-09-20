@@ -133,7 +133,7 @@ func (opt *DBOpt) GetAdminEmail() (email string, err error) {
 		return email, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := "select email from t_user_info where user_account='admin'"
+	sqlString := "select parameter_value from tb_system_parameter where parameter_name='super_email'"
 	rows, err := conn.Query(sqlString)
 	if err != nil {
 		log.Error("err:", err)
@@ -159,8 +159,8 @@ func (opt *DBOpt) GetManagerPhone(gatewayID string) (phone string, err error) {
 		return phone, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := "select user_phone from t_user_info a " +
-		"inner join t_gateway_info b on a.id=b.user_id and b.gateway_id=?"
+	sqlString := "select hotel_phone from hotel_base_info a " +
+		"inner join t_gateway_info b on a.id=b.hotel_id and b.gateway_id=?"
 	rows, err := conn.Query(sqlString, gatewayID)
 	if err != nil {
 		log.Error("err:", err)
