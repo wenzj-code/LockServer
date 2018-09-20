@@ -220,11 +220,6 @@ func (c *DevStatusController) CardDoorOpenlRsp() {
 	opentime, _ := c.GetInt64("open_time")
 	requestid := c.GetString("requestid")
 
-	err := DBOpt.GetDataOpt().CardMethod(deviceID)
-	if err != nil {
-		log.Error("err:", err)
-	}
-
 	//通过设备ID获取房间号
 	roomNum, appid, err := DBOpt.GetDataOpt().GetRoomInfo(deviceID)
 	if err != nil {

@@ -26,30 +26,30 @@ func GetDataOpt() *DBOpt {
 
 //GetDeviceIDList 通过房间号与用户ID获取设备ＩＤ
 func (opt *DBOpt) GetDeviceIDList(gatewayID string) (devListMap map[string]bool, err error) {
-	conn, err := opt.connectDB()
-	if err != nil {
-		log.Error("err:", err)
-		return devListMap, err
-	}
-	defer opt.releaseDB(conn)
-	sqlString := "select device_id from t_device_info a,t_gateway_info b where a.gw_id=b.id and b.gateway_id=?"
-	rows, err := conn.Query(sqlString, gatewayID)
-	if err != nil {
-		log.Error("err:", err)
-		return devListMap, err
-	}
-	defer rows.Close()
+	// conn, err := opt.connectDB()
+	// if err != nil {
+	// 	log.Error("err:", err)
+	// 	return devListMap, err
+	// }
+	// defer opt.releaseDB(conn)
+	// sqlString := "select device_id from t_device_info a,t_gateway_info b where a.gw_id=b.id and b.gateway_id=?"
+	// rows, err := conn.Query(sqlString, gatewayID)
+	// if err != nil {
+	// 	log.Error("err:", err)
+	// 	return devListMap, err
+	// }
+	// defer rows.Close()
 
-	devListMap = make(map[string]bool)
-	var deviceID string
-	for rows.Next() {
-		err = rows.Scan(&deviceID)
-		if err != nil {
-			log.Error("err:", err)
-			return devListMap, err
-		}
-		devListMap[deviceID] = true
-	}
+	// devListMap = make(map[string]bool)
+	// var deviceID string
+	// for rows.Next() {
+	// 	err = rows.Scan(&deviceID)
+	// 	if err != nil {
+	// 		log.Error("err:", err)
+	// 		return devListMap, err
+	// 	}
+	// 	devListMap[deviceID] = true
+	// }
 	return devListMap, err
 }
 
@@ -117,7 +117,7 @@ func (opt *DBOpt) setGatewayStatus(gatewayID string, status int) (err error) {
 
 //UpdateDeviceBarray 更新电量
 func (opt *DBOpt) UpdateDeviceBarray(deviceID string, barray float64) (err error) {
-	sqlString := "update t_device_info set barry=? where device_id=?"
+	sqlString := "update hotel_room_info set barry=? where device_id=?"
 	err = opt.exec(nil, sqlString, barray, deviceID)
 	if err != nil {
 		log.Error("err:", err)
