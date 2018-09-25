@@ -23,7 +23,7 @@ func init() {
 	beego.Router("/v1/dev-reset", &controllers.WechatController{}, "get:ResetDev")
 	beego.Router("/v1/dev-nonc-set", &controllers.WechatController{}, "get:NoncDev")
 	beego.Router("/v1/dev-set-test-mode", &controllers.WechatController{}, "get:SetTestModeDev")
-	beego.Router("/v1/dev-set-normal-mode", &controllers.WechatController{}, "get:SetNormalModeDev")
+	beego.Router("/v1/dev-set-work-mode", &controllers.WechatController{}, "get:SetWorkModeDev")
 
 	//APP扫描绑定接口
 	beego.Router("/v1/login", &controllers.AppController{}, "get:AppLogin")

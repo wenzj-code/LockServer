@@ -22,7 +22,7 @@ func HTTPInit(HTTPAddrPort string) error {
 	http.HandleFunc("/dev-reset", httpServerFuncResetDev) //@cmt 
 	http.HandleFunc("/dev-nonc-set", httpServerFuncNoncDev) //@cmt
 	http.HandleFunc("/set-test-mode", httpServerFuncSetTestMode) //@cmt
-	http.HandleFunc("/set-normal-mode", httpServerFuncSetNormalMode) //@cmt
+	http.HandleFunc("/set-work-mode", httpServerFuncSetWorkMode) //@cmt
 	err := http.ListenAndServe(HTTPAddrPort, nil)
 	if err != nil {
 		log.Error("err:", err)
@@ -338,7 +338,7 @@ func httpServerFuncSetTestMode(w http.ResponseWriter, req *http.Request){
 
 
 //@cmt set device normal mode
-func httpServerFuncSetNormalMode(w http.ResponseWriter, req *http.Request){
+func httpServerFuncSetWorkMode(w http.ResponseWriter, req *http.Request){
 	err := req.ParseForm()
 	if err != nil {
 		log.Error("err:", err)
@@ -346,7 +346,7 @@ func httpServerFuncSetNormalMode(w http.ResponseWriter, req *http.Request){
 	}
 
 	log.Debug("value:", req.Form)
-	io.WriteString(w, "dev set-normal-mode, recv ok")  //DeviceServer-->WechatAPI
+	io.WriteString(w, "dev set-work-mode, recv ok")  //DeviceServer-->WechatAPI
 
 	requestid, isExist := req.Form["requestid"]
 	if !isExist {
@@ -373,5 +373,5 @@ func httpServerFuncSetNormalMode(w http.ResponseWriter, req *http.Request){
 
 
 	//*设置节点模式*命令,转发到对应的网关
-	Handle.DevSetNormalMode(conn, gwid[0], deviceid[0], requestid[0])
+	Handle.DevSetWorkMode(conn, gwid[0], deviceid[0], requestid[0])
 }

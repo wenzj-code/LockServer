@@ -736,13 +736,13 @@ func (c *WechatController)SetTestModeDev(){
 }
 
 
-//@cmt set device normal mode
-func (c *WechatController)SetNormalModeDev(){
+//@cmt set device work mode
+func (c *WechatController)SetWorkModeDev(){
 	gwid := c.GetString("gwid")
 	device_mac:=c.GetString("device_mac")
 	requestid:= c.GetString("requestid")
 
-	log.Info("SetNormalModeDev: gwid=", gwid, ",device_mac:", device_mac, ",requestid:", requestid )
+	log.Info("SetWorkModeDev: gwid=", gwid, ",device_mac:", device_mac, ",requestid:", requestid )
 	if gwid == "" || device_mac == "" || requestid==""  {
 		c.Data["json"] = common.GetErrCodeJSON(10003)
 		c.ServeJSON()
@@ -765,7 +765,7 @@ func (c *WechatController)SetNormalModeDev(){
 	}
 	serverIP := string(dataBuf) //get http server IP
 	//通过http发送给DeviceServer....
-    httpServerIP := fmt.Sprintf("http://%s/set-normal-mode?gwid=%s&deviceid=%s&requestid=%s",
+    httpServerIP := fmt.Sprintf("http://%s/set-work-mode?gwid=%s&deviceid=%s&requestid=%s",
                                     serverIP, gwid, device_mac, requestid)
 	log.Debug("httpServerIP:", httpServerIP)
 	resp, err := http.Get(httpServerIP)

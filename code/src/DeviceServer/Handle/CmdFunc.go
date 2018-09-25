@@ -562,7 +562,7 @@ func DevSetTestMode(conn *gotcp.Conn, gwid, deviceMac string,txRate, txWait int,
 	dataMap:=make( map[string]interface{} )
 	deviceInfo:=make( map[string]interface{} )
 
-	dataMap["cmd"]="cmd_set_mode"
+	dataMap["cmd"]="cmd_set_test_mode"
 	dataMap["gw_mac"]= gwid
 	dataMap["requestid"]= requestid
 	deviceInfo["device_mac"]= deviceMac
@@ -575,11 +575,11 @@ func DevSetTestMode(conn *gotcp.Conn, gwid, deviceMac string,txRate, txWait int,
 
 
 //@cmt set device normal mode
-func DevSetNormalMode(conn *gotcp.Conn, gwid, deviceMac, requestid string){
+func DevSetWorkMode(conn *gotcp.Conn, gwid, deviceMac, requestid string){
 	dataMap:=make( map[string]interface{} )
 	deviceInfo:=make( map[string]interface{} )
 
-	dataMap["cmd"]="cmd_set_normal_mode"
+	dataMap["cmd"]="cmd_set_work_mode"
 	dataMap["gw_mac"]= gwid
 	dataMap["requestid"]=requestid
 	deviceInfo["device_mac"]= deviceMac
