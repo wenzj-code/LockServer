@@ -92,3 +92,24 @@ func pushMsgCardOpenLockRsp(deviceID, keyVal, openTime, requestid string, keyTyp
 	}
 	log.Info("刷卡上报成功:", deviceID)
 }
+
+//网关掉线通知
+func PushMsgGatewayOffLineRsp(gatewayID string) error {
+	config := Config.GetConfig()
+	httpServerIP := fmt.Sprintf("http://%s/report/gateway-offline-report?gatewayid=%s",
+		config.ReportHTTPAddr, gatewayID)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		return err
+	}
+	defer resp.Body.Close()
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		return err
+	}
+	log.Info("掉线上报成功:", gatewayID)
+	return nil
+}

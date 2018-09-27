@@ -71,6 +71,33 @@ func (opt *DBOpt) GetRoomInfo(deviceID string) (roomnu, appid string, err error)
 	return roomnu, appid, err
 }
 
+//GetAppidFromGatewayID 通过网关ID获取APPID
+func (opt *DBOpt) GetAppidFromGatewayID(gatewayID string) (appid string, err error) {
+	conn, err := opt.connectDB()
+	if err != nil {
+		log.Error("err:", err)
+		return appid, err
+	}
+	defer opt.releaseDB(conn)
+	sqlString := fmt.Sprintf("select appid from t_gateway_info A "+
+		"inner join hotel_base_info B on A.hotel_id=B.id "+
+		"where A.gateway_id='%s';", gatewayID)
+	rows, err := conn.Query(sqlString)
+	if err != nil {
+		log.Error("err:", err)
+		return appid, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&appid)
+		if err != nil {
+			log.Error("err:", err)
+			return appid, err
+		}
+	}
+	return appid, err
+}
+
 //GetDeviceID 通过房间号与用户ID获取设备ＩＤ
 func (opt *DBOpt) GetDeviceID(roomnu string, appid string) (deviceID string, err error) {
 	conn, err := opt.connectDB()
@@ -138,9 +165,38 @@ func (opt *DBOpt) GetDevicePushInfo(deviceID string) (config common.PushConfig) 
 	}
 	defer opt.releaseDB(conn)
 	sqlString := "select A.app_domain,A.app_domain,A.appid,A.secret from hotel_base_info A " +
-		"inner join hotel_room_info B on B.hotel_id=B.id " +
+		"inner join hotel_room_info B on B.hotel_id=A.id " +
 		"where B.device_id=?"
 	rows, err := conn.Query(sqlString, deviceID)
+	if err != nil {
+		log.Error("err:", err)
+		return config
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&config.URL, &config.TokenURL, &config.AppID, &config.Secret)
+		if err != nil {
+			log.Error("err:", err)
+			return config
+		}
+		config.URL += "/api/device/v1/notify"
+		config.TokenURL += "/api/device/v1/token"
+	}
+	return config
+}
+
+//GetGatewayPushInfo 获取推送的配置
+func (opt *DBOpt) GetGatewayPushInfo(gatewayID string) (config common.PushConfig) {
+	conn, err := opt.connectDB()
+	if err != nil {
+		log.Error("err:", err)
+		return config
+	}
+	defer opt.releaseDB(conn)
+	sqlString := "select A.app_domain,A.app_domain,A.appid,A.secret from hotel_base_info A " +
+		"inner join t_gateway_id B on B.hotel_id=A.id " +
+		"where B.gateway_id=?"
+	rows, err := conn.Query(sqlString, gatewayID)
 	if err != nil {
 		log.Error("err:", err)
 		return config

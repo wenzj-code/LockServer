@@ -26,4 +26,5 @@ func init() {
 	beego.Router("/report/dev-setting-password-status", &controllers.DevStatusController{}, "get:SettingCardlRsp")
 	beego.Router("/report/dev-cancel-password-status", &controllers.DevStatusController{}, "get:CancelCardlRsp")
 	beego.Router("/report/card-openlock-record", &controllers.DevStatusController{}, "get:CardDoorOpenlRsp")
+	beego.Router("/report/gateway-offline-report", &controllers.DevStatusController{}, "get:GatewayOffLineRsp")
 }

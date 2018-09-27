@@ -24,6 +24,64 @@ type DevStatusController struct {
 	beego.Controller
 }
 
+//GatewayOffLineRsp 网关掉线推送
+func (c *DevStatusController) GatewayOffLineRsp() {
+	gatewayid := c.GetString("gatewayid")
+
+	c.Data["json"] = common.GetErrCodeJSON(0)
+	c.ServeJSON()
+
+	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
+	pushConfig := DBOpt.GetDataOpt().GetGatewayPushInfo(gatewayid)
+	if len(pushConfig.URL) < 10 {
+		log.Error("还没配置推送地址，不推送1:", gatewayid)
+		return
+	}
+	log.Debug("config:", pushConfig)
+
+	appid, err := DBOpt.GetDataOpt().GetAppidFromGatewayID(gatewayid)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	dataMap := make(map[string]interface{})
+
+	//获取第三方Token的请求地址
+	token, err := getToken(pushConfig.TokenURL, pushConfig.AppID, pushConfig.Secret)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	dataInfo := make(map[string]interface{})
+	dataInfo["door_barry"] = 0
+	dataInfo["door_status"] = 0
+
+	dataMap["cmd"] = "wechat_dev_status"
+	dataMap["deviceid"] = ""
+	dataMap["roomnu"] = ""
+	dataMap["appid"] = appid
+	dataMap["requestid"] = ""
+	dataMap["token"] = token
+	dataMap["data"] = dataInfo
+
+	dataBuf, err := json.Marshal(dataMap)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	//推送到第三方
+	err = pushMsg(pushConfig.URL, dataBuf)
+	if err != nil {
+		log.Error("err:", err)
+	} else {
+		log.Info("推送成功:", string(dataBuf))
+	}
+	return
+}
+
 //DoorCtrlRsp 接收数据上报
 func (c *DevStatusController) DoorCtrlRsp() {
 	deviceID := c.GetString("deviceid")
