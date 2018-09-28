@@ -323,3 +323,221 @@ func (c *WechatController) checkAppidUser(roomnu, appid, token string, method in
 	}
 	return serverIP, gatewayID, DeviceID, true
 }
+
+//@cmt clear node dev's ekey info in flash   （WechatAPI-->DeviceServer）
+func (c *WechatController) ResetDev(){
+
+	roomnu := c.GetString("roomnu")
+	appid := c.GetString("appid")
+	token := c.GetString("token")
+	requestid := c.GetString("requestid")
+
+	log.Info("DevReset: Roomnu=", roomnu, ",Token=", token, ",appid:", appid)
+	if roomnu == "" || appid == "" || token == "" || requestid == "" {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token, 0)
+	if !status {
+		return
+	}
+
+	//通过http发送给DeviceServer....
+	httpServerIP := fmt.Sprintf("http://%s/dev-reset?gwid=%s&deviceid=%s&requestid=%s",
+								serverIP, gatewayID, DeviceID, requestid )
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	
+}
+
+
+//@cmt 节点设备常开常闭
+func (c *WechatController)NoncDev(){
+	roomnu := c.GetString("roomnu")
+	appid := c.GetString("appid")
+	token := c.GetString("token")
+	requestid := c.GetString("requestid")
+
+	actionType, err := c.GetInt("actiontype")
+	if err != nil {
+		log.Error("actionType err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	devType, err := c.GetInt("devtype")
+	if err != nil {
+		log.Error("devType err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	log.Info("DevNonc: Roomnu=", roomnu, ",Token=", token, ",appid:", appid)
+	if roomnu == "" || appid == "" || token == "" || requestid == "" {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token, 0)
+	if !status {
+		return
+	}
+
+	//通过http发送给DeviceServer....
+	httpServerIP := fmt.Sprintf("http://%s/dev-nonc-set?gwid=%s&deviceid=%s&requestid=%s&actiontype=%d&devtype=%d",
+								serverIP, gatewayID, DeviceID, requestid, actionType, devType )
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}	
+}
+
+
+//@cmt 设备*测试模式*
+func (c *WechatController)SetTestModeDev(){
+	gwid := c.GetString("gwid")
+	device_mac:=c.GetString("device_mac")
+	requestid:= c.GetString("requestid")
+	tx_rate, err:=c.GetInt("tx_rate")
+	if err != nil {
+		log.Error("tx_rate err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+	tx_wait, err:=c.GetInt("tx_wait")
+	if err != nil {
+		log.Error("tx_wait err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+	log.Info("SetTestModeDev: gwid=", gwid, ",device_mac:", device_mac, ",tx_rate:", tx_rate, ",tx_wait:", tx_wait, ",requestid:", requestid)
+	if gwid == "" || device_mac == "" || requestid ==""  {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	// serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token, 0)
+	// if !status {
+	// 	return
+	// }
+	//@cmt 用Redis获取该网关连接到哪台服务器，并且或者所在连接的服务器地址
+	dataBuf, isExist, err := common.RedisServerListOpt.Get(gwid)
+	if err != nil {
+		log.Error("err:", err)
+		return 
+	}
+	if !isExist {
+		log.Error("err:", err)
+		return 
+	}
+	serverIP := string(dataBuf) //get http server IP
+	//通过http发送给DeviceServer....
+    httpServerIP := fmt.Sprintf("http://%s/set-test-mode?gwid=%s&deviceid=%s&tx_rate=%d&tx_wait=%d&requestid=%s",
+                                    serverIP, gwid, device_mac, tx_rate, tx_wait, requestid )
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+		
+}
+
+
+//@cmt set device work mode
+func (c *WechatController)SetWorkModeDev(){
+	gwid := c.GetString("gwid")
+	device_mac:=c.GetString("device_mac")
+	requestid:= c.GetString("requestid")
+
+	log.Info("SetWorkModeDev: gwid=", gwid, ",device_mac:", device_mac, ",requestid:", requestid )
+	if gwid == "" || device_mac == "" || requestid==""  {
+		c.Data["json"] = common.GetErrCodeJSON(10003)
+		c.ServeJSON()
+		return
+	}
+
+	// serverIP, gatewayID, DeviceID, status := c.checkAppidUser(roomnu, appid, token, 0)
+	// if !status {
+	// 	return
+	// }
+	//@cmt 用Redis获取该网关连接到哪台服务器，并且或者所在连接的服务器地址
+	dataBuf, isExist, err := common.RedisServerListOpt.Get(gwid)
+	if err != nil {
+		log.Error("err:", err)
+		return 
+	}
+	if !isExist {
+		log.Error("err:", err)
+		return 
+	}
+	serverIP := string(dataBuf) //get http server IP
+	//通过http发送给DeviceServer....
+    httpServerIP := fmt.Sprintf("http://%s/set-work-mode?gwid=%s&deviceid=%s&requestid=%s",
+                                    serverIP, gwid, device_mac, requestid)
+	log.Debug("httpServerIP:", httpServerIP)
+	resp, err := http.Get(httpServerIP)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+	defer resp.Body.Close()
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error("err:", err)
+		c.Data["json"] = common.GetErrCodeJSON(10000)
+		c.ServeJSON()
+		return
+	}
+		
+}

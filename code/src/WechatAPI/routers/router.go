@@ -16,6 +16,10 @@ func init() {
 	beego.Router("/v1/open-door", &controllers.WechatController{}, "get:DoorCtrlOpen")
 	beego.Router("/v1/setting-card-password", &controllers.WechatController{}, "get:SettingCardPassword")
 	beego.Router("/v1/cancel-card-password", &controllers.WechatController{}, "get:CancleCardPassword")
+	beego.Router("/v1/dev-reset", &controllers.WechatController{}, "get:ResetDev")
+	beego.Router("/v1/dev-nonc-set", &controllers.WechatController{}, "get:NoncDev")
+	beego.Router("/v1/dev-set-test-mode", &controllers.WechatController{}, "get:SetTestModeDev")
+	beego.Router("/v1/dev-set-work-mode", &controllers.WechatController{}, "get:SetWorkModeDev")
 
 	//模拟推送接收接口
 	beego.Router("/test/token", &controllers.TestPushServerController{}, "get:TestToken")
@@ -26,5 +30,8 @@ func init() {
 	beego.Router("/report/dev-setting-password-status", &controllers.DevStatusController{}, "get:SettingCardlRsp")
 	beego.Router("/report/dev-cancel-password-status", &controllers.DevStatusController{}, "get:CancelCardlRsp")
 	beego.Router("/report/card-openlock-record", &controllers.DevStatusController{}, "get:CardDoorOpenlRsp")
+	beego.Router("/report/reset-dev", &controllers.DevStatusController{}, "get:ResetDevRsp")
+	beego.Router("/report/dev-nonc-set", &controllers.DevStatusController{}, "get:NoncDevRsp")
 	beego.Router("/report/gateway-offline-report", &controllers.DevStatusController{}, "get:GatewayOffLineRsp")
+	
 }

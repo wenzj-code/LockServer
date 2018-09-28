@@ -433,3 +433,149 @@ func DevCancelPassword(conn *gotcp.Conn, devMac, keyValue, requestid string, key
 
 	ackGateway(conn, dataMap)
 }
+
+//@cmt DevResetEkeyInfo 清除节点卡号密码信息
+/* e.g.
+{
+	"cmd": "dev_reset",
+	"requestid": "",
+	"device_info": {
+		"device_mac": "123456789"
+	}
+	"statuscode ": 0
+}
+*/
+func DevResetEkeyInfo(conn *gotcp.Conn, devMac, requestid string) {
+
+	dataMap := make(map[string]interface{})
+	deviceInfo := make(map[string]interface{})
+
+	dataMap["cmd"] = "dev_reset"
+	dataMap["requestid"] = requestid
+
+	deviceInfo["device_mac"] = devMac
+	dataMap["device_info"] = deviceInfo
+
+	dataMap["statuscode"] = 0
+
+	ackGateway(conn, dataMap)
+
+}
+
+//@cmt devResetRsp: 返回 *清楚节点卡号信息* 的结果给 应用层
+func devResetRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
+
+	val, isExist := data["device_info"]
+	if !isExist {
+		log.Error("device_info 字段不存在:", data)
+		return
+	}
+
+	deviceInfo := val.(map[string]interface{})
+	val, isExist = deviceInfo["device_mac"]
+	if !isExist {
+		log.Error("device_mac 字段不存在:", data)
+		return
+	}
+	deviceID := val.(string)
+	val, isExist = deviceInfo["reset_status"]
+	if !isExist {
+		log.Error("reset_status", data)
+		return
+	}
+	resetStatus := val.(float64)
+
+	val, isExist = data["requestid"]
+	if !isExist {
+		log.Error("requestid字段不存在:", data)
+		return
+	}
+	requestid := val.(string)
+
+	pushMsgResetDev(deviceID, requestid, resetStatus)
+
+}
+
+//@cmt *设备常开常闭* 服务器-->网关
+func DevNoncSet(conn *gotcp.Conn, devMac, requestid string, status int) {
+	dataMap := make(map[string]interface{})
+	deviceInfo := make(map[string]interface{})
+
+	dataMap["cmd"] = "dev_nonc_set"
+	dataMap["requestid"] = requestid
+
+	deviceInfo["device_mac"] = devMac
+	deviceInfo["status"] = status
+	dataMap["device_info"] = deviceInfo
+
+	ackGateway(conn, dataMap)
+}
+
+//@cmt devNoncSet: *设备常开常闭*结果上传 (DeviceServer-->WechatAPI)
+func devNoncSetRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
+	val, isExist := data["device_info"]
+	if !isExist {
+		log.Error("device_info 字段不存在:", data)
+		return
+	}
+
+	deviceInfo := val.(map[string]interface{})
+	val, isExist = deviceInfo["device_mac"]
+	if !isExist {
+		log.Error("device_mac 字段不存在:", data)
+		return
+	}
+	deviceID := val.(string)
+
+	val, isExist = deviceInfo["status"]
+	if !isExist {
+		log.Error("status", data)
+		return
+	}
+	status := val.(int)
+	val, isExist = deviceInfo["set_status"]
+	if !isExist {
+		log.Error("set_status", data)
+		return
+	}
+	setStatus := val.(int)
+
+	val, isExist = data["requestid"]
+	if !isExist {
+		log.Error("requestid字段不存在:", data)
+		return
+	}
+	requestid := val.(string)
+
+	pushMsgDevNonc(deviceID, requestid, status, setStatus)
+}
+
+//@cmt 设置节点测试模式
+func DevSetTestMode(conn *gotcp.Conn, gwid, deviceMac string, txRate, txWait int, requestid string) {
+	dataMap := make(map[string]interface{})
+	deviceInfo := make(map[string]interface{})
+
+	dataMap["cmd"] = "cmd_set_test_mode"
+	dataMap["gw_mac"] = gwid
+	dataMap["requestid"] = requestid
+	deviceInfo["device_mac"] = deviceMac
+	deviceInfo["tx_rate"] = txRate
+	deviceInfo["tx_wait"] = txWait
+	dataMap["device_info"] = deviceInfo
+
+	ackGateway(conn, dataMap) // server-->gw
+}
+
+//@cmt set device normal mode
+func DevSetWorkMode(conn *gotcp.Conn, gwid, deviceMac, requestid string) {
+	dataMap := make(map[string]interface{})
+	deviceInfo := make(map[string]interface{})
+
+	dataMap["cmd"] = "cmd_set_work_mode"
+	dataMap["gw_mac"] = gwid
+	dataMap["requestid"] = requestid
+	deviceInfo["device_mac"] = deviceMac
+	dataMap["device_info"] = deviceInfo
+
+	ackGateway(conn, dataMap) // server-->gw
+}

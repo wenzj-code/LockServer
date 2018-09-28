@@ -52,7 +52,7 @@ func (opt *DBOpt) GetRoomInfo(deviceID string) (roomnu, appid string, err error)
 		return roomnu, appid, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := fmt.Sprintf("select roomnu,appid from hotel_room_info A "+
+	sqlString := fmt.Sprintf("select roomdevno,appid from hotel_room_info A "+
 		"inner join hotel_base_info B on A.hotel_id=B.id "+
 		"where A.device_id='%s';", deviceID)
 	rows, err := conn.Query(sqlString)
@@ -106,7 +106,7 @@ func (opt *DBOpt) GetDeviceID(roomnu string, appid string) (deviceID string, err
 		return deviceID, err
 	}
 	defer opt.releaseDB(conn)
-	sqlString := "select device_id from hotel_room_info a,hotel_base_info b where roomnu=? and b.id=a.hotel_id and b.appid=?"
+	sqlString := "select device_id from hotel_room_info a,hotel_base_info b where roomdevno=? and b.id=a.hotel_id and b.appid=?"
 	rows, err := conn.Query(sqlString, roomnu, appid)
 	if err != nil {
 		log.Error("err:", err)
@@ -194,7 +194,7 @@ func (opt *DBOpt) GetGatewayPushInfo(gatewayID string) (config common.PushConfig
 	}
 	defer opt.releaseDB(conn)
 	sqlString := "select A.app_domain,A.app_domain,A.appid,A.secret from hotel_base_info A " +
-		"inner join t_gateway_id B on B.hotel_id=A.id " +
+		"inner join t_gateway_info B on B.hotel_id=A.id " +
 		"where B.gateway_id=?"
 	rows, err := conn.Query(sqlString, gatewayID)
 	if err != nil {
