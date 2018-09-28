@@ -11,6 +11,59 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+//节点注册信息
+func deviceRegisterRsp(conn *gotcp.Conn, cmd string, dataMap map[string]interface{}) {
+	val, isExist := dataMap["gw_mac"]
+	if !isExist {
+		log.Error("gw_mac 字段不存在:", dataMap)
+		return
+	}
+	gatewayID := val.(string)
+	gatewayID = strings.ToUpper(gatewayID)
+
+	val, isExist = dataMap["requestid"]
+	if !isExist {
+		log.Error("requestid 字段不存在:", dataMap)
+		return
+	}
+	requestid := val.(string)
+
+	val, isExist = dataMap["device_info"]
+	if !isExist {
+		log.Error("device_info 字段不存在:", dataMap)
+		return
+	}
+	devInfo := val.(map[string]interface{})
+	val, isExist = devInfo["device_mac"]
+	if !isExist {
+		log.Error("device_mac 字段不存在:", dataMap)
+		return
+	}
+	deviceID := val.(string)
+	deviceID = strings.ToUpper(deviceID)
+
+	ConnInfo[gatewayID] = conn
+
+	conn.SetGatwayID(gatewayID)
+	var status int
+	status = 1
+	isComfirm := DBOpt.GetDataOpt().CheckDeviceComfirm(deviceID)
+	if !isComfirm {
+		status = 0
+		log.Error("该节点还没有添加认证:", deviceID)
+	}
+
+	dataMap = make(map[string]interface{})
+	dataMap["cmd"] = cmd
+	dataMap["gw_mac"] = gatewayID
+	dataMap["requestid"] = requestid
+	devInfo = make(map[string]interface{})
+	devInfo["device_mac"] = deviceID
+	devInfo["status"] = status
+	dataMap["statuscode"] = devInfo
+	ackGateway(conn, dataMap)
+}
+
 //网关注册信息
 func gatewayRegisterRsp(conn *gotcp.Conn, cmd string, dataMap map[string]interface{}) {
 	val, isExist := dataMap["swm_gateway_info"]

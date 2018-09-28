@@ -38,7 +38,7 @@ func PushEmail(toPerson, gatewayName, gatewayID string) {
 //SendPhoneMessage 发送短信
 func SendPhoneMessage(phone, gatewayID string) {
 	if len(Config.GetConfig().EmailPythonPath) == 0 {
-		log.Info("没有配置短信通知，不需要")
+		log.Info("没有配置短信通知功能")
 		return
 	}
 	cmdStr := "python " + Config.GetConfig().EmailPythonPath + " " + phone + " " + gatewayID + " " + time.Now().Format("2006-01-02@15:04:05")

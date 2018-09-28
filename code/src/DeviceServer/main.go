@@ -24,7 +24,7 @@ var Srv *gotcp.Server
 
 var (
 	version         = "1.1.3.3"
-	versionTime     = "20180827"
+	versionTime     = "20180928"
 	versionFunction = "1 增加发卡功,重新１分钟内掉线的不需要短信通知\n"
 )
 

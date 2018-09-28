@@ -177,3 +177,25 @@ func (opt *DBOpt) GetManagerPhone(gatewayID string) (phone string, err error) {
 	}
 	return phone, err
 }
+
+//CheckDeviceComfirm 确认节点否可以认证
+func (opt *DBOpt) CheckDeviceComfirm(deviceID string) bool {
+	conn, err := opt.connectDB()
+	if err != nil {
+		log.Error("err:", err)
+		return false
+	}
+	defer opt.releaseDB(conn)
+	sqlString := "select 1 hotel_room_info where device_id=?"
+	rows, err := conn.Query(sqlString, deviceID)
+	if err != nil {
+		log.Error("err:", err)
+		return false
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		return true
+	}
+	return false
+}
