@@ -60,7 +60,7 @@ func deviceRegisterRsp(conn *gotcp.Conn, cmd string, dataMap map[string]interfac
 	devInfo = make(map[string]interface{})
 	devInfo["device_mac"] = deviceID
 	devInfo["status"] = status
-	dataMap["statuscode"] = devInfo
+	dataMap["device_info"] = devInfo
 	ackGateway(conn, dataMap)
 }
 
