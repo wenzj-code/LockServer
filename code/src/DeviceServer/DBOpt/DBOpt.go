@@ -186,7 +186,7 @@ func (opt *DBOpt) CheckDeviceComfirm(deviceID string) bool {
 		return false
 	}
 	defer opt.releaseDB(conn)
-	sqlString := "select 1 hotel_room_info where device_id=?"
+	sqlString := "select 1 from hotel_room_info where device_id=?"
 	rows, err := conn.Query(sqlString, deviceID)
 	if err != nil {
 		log.Error("err:", err)
