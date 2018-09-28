@@ -2,6 +2,7 @@ package Handle
 
 import (
 	"DeviceServer/Config"
+	"DeviceServer/DBOpt"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -95,6 +96,10 @@ func pushMsgCardOpenLockRsp(deviceID, keyVal, openTime, requestid string, keyTyp
 
 //网关掉线通知
 func PushMsgGatewayOffLineRsp(gatewayID string) error {
+	err := DBOpt.GetDataOpt().SetGatwayOffline(gatewayID)
+	if err != nil {
+		log.Error("err:", err)
+	}
 	config := Config.GetConfig()
 	httpServerIP := fmt.Sprintf("http://%s/report/gateway-offline-report?gatewayid=%s",
 		config.ReportHTTPAddr, gatewayID)
