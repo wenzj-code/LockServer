@@ -51,9 +51,9 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 		}
 
 		log.Debug("接收到消息msg:", Common.DefaultHead+msgBuf)
-		jsonData := MsgBody[5:]
+		jsonData := msgBuf[5:]
 		data := make(map[string]interface{})
-		err := json.Unmarshal(jsonData, &data)
+		err := json.Unmarshal([]byte(jsonData), &data)
 		if err != nil {
 			log.Error("err: ", err)
 			continue
