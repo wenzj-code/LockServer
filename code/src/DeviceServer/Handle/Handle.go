@@ -4,7 +4,7 @@ import (
 	"DeviceServer/Common"
 	"bytes"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"gotcp"
 	"strings"
 
@@ -34,53 +34,52 @@ func (cb *CallBack) HandleMsg(conn *gotcp.Conn, MsgBody []byte) error {
 		return nil
 	}
 
-	if len(MsgBody) < len(Common.DefaultHead)+10 {
-		baseSendMsg(conn, []byte("abc"))
-		log.Error("wrong pack")
-		return errors.New("wrong pack")
-	}
+	//粘包情况
+	MsgArray := strings.Split(string(MsgBody), Common.DefaultHead)
+	fmt.Println("MsgArray len:", len(MsgArray), ",", MsgArray)
+	for _, msgBuf := range MsgArray {
+		if len(msgBuf) < 10 {
+			baseSendMsg(conn, []byte("abc"))
+			continue
+		}
 
-	log.Debug("接收到消息msg:", string(MsgBody))
+		log.Debug("接收到消息msg:", Common.DefaultHead+msgBuf)
 
-	if !strings.Contains(string(MsgBody), Common.DefaultHead) {
-		log.Debug("head err")
-		return errors.New("head err")
-	}
-	jsonData := MsgBody[len(Common.DefaultHead)+5:]
-	data := make(map[string]interface{})
-	err := json.Unmarshal(jsonData, &data)
-	if err != nil {
-		log.Error("err: ", err)
-		return nil
-	}
-	val, exist := data["cmd"]
-	if !exist {
-		log.Error("cmd not exist:", string(MsgBody))
-		return nil
-	}
+		jsonData := msgBuf[5:]
+		data := make(map[string]interface{})
+		err := json.Unmarshal([]byte(jsonData), &data)
+		if err != nil {
+			log.Error("err: ", err, "data:", string(jsonData))
+			continue
+		}
+		val, exist := data["cmd"]
+		if !exist {
+			log.Error("cmd not exist:", string(MsgBody))
+			continue
+		}
 
-	//log.Info("data:", data)
-	cmd := val.(string)
-	switch cmd {
-	case "gw_register": //心跳
-		gatewayRegisterRsp(conn, cmd, data)
-	case "d2s_status": //开门返回来的状态
-		doorCtrlDealRsp(conn, cmd, data)
-	case "d2s_request_devices": //网关请求所有节点信息
-		requestDeviceListRsp(conn, cmd, data)
-	case "d2s_battery": //上报电量
-		doorReportBarryRsp(conn, cmd, data)
-	case "dev_single_password_setting":
-		devSettingPasswordRsp(conn, cmd, data)
-	case "dev_single_password_cancel":
-		devCancelPasswordRsp(conn, cmd, data)
-	case "openlock_record_return":
-		cardOpenLockRecord(conn, cmd, data)
-	default:
-		baseSendMsg(conn, []byte("abc"))
-		log.Error("cmd invalid:", cmd)
+		//log.Info("data:", data)
+		cmd := val.(string)
+		switch cmd {
+		case "gw_register": //心跳
+			gatewayRegisterRsp(conn, cmd, data)
+		case "d2s_status": //开门返回来的状态
+			doorCtrlDealRsp(conn, cmd, data)
+		case "d2s_request_devices": //网关请求所有节点信息
+			requestDeviceListRsp(conn, cmd, data)
+		case "d2s_battery": //上报电量
+			doorReportBarryRsp(conn, cmd, data)
+		case "dev_single_password_setting":
+			devSettingPasswordRsp(conn, cmd, data)
+		case "dev_single_password_cancel":
+			devCancelPasswordRsp(conn, cmd, data)
+		case "openlock_record_return":
+			cardOpenLockRecord(conn, cmd, data)
+		default:
+			baseSendMsg(conn, []byte("abc"))
+			log.Error("cmd invalid:", cmd)
+		}
 	}
-
 	return nil
 }
 
