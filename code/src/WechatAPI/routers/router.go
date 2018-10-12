@@ -20,6 +20,10 @@ func init() {
 	beego.Router("/v1/sync-room-info", &controllers.WechatController{}, "post:SyncAllRooms")
 	beego.Router("/v1/add-room-info", &controllers.WechatController{}, "get:AddRoomInfo")
 	beego.Router("/v1/del-room-info", &controllers.WechatController{}, "get:DelRoomInfo")
+	beego.Router("/v1/dev-reset", &controllers.WechatController{}, "get:ResetDev")
+	beego.Router("/v1/dev-nonc-set", &controllers.WechatController{}, "get:NoncDev")
+	beego.Router("/v1/dev-set-test-mode", &controllers.WechatController{}, "get:SetTestModeDev")
+	beego.Router("/v1/dev-set-work-mode", &controllers.WechatController{}, "get:SetWorkModeDev")
 
 	//APP扫描绑定接口
 	beego.Router("/v1/login", &controllers.AppController{}, "get:AppLogin")
@@ -36,4 +40,7 @@ func init() {
 	beego.Router("/report/dev-setting-password-status", &controllers.DevStatusController{}, "get:SettingCardlRsp")
 	beego.Router("/report/dev-cancel-password-status", &controllers.DevStatusController{}, "get:CancelCardlRsp")
 	beego.Router("/report/card-openlock-record", &controllers.DevStatusController{}, "get:CardDoorOpenlRsp")
+	beego.Router("/report/reset-dev", &controllers.DevStatusController{}, "get:ResetDevRsp")
+	beego.Router("/report/dev-nonc-set", &controllers.DevStatusController{}, "get:NoncDevRsp")
+
 }

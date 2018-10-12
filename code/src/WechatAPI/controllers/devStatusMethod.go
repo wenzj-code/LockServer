@@ -280,6 +280,142 @@ func (c *DevStatusController) CardDoorOpenlRsp() {
 	return
 }
 
+
+//@cmt *清除节点卡号密码信息* 状态上报 
+func (c *DevStatusController)ResetDevRsp() {
+
+	deviceID := c.GetString("deviceid")
+	requestid := c.GetString("requestid")
+	status, _ := c.GetFloat("resetStatus")
+
+
+	log.Debug("status:", status)
+	log.Debug("requestid:", requestid)
+
+	c.Data["json"] = common.GetErrCodeJSON(0)
+	c.ServeJSON()
+
+	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
+	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)
+	if len(pushConfig.URL) < 10 {
+		log.Error("还没配置推送地址，不推送1:", deviceID)
+		return
+	}
+	log.Debug("config:", pushConfig)
+
+	//通过设备ID获取房间号
+	roomNum, appid, err := DBOpt.GetDataOpt().GetRoomInfo(deviceID)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	dataMap := make(map[string]interface{})
+
+	//获取第三方Token的请求地址
+	token, err := getToken(pushConfig.TokenURL, pushConfig.AppID, pushConfig.Secret)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	dataInfo := make(map[string]interface{})
+
+	dataInfo["reset_status"] = status
+
+	dataMap["cmd"] = "dev_reset_status"
+	dataMap["deviceid"] = deviceID
+	dataMap["roomnu"] = roomNum
+	dataMap["appid"] = appid
+	dataMap["requestid"] = requestid
+	dataMap["token"] = token
+	dataMap["data"] = dataInfo
+
+	dataBuf, err := json.Marshal(dataMap)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	//推送到第三方
+	err = pushMsg(pushConfig.URL, dataBuf)
+	if err != nil {
+		log.Error("err:", err)
+	} else {
+		log.Info("推送成功:", string(dataBuf))
+	}
+	return
+
+}
+
+
+//@cmt *设备常开常闭* 状态上报 WechatAPI-->应用层
+func (c *DevStatusController)NoncDevRsp(){
+	deviceID := c.GetString("deviceid")
+	requestid := c.GetString("requestid")
+	setStatus, _ := c.GetInt("setStatus")
+	status, _ := c.GetInt("status")
+
+	log.Debug("status:", status)
+	log.Debug("requestid:", requestid)
+
+	c.Data["json"] = common.GetErrCodeJSON(0)
+	c.ServeJSON()
+
+	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
+	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)
+	if len(pushConfig.URL) < 10 {
+		log.Error("还没配置推送地址，不推送1:", deviceID)
+		return
+	}
+	log.Debug("config:", pushConfig)
+
+	//通过设备ID获取房间号
+	roomNum, appid, err := DBOpt.GetDataOpt().GetRoomInfo(deviceID)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	dataMap := make(map[string]interface{})
+
+	//获取第三方Token的请求地址
+	token, err := getToken(pushConfig.TokenURL, pushConfig.AppID, pushConfig.Secret)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	dataInfo := make(map[string]interface{})
+	dataInfo["status"] = status 
+	dataInfo["set_status"]=setStatus
+
+	dataMap["cmd"] = "dev_nonc_set_status"
+	dataMap["deviceid"] = deviceID
+	dataMap["roomnu"] = roomNum
+	dataMap["appid"] = appid
+	dataMap["requestid"] = requestid
+	dataMap["token"] = token
+	dataMap["data"] = dataInfo
+
+	dataBuf, err := json.Marshal(dataMap)
+	if err != nil {
+		log.Error("err:", err)
+		return
+	}
+
+	//推送到第三方
+	err = pushMsg(pushConfig.URL, dataBuf)
+	if err != nil {
+		log.Error("err:", err)
+	} else {
+		log.Info("推送成功:", string(dataBuf))
+	}
+	return
+	
+}
+
+
 func pushMsg(url string, msg []byte) error {
 	var i int
 	for i = 0; i < 4; i++ {
@@ -368,3 +504,5 @@ func getToken(tokenURL, appid, secret string) (string, error) {
 	}
 	return token.(string), nil
 }
+
+
