@@ -95,7 +95,7 @@ func (c *DevStatusController) SettingCardlRsp() {
 	requestid := c.GetString("requestid")
 	keyvalue := c.GetString("keyvalue")
 	keytype, _ := c.GetInt("keytype")
-	keystatus, _ := c.GetInt("keystatus")
+	keystatus, _ := c.GetInt("status")
 
 	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
 	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)
@@ -280,14 +280,12 @@ func (c *DevStatusController) CardDoorOpenlRsp() {
 	return
 }
 
-
-//@cmt *清除节点卡号密码信息* 状态上报 
-func (c *DevStatusController)ResetDevRsp() {
+//@cmt *清除节点卡号密码信息* 状态上报
+func (c *DevStatusController) ResetDevRsp() {
 
 	deviceID := c.GetString("deviceid")
 	requestid := c.GetString("requestid")
 	status, _ := c.GetFloat("resetStatus")
-
 
 	log.Debug("status:", status)
 	log.Debug("requestid:", requestid)
@@ -348,9 +346,8 @@ func (c *DevStatusController)ResetDevRsp() {
 
 }
 
-
 //@cmt *设备常开常闭* 状态上报 WechatAPI-->应用层
-func (c *DevStatusController)NoncDevRsp(){
+func (c *DevStatusController) NoncDevRsp() {
 	deviceID := c.GetString("deviceid")
 	requestid := c.GetString("requestid")
 	setStatus, _ := c.GetInt("setStatus")
@@ -387,8 +384,8 @@ func (c *DevStatusController)NoncDevRsp(){
 	}
 
 	dataInfo := make(map[string]interface{})
-	dataInfo["status"] = status 
-	dataInfo["set_status"]=setStatus
+	dataInfo["status"] = status
+	dataInfo["set_status"] = setStatus
 
 	dataMap["cmd"] = "dev_nonc_set_status"
 	dataMap["deviceid"] = deviceID
@@ -412,9 +409,8 @@ func (c *DevStatusController)NoncDevRsp(){
 		log.Info("推送成功:", string(dataBuf))
 	}
 	return
-	
-}
 
+}
 
 func pushMsg(url string, msg []byte) error {
 	var i int
@@ -504,5 +500,3 @@ func getToken(tokenURL, appid, secret string) (string, error) {
 	}
 	return token.(string), nil
 }
-
-
