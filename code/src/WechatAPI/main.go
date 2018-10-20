@@ -20,8 +20,8 @@ func init() {
 }
 
 var (
-	version         = "1.1.3.3"
-	versionTime     = "20180822"
+	version         = "1.1.3.4"
+	versionTime     = "20181020"
 	versionFunction = "1 增加发卡功\n"
 )
 
