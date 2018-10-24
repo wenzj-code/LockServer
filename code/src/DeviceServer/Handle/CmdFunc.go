@@ -47,7 +47,7 @@ func deviceRegisterRsp(conn *gotcp.Conn, cmd string, dataMap map[string]interfac
 	conn.SetGatwayID(gatewayID)
 	var status int
 	status = 1
-	isComfirm := DBOpt.GetDataOpt().CheckDeviceComfirm(deviceID)
+	isComfirm := DBOpt.GetDataOpt().CheckDeviceComfirm(deviceID, gatewayID)
 	if !isComfirm {
 		status = 0
 		log.Error("该节点还没有添加认证:", deviceID)
@@ -492,7 +492,7 @@ func devResetRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	}
 	requestid := val.(string)
 
-	pushMsgResetDev(deviceID, requestid, resetStatus)
+	pushMsgResetDev(deviceID, requestid, int(resetStatus))
 
 }
 
@@ -532,13 +532,13 @@ func devNoncSetRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 		log.Error("status", data)
 		return
 	}
-	status := val.(int)
+	status := val.(float64)
 	val, isExist = deviceInfo["set_status"]
 	if !isExist {
 		log.Error("set_status", data)
 		return
 	}
-	setStatus := val.(int)
+	setStatus := val.(float64)
 
 	val, isExist = data["requestid"]
 	if !isExist {
@@ -547,7 +547,7 @@ func devNoncSetRsp(conn *gotcp.Conn, cmd string, data map[string]interface{}) {
 	}
 	requestid := val.(string)
 
-	pushMsgDevNonc(deviceID, requestid, status, setStatus)
+	pushMsgDevNonc(deviceID, requestid, int(status), int(setStatus))
 }
 
 //@cmt 设置节点测试模式

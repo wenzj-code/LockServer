@@ -95,7 +95,7 @@ func pushMsgCardOpenLockRsp(deviceID, keyVal, openTime, requestid string, keyTyp
 }
 
 //@cmt 发送 *清除节点卡号密码信息*的结果给 WechatAPI
-func pushMsgResetDev(deviceID, requestid string, resetStatus float64) {
+func pushMsgResetDev(deviceID, requestid string, resetStatus int) {
 	config := Config.GetConfig()
 	httpServerIP := fmt.Sprintf("http://%s/report/reset-dev?deviceid=%s&resetStatus=%d&requestid=%s",
 		config.ReportHTTPAddr, deviceID, resetStatus, requestid)

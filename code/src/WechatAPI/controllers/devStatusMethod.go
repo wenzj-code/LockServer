@@ -214,7 +214,7 @@ func (c *DevStatusController) CancelCardlRsp() {
 	requestid := c.GetString("requestid")
 	keyvalue := c.GetString("keyvalue")
 	keytype, _ := c.GetInt("keytype")
-	keystatus, _ := c.GetInt("keystatus")
+	keystatus, _ := c.GetInt("status")
 
 	//通过设备ID查找到该设备要推送到哪个第三方酒店服务
 	pushConfig := DBOpt.GetDataOpt().GetDevicePushInfo(deviceID)

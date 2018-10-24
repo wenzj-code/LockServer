@@ -23,10 +23,11 @@ import (
 var Srv *gotcp.Server
 
 var (
-	version         = "1.1.3.4"
-	versionTime     = "20181012"
+	version         = "1.1.3.5"
+	versionTime     = "20181024"
 	versionFunction = "1 增加发卡功,重新１分钟内掉线的不需要短信通知\n" +
-		"2 解决粘包的问题\n"
+		"2 解决粘包的问题\n" +
+		"3 修改节点认证返回的问题\n"
 )
 
 func usage() bool {
