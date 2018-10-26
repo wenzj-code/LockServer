@@ -275,7 +275,7 @@ func (c *DevStatusController) CardDoorOpenlRsp() {
 	deviceID := c.GetString("deviceid")
 	keyvalue := c.GetString("keyvalue")
 	keytype, _ := c.GetInt("keytype")
-	opentime, _ := c.GetInt64("open_time")
+	opentime, _ := c.GetInt64("opentime")
 	requestid := c.GetString("requestid")
 
 	//通过设备ID获取房间号
